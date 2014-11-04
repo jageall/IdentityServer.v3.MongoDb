@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.MongoDb", "Core.MongoDb\Core.MongoDb.csproj", "{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.MongoDb.Tests", "Core.MongoDb.Tests\Core.MongoDb.Tests.csproj", "{09DBCF43-8007-4C3A-BC20-DF3B25DD0F3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityServer.MongoDb.AdminModule", "IdentityServer.MongoDb.AdminModule\IdentityServer.MongoDb.AdminModule.csproj", "{D91D98A2-E90D-4695-AFB2-377788EE0757}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09DBCF43-8007-4C3A-BC20-DF3B25DD0F3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09DBCF43-8007-4C3A-BC20-DF3B25DD0F3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09DBCF43-8007-4C3A-BC20-DF3B25DD0F3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09DBCF43-8007-4C3A-BC20-DF3B25DD0F3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D91D98A2-E90D-4695-AFB2-377788EE0757}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D91D98A2-E90D-4695-AFB2-377788EE0757}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D91D98A2-E90D-4695-AFB2-377788EE0757}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D91D98A2-E90D-4695-AFB2-377788EE0757}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
