@@ -57,6 +57,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CreateOrUpdateClient.cs" />
+    <Compile Include="CreateOrUpdateScope.cs" />
+    <Compile Include="CreateScopeClaim.cs" />
     <Compile Include="IdentityServerDb.cs" />
     <Compile Include="MongoCmdlet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

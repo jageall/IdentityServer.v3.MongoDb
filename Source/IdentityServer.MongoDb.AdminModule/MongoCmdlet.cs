@@ -18,8 +18,11 @@ namespace IdentityServer.MongoDb.AdminModule
         
         [Parameter]
         public string Database { get; set; }
+        
         [Parameter]
         public string ClientCollection { get; set; }
+        [Parameter]
+        public string ScopeCollection { get; set; }
 
         protected override void BeginProcessing()
         {
@@ -27,6 +30,7 @@ namespace IdentityServer.MongoDb.AdminModule
 
             Database = Database ?? "identityserver";
             ClientCollection = ClientCollection ?? "clients";
+            ScopeCollection = ScopeCollection ?? "scopes";
             
             base.BeginProcessing();
         }

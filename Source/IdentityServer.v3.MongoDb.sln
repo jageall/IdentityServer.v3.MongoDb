@@ -9,6 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.MongoDb.Tests", "Core.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityServer.MongoDb.AdminModule", "IdentityServer.MongoDb.AdminModule\IdentityServer.MongoDb.AdminModule.csproj", "{D91D98A2-E90D-4695-AFB2-377788EE0757}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{A41DB835-DBC1-41C7-A62C-BE244D9A647E}"
+	ProjectSection(SolutionItems) = preProject
+		..\Samples\AddOrUpdateClient.ps1 = ..\Samples\AddOrUpdateClient.ps1
+		..\Samples\AddOrUpdateScope.ps1 = ..\Samples\AddOrUpdateScope.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
