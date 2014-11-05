@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 
 namespace IdentityServer.Core.MongoDb
@@ -66,5 +68,22 @@ namespace IdentityServer.Core.MongoDb
             return @default;
         }
 
+        public static IEnumerable<T> GetValueOrDefault<T>(
+            this BsonDocument doc,
+            string name,
+            Func<BsonDocument, T> reader,
+            IEnumerable<T> @default)
+            where T : class
+        {
+            if (doc.Contains(name) && doc[name].IsBsonArray)
+            {
+                var values = doc[name].AsBsonArray;
+                return values
+                    .Where(x => x.IsBsonDocument)
+                    .Select(x => x.AsBsonDocument)
+                    .Select(reader).Where(x => x != null);
+            }
+            return @default;
+        }
     }
 }
