@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Management.Automation;
 using IdentityServer.Core.MongoDb;
 using Thinktecture.IdentityServer.Core.Models;
@@ -59,14 +60,46 @@ namespace IdentityServer.MongoDb.AdminModule
         [Parameter]
         public AccessTokenType? AccessTokenType { get; set; }
 
+        [Parameter]
+        public string[] IdentityProviderRestrictions { get; set; }
+        [Parameter]
+        public string[] PostLogoutRedirectUris { get; set; }
+        [Parameter]
+        public string[] RedirectUris { get; set; }
+        [Parameter]
+        public string[] ScopeRestrictions { get; set; }
+
         protected override void ProcessRecord()
         {
             var db = OpenDatabase();
 
-            var client = new Client(){ClientId = ClientId, ClientName = ClientName};
+            var client = new Client() { ClientId = ClientId, ClientName = ClientName };
             client.AbsoluteRefreshTokenLifetime =
                 AbsoluteRefreshTokenLifetime.GetValueOrDefault(client.AbsoluteRefreshTokenLifetime);
+            client.AccessTokenLifetime = AccessTokenLifetime.GetValueOrDefault(client.AccessTokenLifetime);
+            client.AccessTokenType = AccessTokenType.GetValueOrDefault(client.AccessTokenType);
+            client.AllowLocalLogin = AllowLocalLogin.GetValueOrDefault(client.AllowLocalLogin);
+            client.AllowRememberConsent = AllowRememberConsent.GetValueOrDefault(client.AllowRememberConsent);
+            client.AuthorizationCodeLifetime =
+                AuthorizationCodeLifetime.GetValueOrDefault(client.AuthorizationCodeLifetime);
+            client.ClientSecret = ClientSecret;
+            client.ClientUri = ClientUri;
+            client.Enabled = Enabled.GetValueOrDefault(client.Enabled);
+            client.Flow = Flow.GetValueOrDefault(client.Flow);
+            client.IdentityProviderRestrictions = IdentityProviderRestrictions ?? client.IdentityProviderRestrictions;
+            client.IdentityTokenLifetime = IdentityTokenLifetime.GetValueOrDefault(client.IdentityTokenLifetime);
+            client.IdentityTokenSigningKeyType =
+                IdentityTokenSigningKeyType.GetValueOrDefault(client.IdentityTokenSigningKeyType);
+            client.LogoUri = string.IsNullOrEmpty(LogoUri) ? null : new Uri(LogoUri);
             
+            client.PostLogoutRedirectUris.AddRange((PostLogoutRedirectUris ?? new string[] { }).Select(x => new Uri(x)));
+            client.RedirectUris.AddRange((RedirectUris ?? new string[] { }).Select(x=> new Uri(x)));
+            client.RefreshTokenExpiration = RefreshTokenExpiration.GetValueOrDefault(client.RefreshTokenExpiration);
+            client.RefreshTokenUsage = RefreshTokenUsage.GetValueOrDefault(client.RefreshTokenUsage);
+            client.RequireConsent = RequireConsent.GetValueOrDefault(client.RequireConsent);
+            client.ScopeRestrictions.AddRange(ScopeRestrictions ?? new string[]{});
+            client.SlidingRefreshTokenLifetime =
+                SlidingRefreshTokenLifetime.GetValueOrDefault(client.SlidingRefreshTokenLifetime);
             var clients = db.GetCollection(ClientCollection);
             var serializer = new ClientSerializer();
             var doc = serializer.Serialize(client);
