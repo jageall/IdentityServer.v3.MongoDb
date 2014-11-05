@@ -5,25 +5,33 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Thinktecture.IdentityServer.Core.Configuration;
+using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public class ServiceFactory
+    public class ServiceFactory : IdentityServerServiceFactory
     {
         private MongoDatabase _db;
 
-        public ServiceFactory(): this("mongodb://localhost")
+        public ServiceFactory(Registration<IUserService> userService)
+            : this("mongodb://localhost", userService)
         {}
-        public ServiceFactory(string mongoUrl):this(DefaultSettings(mongoUrl), 
-            DefaultStoreSettings())
+        public ServiceFactory(string mongoUrl, Registration<IUserService> userService)
+            : this(DefaultSettings(mongoUrl), 
+            DefaultStoreSettings(),userService)
         {
             
         }
-        public ServiceFactory(MongoClientSettings settings, StoreSettings storeSettings)
+        public ServiceFactory(MongoClientSettings settings, StoreSettings storeSettings, Registration<IUserService> userService)
         {
             var client = new MongoClient(settings);
             var server = client.GetServer();
             _db = server.GetDatabase(storeSettings.Database);
+            UserService = userService;
+            ClientStore =
+                Registration.RegisterSingleton<IClientStore>(new ClientStore(_db, storeSettings.ClientCollection));
+            
         }
 
         public static MongoClientSettings DefaultSettings(string mongoUrl)
@@ -43,5 +51,8 @@ namespace IdentityServer.Core.MongoDb
                 ClientCollection = "clients"
             };
         }
+        
     }
+
+
 }
