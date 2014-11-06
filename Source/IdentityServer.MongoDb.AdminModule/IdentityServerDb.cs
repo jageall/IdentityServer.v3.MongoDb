@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Driver.Internal;
+﻿using System.Management.Automation;
 
 namespace IdentityServer.MongoDb.AdminModule
 {
@@ -14,12 +9,14 @@ namespace IdentityServer.MongoDb.AdminModule
         {
             
         }
+
         protected override void ProcessRecord()
         {
             var db = OpenDatabase();
             if (!db.CollectionExists(ClientCollection))
                 db.CreateCollection(ClientCollection);
-
+            if (!db.CollectionExists(ScopeCollection))
+                db.CreateCollection(ScopeCollection);
         }
     }
 }

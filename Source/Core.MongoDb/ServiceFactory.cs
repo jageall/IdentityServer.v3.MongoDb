@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Services;
@@ -12,8 +7,6 @@ namespace IdentityServer.Core.MongoDb
 {
     public class ServiceFactory : IdentityServerServiceFactory
     {
-        private MongoDatabase _db;
-
         public ServiceFactory(Registration<IUserService> userService)
             : this("mongodb://localhost", userService)
         {}
@@ -27,11 +20,11 @@ namespace IdentityServer.Core.MongoDb
         {
             var client = new MongoClient(settings);
             var server = client.GetServer();
-            _db = server.GetDatabase(storeSettings.Database);
+            var db = server.GetDatabase(storeSettings.Database);
             UserService = userService;
             ClientStore =
-                Registration.RegisterSingleton<IClientStore>(new ClientStore(_db, storeSettings.ClientCollection));
-            
+                Registration.RegisterSingleton<IClientStore>(new ClientStore(db, storeSettings.ClientCollection));
+            ScopeStore = Registration.RegisterSingleton<IScopeStore>(new ScopeStore(db, storeSettings.ScopeCollection));
         }
 
         public static MongoClientSettings DefaultSettings(string mongoUrl)

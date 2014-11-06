@@ -4,5 +4,6 @@ namespace IdentityServer.Core.MongoDb
     {
         public string Database { get; set; }
         public string ClientCollection { get; set; }
+        public string ScopeCollection { get; set; }
     }
 }
