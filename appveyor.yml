@@ -9,7 +9,7 @@ assembly_info:
   file: AssemblyInfo.*
   assembly_version: "{version}"
   assembly_file_version: "{version}"
-  assembly_informational_version: "{version}-alpha-{build}"
+  assembly_informational_version: "0.0.1-alpha-{build}"
 
 configuration: Release
 
@@ -27,10 +27,5 @@ artifacts:
     name: IdentityServer.Core.MongoDb.dll
   - path: Source\IdentityServer.MongoDb.AdminModule\bin\Release\IdentityServer.MongoDb.AdminModule.dll
     name: IdentityServer.MongoDb.AdminModule.dll
-  - path: '**\*.nupkg'
+  - path: '*.nupkg'
 
-deploy:
-  provider: NuGet
-  api_key: 
-    secure: k1FLU1hRZEYRxDnZ8wS99CqjVgzr2nVFLnwhpYZ0ChTSDEJ5L5yJT7DgErg7vlG/
-  artifact: /.*\.nupkg
