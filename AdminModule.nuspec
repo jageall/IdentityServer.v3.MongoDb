@@ -2,6 +2,7 @@
 <package >
   <metadata>
     <id>IdentityServer.MongoDb.AdminModule</id>
+    <title>IdentityServer v3 Mongo Persistence Powershell module</title>
     <version>$version$</version>
     <authors>James Geall</authors>
     <owners>James Geall</owners>

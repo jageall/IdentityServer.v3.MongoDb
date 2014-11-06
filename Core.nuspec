@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>IdentityServer.Core.MongoDb</id>
+    <id>IdentityServer.v3.MongoDb</id>
+    <title>IdentityServer v3 Mongo Persistence</title>
     <version>$version$</version>
     <authors>James Geall</authors>
     <owners>James Geall</owners>
