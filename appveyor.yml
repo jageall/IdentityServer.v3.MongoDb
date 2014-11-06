@@ -20,7 +20,7 @@ build:
   project:  Source\IdentityServer.v3.MongoDb.sln
 
 after_test: 
-  - ps: .\nuget\pack.ps1 '{version}-alpha.{build}'
+  - ps: .\nuget\pack.ps1
 
 artifacts: 
   - path: Source\Core.MongoDb\bin\Release\IdentityServer.Core.MongoDb.dll
