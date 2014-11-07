@@ -53,7 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BsonDocumentExtensions.cs" />
+    <Compile Include="ConsentStore.cs" />
+    <Compile Include="GuidGenerator.cs" />
     <Compile Include="ClientStore.cs" />
+    <Compile Include="ConsentSerializer.cs" />
     <Compile Include="MongoDbStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ClientSerializer.cs" />

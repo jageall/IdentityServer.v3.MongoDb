@@ -85,5 +85,20 @@ namespace IdentityServer.Core.MongoDb
             }
             return @default;
         }
+
+        public static IEnumerable<string> GetValueOrDefault(
+          this BsonDocument doc,
+          string name,
+          IEnumerable<string> @default)
+        {
+            if (doc.Contains(name) && doc[name].IsBsonArray)
+            {
+                var values = doc[name].AsBsonArray;
+                return values
+                    .Where(x => x.IsString)
+                    .Select(x => x.AsString);
+            }
+            return @default;
+        }
     }
 }

@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="ClientSerializerAllPropertiesNonDefault.cs" />
     <Compile Include="ClientSerializerOnlyMandatoryPropertiesSet.cs" />
+    <Compile Include="ConsentSerializerTests.cs" />
     <Compile Include="ScopeSerializerMandatoryPropertiesShouldRoundTrip.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScopeSeriailzerAllPropertiesShouldRoundTrip.cs" />
