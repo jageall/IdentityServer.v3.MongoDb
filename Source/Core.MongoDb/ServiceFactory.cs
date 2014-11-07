@@ -9,12 +9,12 @@ namespace IdentityServer.Core.MongoDb
     {
         public ServiceFactory(Registration<IUserService> userService)
             : this("mongodb://localhost", userService)
-        {}
+        { }
         public ServiceFactory(string mongoUrl, Registration<IUserService> userService)
-            : this(DefaultSettings(mongoUrl), 
-            DefaultStoreSettings(),userService)
+            : this(DefaultSettings(mongoUrl),
+            DefaultStoreSettings(), userService)
         {
-            
+
         }
         public ServiceFactory(MongoClientSettings settings, StoreSettings storeSettings, Registration<IUserService> userService)
         {
@@ -29,22 +29,20 @@ namespace IdentityServer.Core.MongoDb
 
         public static MongoClientSettings DefaultSettings(string mongoUrl)
         {
-            return new MongoClientSettings
-            {
-                GuidRepresentation = GuidRepresentation.Standard,
-                Server = new MongoServerAddress(mongoUrl)
-            };
+            var settings = MongoClientSettings.FromUrl(MongoUrl.Create(mongoUrl));
+            settings.GuidRepresentation = GuidRepresentation.Standard;
+            return settings;
         }
 
         public static StoreSettings DefaultStoreSettings()
         {
             return new StoreSettings
             {
-                Database = "identityserver", 
+                Database = "identityserver",
                 ClientCollection = "clients"
             };
         }
-        
+
     }
 
 
