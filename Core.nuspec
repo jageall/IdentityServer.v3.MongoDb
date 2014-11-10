@@ -13,12 +13,11 @@
     <tags>IdentityServer MongoDb</tags>
     <dependencies>
       <dependency id="Owin" version="1.0" />
-      <dependency id="mongocsharpdriver" version="1.9.2"/>
       <dependency id="Thinktecture.IdentityServer.v3"
                   version="1.0.0-beta3-1" />
     </dependencies>
   </metadata>
   <files>
-      <file src="Source/Core.MongoDb\bin\Release\IdentityServer.Core.MongoDb.dll" target="lib\net45"/>
+      <file src="Out\IdentityServer.Core.MongoDb.dll" target="lib\net45"/>
     </files>
 </package>

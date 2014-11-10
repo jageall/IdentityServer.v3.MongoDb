@@ -11,19 +11,8 @@
     <description>Powershell module for admin tasks for IdentityServer.v3.MongoDb persistence</description>
     <copyright>Copyright 2014</copyright>
     <tags>IdentityServer MongoDb Powershell</tags>
-    <dependencies>
-      <dependency id="Owin"
-                  version="1.0" />
-      <dependency id="mongocsharpdriver"
-                  version="1.9.2"/>
-      <dependency id="Thinktecture.IdentityServer.v3"
-                  version="1.0.0-beta3-1" />
-      <dependency id="System.Management.Automation"
-                  version="6.1.7601.17515" />
-    </dependencies>
   </metadata>
   <files>
-    <file src="Source/Core.MongoDb\bin\Release\IdentityServer.Core.MongoDb.dll" target="lib\net45"/>
-    <file src="Source/Identityserver.MongoDb.AdminModule\bin\Release\Identityserver.MongoDb.AdminModule.dll" target="lib\net45"/>
+    <file src="Out\Identityserver.MongoDb.AdminModule.dll" target="lib\net45"/>
   </files>
 </package>

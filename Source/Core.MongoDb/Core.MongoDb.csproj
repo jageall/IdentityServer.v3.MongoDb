@@ -70,7 +70,11 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
   -->
+
+  <Target Name="AfterBuild">
+    <MakeDir Directories="$(SolutionDir)..\out" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
+    <Exec Command="$(SolutionDir)\packages\ilmerge.2.13.0307\ILMerge.exe /internalize /out:$(SolutionDir)..\out\$(TargetName)$(TargetExt) $(TargetDir)$(TargetName)$(TargetExt) $(TargetDir)MongoDB.Bson.dll $(TargetDir)MongoDB.Driver.dll" ContinueOnError="false"
+          Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
+  </Target>
 </Project>

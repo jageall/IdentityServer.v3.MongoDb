@@ -10,13 +10,18 @@ namespace IdentityServer.Core.MongoDb
         public ServiceFactory(Registration<IUserService> userService)
             : this("mongodb://localhost", userService)
         { }
+
         public ServiceFactory(string mongoUrl, Registration<IUserService> userService)
+            : this(mongoUrl, userService, DefaultStoreSettings())
+        {}
+
+        public ServiceFactory(string mongoUrl, Registration<IUserService> userService, StoreSettings settings)
             : this(DefaultSettings(mongoUrl),
             DefaultStoreSettings(), userService)
         {
 
         }
-        public ServiceFactory(MongoClientSettings settings, StoreSettings storeSettings, Registration<IUserService> userService)
+        private ServiceFactory(MongoClientSettings settings, StoreSettings storeSettings, Registration<IUserService> userService)
         {
             var client = new MongoClient(settings);
             var server = client.GetServer();
@@ -27,7 +32,7 @@ namespace IdentityServer.Core.MongoDb
             ScopeStore = Registration.RegisterSingleton<IScopeStore>(new ScopeStore(db, storeSettings.ScopeCollection));
         }
 
-        public static MongoClientSettings DefaultSettings(string mongoUrl)
+        private static MongoClientSettings DefaultSettings(string mongoUrl)
         {
             var settings = MongoClientSettings.FromUrl(MongoUrl.Create(mongoUrl));
             settings.GuidRepresentation = GuidRepresentation.Standard;
