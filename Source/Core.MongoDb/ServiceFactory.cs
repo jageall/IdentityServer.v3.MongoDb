@@ -15,15 +15,10 @@ namespace IdentityServer.Core.MongoDb
             : this(mongoUrl, userService, DefaultStoreSettings())
         {}
 
-        public ServiceFactory(string mongoUrl, Registration<IUserService> userService, StoreSettings settings)
-            : this(DefaultSettings(mongoUrl),
-            DefaultStoreSettings(), userService)
+        public ServiceFactory(string mongoUrl, Registration<IUserService> userService, 
+            StoreSettings storeSettings)
         {
-
-        }
-        private ServiceFactory(MongoClientSettings settings, StoreSettings storeSettings, Registration<IUserService> userService)
-        {
-            var client = new MongoClient(settings);
+            var client = new MongoClient(DefaultSettings(mongoUrl));
             var server = client.GetServer();
             var db = server.GetDatabase(storeSettings.Database);
             UserService = userService;
@@ -44,11 +39,9 @@ namespace IdentityServer.Core.MongoDb
             return new StoreSettings
             {
                 Database = "identityserver",
-                ClientCollection = "clients"
+                ClientCollection = "clients",
+                ScopeCollection = "scopes"
             };
         }
-
     }
-
-
 }
