@@ -12,6 +12,7 @@ namespace IdentityServer.Core.MongoDb
             if (value != null)
                 doc[name] = value;
         }
+
         public static void SetIfNotNull(this BsonDocument doc, string name, Uri value)
         {
             if (value != null)
@@ -56,7 +57,8 @@ namespace IdentityServer.Core.MongoDb
 
         public static Uri GetValueOrDefault(this BsonDocument doc, string name, Uri @default)
         {
-            if (doc.Contains(name) && doc[name].IsString && Uri.IsWellFormedUriString(doc[name].AsString, UriKind.Absolute))
+            if (doc.Contains(name) && doc[name].IsString &&
+                Uri.IsWellFormedUriString(doc[name].AsString, UriKind.Absolute))
             {
                 return new Uri(doc[name].AsString);
             }
@@ -86,7 +88,7 @@ namespace IdentityServer.Core.MongoDb
         {
             if (doc.Contains(name) && doc[name].IsBsonArray)
             {
-                var values = doc[name].AsBsonArray;
+                BsonArray values = doc[name].AsBsonArray;
                 return values
                     .Where(x => x.IsBsonDocument)
                     .Select(x => x.AsBsonDocument)
@@ -96,13 +98,13 @@ namespace IdentityServer.Core.MongoDb
         }
 
         public static IEnumerable<string> GetValueOrDefault(
-          this BsonDocument doc,
-          string name,
-          IEnumerable<string> @default)
+            this BsonDocument doc,
+            string name,
+            IEnumerable<string> @default)
         {
             if (doc.Contains(name) && doc[name].IsBsonArray)
             {
-                var values = doc[name].AsBsonArray;
+                BsonArray values = doc[name].AsBsonArray;
                 return values
                     .Where(x => x.IsString)
                     .Select(x => x.AsString);

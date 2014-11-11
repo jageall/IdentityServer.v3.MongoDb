@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using IdentityServer.Core.MongoDb;
+﻿using IdentityServer.Core.MongoDb;
 using MongoDB.Bson;
 using Thinktecture.IdentityServer.Core.Models;
 using Xunit;
@@ -24,7 +18,7 @@ namespace Core.MongoDb.Tests
             {
                 ClientId = "client",
                 Subject = "subject",
-                Scopes = new []{"scope1", "scope2"}
+                Scopes = new[] {"scope1", "scope2"}
             };
 
             _serializer = new ConsentSerializer();
@@ -49,7 +43,6 @@ namespace Core.MongoDb.Tests
         public void ConsentsWithDifferentSubjectsShouldHaveDifferentIds()
         {
             Assert.NotEqual(_serializer.GetId("client", "subject"), _serializer.GetId("client", "subject2"));
-            
         }
 
         [Fact]
@@ -64,6 +57,7 @@ namespace Core.MongoDb.Tests
         {
             Assert.NotNull(_actual);
         }
+
         [Fact]
         public void RoundTripClientShouldBeTheSame()
         {
@@ -80,20 +74,6 @@ namespace Core.MongoDb.Tests
         public void RoundTripScopesShouldBeTheSame()
         {
             Assert.Equal(_expected.Scopes, _actual.Scopes);
-        }
-    }
-
-    public class Rfc4122UuidFromName
-    {
-        [Fact]
-        public void CreatesExpectedGuid()
-        {
-            var expected = new Guid("3d813cbb-47fb-32ba-91df-831e1593ac29");
-            var @namespace = new Guid("6ba7b810-9dad-11d1-80b4-00c04fd430c8");
-            var name = "www.widgets.com";
-            var actual = GuidGenerator.CreateGuidFromName(@namespace, name, 3);
-            Assert.Equal(expected, actual);
-
         }
     }
 }

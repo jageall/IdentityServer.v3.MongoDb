@@ -12,7 +12,7 @@ namespace IdentityServer.Core.MongoDb
             doc["_id"] = scope.Name;
             doc["DisplayName"] = scope.DisplayName;
             var claims = new BsonArray();
-            foreach (var scopeClaim in scope.Claims)
+            foreach (ScopeClaim scopeClaim in scope.Claims)
             {
                 var claim = new BsonDocument();
                 claim["Name"] = scopeClaim.Name;
@@ -40,24 +40,25 @@ namespace IdentityServer.Core.MongoDb
                 DisplayName = doc["DisplayName"].AsString,
                 Claims = new List<ScopeClaim>(
                     doc.GetValueOrDefault(
-                    "Claims",
+                        "Claims",
                         claimDoc =>
                         {
                             var claim = new ScopeClaim();
                             claim.Name = claimDoc.GetValueOrDefault("Name", claim.Name);
-                            claim.AlwaysIncludeInIdToken = claimDoc.GetValueOrDefault("AlwaysIncludeInIdToken", claim.AlwaysIncludeInIdToken);
+                            claim.AlwaysIncludeInIdToken = claimDoc.GetValueOrDefault("AlwaysIncludeInIdToken",
+                                claim.AlwaysIncludeInIdToken);
                             claim.Description = claimDoc.GetValueOrDefault("Description", claim.Description);
                             return claim;
                         },
-                        new ScopeClaim[] { }
+                        new ScopeClaim[] {}
                         )),
-
             };
             scope.ClaimsRule = doc.GetValueOrDefault("ClaimsRule", scope.ClaimsRule);
             scope.Description = doc.GetValueOrDefault("Description", scope.Description);
             scope.Emphasize = doc.GetValueOrDefault("Emphasize", scope.Emphasize);
             scope.Enabled = doc.GetValueOrDefault("Enabled", scope.Enabled);
-            scope.IncludeAllClaimsForUser = doc.GetValueOrDefault("IncludeAllClaimsForUser", scope.IncludeAllClaimsForUser);
+            scope.IncludeAllClaimsForUser = doc.GetValueOrDefault("IncludeAllClaimsForUser",
+                scope.IncludeAllClaimsForUser);
             scope.Required = doc.GetValueOrDefault("Required", scope.Required);
             scope.ShowInDiscoveryDocument = doc.GetValueOrDefault("ShowInDiscoveryDocument",
                 scope.ShowInDiscoveryDocument);
@@ -65,5 +66,4 @@ namespace IdentityServer.Core.MongoDb
             return scope;
         }
     }
-
 }

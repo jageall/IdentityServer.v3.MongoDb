@@ -7,7 +7,8 @@ namespace IdentityServer.Core.MongoDb
 {
     public class ClientSerializer
     {
-        static readonly Client DefaultValues = new Client();
+        private static readonly Client DefaultValues = new Client();
+
         public BsonDocument Serialize(Client client)
         {
             var doc = new BsonDocument();
@@ -26,7 +27,7 @@ namespace IdentityServer.Core.MongoDb
             doc["Enabled"] = client.Enabled;
             doc["Flow"] = client.Flow.ToString();
             var idpr = new BsonArray();
-            foreach (var restriction in client.IdentityProviderRestrictions)
+            foreach (string restriction in client.IdentityProviderRestrictions)
             {
                 idpr.Add(restriction);
             }
@@ -35,13 +36,13 @@ namespace IdentityServer.Core.MongoDb
             doc["IdentityTokenSigningKeyType"] = client.IdentityTokenSigningKeyType.ToString();
             doc.SetIfNotNull("LogoUri", client.LogoUri);
             var postLogoutRedirectUris = new BsonArray();
-            foreach (var uri in client.PostLogoutRedirectUris)
+            foreach (Uri uri in client.PostLogoutRedirectUris)
             {
                 postLogoutRedirectUris.Add(uri.ToString());
             }
 
             var redirectUris = new BsonArray();
-            foreach (var uri in client.RedirectUris)
+            foreach (Uri uri in client.RedirectUris)
             {
                 redirectUris.Add(uri.ToString());
             }
@@ -51,7 +52,7 @@ namespace IdentityServer.Core.MongoDb
             doc["RefreshTokenUsage"] = client.RefreshTokenUsage.ToString();
             doc["RequireConsent"] = client.RequireConsent;
             var scopeRestrictions = new BsonArray();
-            foreach (var restriction in client.ScopeRestrictions)
+            foreach (string restriction in client.ScopeRestrictions)
             {
                 scopeRestrictions.Add(restriction);
             }
@@ -91,7 +92,7 @@ namespace IdentityServer.Core.MongoDb
                 "AllowRememberConsent", DefaultValues.AllowRememberConsent);
             client.AuthorizationCodeLifetime =
                 doc.GetValueOrDefault("AuthorizationCodeLifetime",
-                DefaultValues.AuthorizationCodeLifetime);
+                    DefaultValues.AuthorizationCodeLifetime);
 
             client.ClientSecret = doc.GetValueOrDefault(
                 "ClientSecret",
@@ -129,23 +130,22 @@ namespace IdentityServer.Core.MongoDb
 
 
             client.RefreshTokenExpiration = doc.GetValueOrDefault(
-                "RefreshTokenExpiration", 
+                "RefreshTokenExpiration",
                 DefaultValues.RefreshTokenExpiration);
             TokenUsage tokenUsage;
             if (Enum.TryParse(doc["RefreshTokenUsage"].AsString, out tokenUsage))
                 client.RefreshTokenUsage = doc.GetValueOrDefault(
-                    "RefreshTokenUsage", 
+                    "RefreshTokenUsage",
                     DefaultValues.RefreshTokenUsage);
 
             client.RequireConsent = doc.GetValueOrDefault(
-                "RequireConsent", 
+                "RequireConsent",
                 DefaultValues.RequireConsent);
             client.ScopeRestrictions.AddRange(doc["ScopeRestrictions"].AsBsonArray.Select(x => x.AsString));
             client.SlidingRefreshTokenLifetime = doc.GetValueOrDefault(
-                "SlidingRefreshTokenLifetime", 
+                "SlidingRefreshTokenLifetime",
                 DefaultValues.SlidingRefreshTokenLifetime);
             return client;
-
         }
     }
 }

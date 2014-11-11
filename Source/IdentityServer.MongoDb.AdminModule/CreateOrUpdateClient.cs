@@ -71,8 +71,6 @@ namespace IdentityServer.MongoDb.AdminModule
 
         protected override void ProcessRecord()
         {
-            var db = OpenDatabase();
-
             var client = new Client() { ClientId = ClientId, ClientName = ClientName };
             client.AbsoluteRefreshTokenLifetime =
                 AbsoluteRefreshTokenLifetime.GetValueOrDefault(client.AbsoluteRefreshTokenLifetime);
@@ -100,10 +98,7 @@ namespace IdentityServer.MongoDb.AdminModule
             client.ScopeRestrictions.AddRange(ScopeRestrictions ?? new string[]{});
             client.SlidingRefreshTokenLifetime =
                 SlidingRefreshTokenLifetime.GetValueOrDefault(client.SlidingRefreshTokenLifetime);
-            var clients = db.GetCollection(ClientCollection);
-            var serializer = new ClientSerializer();
-            var doc = serializer.Serialize(client);
-            clients.Save(doc);
+            AdminService.Save(client);
         }
 
     }

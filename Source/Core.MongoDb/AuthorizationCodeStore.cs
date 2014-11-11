@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Wrappers;
 using Thinktecture.IdentityServer.Core.Models;
@@ -10,7 +9,7 @@ using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {
-    class AuthorizationCodeStore : MongoDbStore, IAuthorizationCodeStore
+    internal class AuthorizationCodeStore : MongoDbStore, IAuthorizationCodeStore
     {
         private readonly AuthorizationCodeSerializer _serializer;
 
@@ -21,15 +20,15 @@ namespace IdentityServer.Core.MongoDb
 
         public Task StoreAsync(string key, AuthorizationCode value)
         {
-            var doc = _serializer.Serialize(key, value);
+            BsonDocument doc = _serializer.Serialize(key, value);
             Collection.Save(doc);
             return Task.FromResult(0);
         }
 
         public Task<AuthorizationCode> GetAsync(string key)
         {
-            var doc = Collection.FindOneById(key);
-            if(doc == null) return Task.FromResult<AuthorizationCode>(null);
+            BsonDocument doc = Collection.FindOneById(key);
+            if (doc == null) return Task.FromResult<AuthorizationCode>(null);
             return Task.FromResult(_serializer.Deserialize(doc));
         }
 
@@ -41,16 +40,15 @@ namespace IdentityServer.Core.MongoDb
 
         public Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
-            var results = Collection.Find(new QueryWrapper(new {_subjectId = subject}))
+            AuthorizationCode[] results = Collection.Find(new QueryWrapper(new {_subjectId = subject}))
                 .Select(_serializer.Deserialize).ToArray();
             return Task.FromResult<IEnumerable<ITokenMetadata>>(results);
         }
 
         public Task RevokeAsync(string subject, string client)
         {
-            Collection.Remove(new QueryWrapper(new { _clientId = client, _subjectId = subject}));
+            Collection.Remove(new QueryWrapper(new {_clientId = client, _subjectId = subject}));
             return Task.FromResult(0);
-
         }
     }
 }

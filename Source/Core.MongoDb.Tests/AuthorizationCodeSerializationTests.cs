@@ -1,8 +1,5 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using IdentityServer.Core.MongoDb;
 using MongoDB.Bson;
 using Thinktecture.IdentityServer.Core.Models;
@@ -19,45 +16,12 @@ namespace Core.MongoDb.Tests
 
         public AuthorizationCodeSerializationTests()
         {
-            _expected = new AuthorizationCode
-            {
-                IsOpenId = true,
-                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0),
-                Client = Client(),
-                RedirectUri = new Uri("uri:redirect"),
-                RequestedScopes = Scopes(),
-                Subject = Subject(),
-                WasConsentShown = true
-            };
+            _expected = TestData.AuthorizationCode();
 
             _key = Guid.NewGuid().ToString("N");
             var serializer = new AuthorizationCodeSerializer();
             _doc = serializer.Serialize(_key, _expected);
             _actual = serializer.Deserialize(_doc);
-        }
-
-        static Client Client()
-        {
-            return TestData.ClientAllProperties();
-        }
-
-        static IEnumerable<Scope> Scopes()
-        {
-            yield return TestData.ScopeAllProperties();
-            yield return TestData.ScopeMandatoryProperties();
-        }
-
-        static ClaimsPrincipal Subject()
-        {
-            return new ClaimsPrincipal(
-                new ClaimsIdentity(
-                    new[]
-                    {
-                        new Claim("sub", "foo"),
-                        new Claim("name", "bar"),
-                        new Claim("email", "baz@qux.com"),
-                    }, "authtype"
-                ));
         }
 
         [Fact]
@@ -104,16 +68,24 @@ namespace Core.MongoDb.Tests
             Assert.Equal(_expected.Subject.Identities.Count(), _actual.Subject.Identities.Count());
             foreach (var identity in _expected.Subject.Identities)
             {
-                var actual = _actual.Subject.Identities.SingleOrDefault(x=> string.Equals(x.AuthenticationType, identity.AuthenticationType, StringComparison.Ordinal));
+                var actual =
+                    _actual.Subject.Identities.SingleOrDefault(
+                        x => string.Equals(x.AuthenticationType, identity.AuthenticationType, StringComparison.Ordinal));
                 Assert.NotNull(actual);
-                var expectedClaims = identity.Claims.GroupBy(x => x.Type + x.Value).OrderBy(x=>x.Key).ToArray();
-                var actualClaims = actual.Claims.GroupBy(x => x.Type + x.Value).OrderBy(x=>x.Key, StringComparer.OrdinalIgnoreCase).ToArray();
+                var expectedClaims = identity.Claims.GroupBy(x => x.Type + x.Value).OrderBy(x => x.Key).ToArray();
+                var actualClaims =
+                    actual.Claims.GroupBy(x => x.Type + x.Value)
+                        .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
+                        .ToArray();
                 foreach (var expectedClaim in expectedClaims)
                 {
-                    Assert.True(actualClaims.Any(x=>string.Equals(x.Key, expectedClaim.Key,StringComparison.Ordinal) &&  x.Count() == expectedClaim.Count()));
+                    Assert.True(
+                        actualClaims.Any(
+                            x =>
+                                string.Equals(x.Key, expectedClaim.Key, StringComparison.Ordinal) &&
+                                x.Count() == expectedClaim.Count()));
                 }
             }
-
         }
 
         [Fact]

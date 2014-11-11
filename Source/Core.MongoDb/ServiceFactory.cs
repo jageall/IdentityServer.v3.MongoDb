@@ -8,19 +8,16 @@ namespace IdentityServer.Core.MongoDb
     public class ServiceFactory : IdentityServerServiceFactory
     {
         public ServiceFactory(Registration<IUserService> userService)
-            : this("mongodb://localhost", userService)
-        { }
+            : this(userService, DefaultStoreSettings())
+        {
+        }
 
-        public ServiceFactory(string mongoUrl, Registration<IUserService> userService)
-            : this(mongoUrl, userService, DefaultStoreSettings())
-        {}
-
-        public ServiceFactory(string mongoUrl, Registration<IUserService> userService, 
+        public ServiceFactory(Registration<IUserService> userService,
             StoreSettings storeSettings)
         {
-            var client = new MongoClient(DefaultSettings(mongoUrl));
-            var server = client.GetServer();
-            var db = server.GetDatabase(storeSettings.Database);
+            var client = new MongoClient(DefaultSettings(storeSettings.ConnectionString));
+            MongoServer server = client.GetServer();
+            MongoDatabase db = server.GetDatabase(storeSettings.Database);
             UserService = userService;
             ClientStore =
                 Registration.RegisterSingleton<IClientStore>(new ClientStore(db, storeSettings.ClientCollection));
@@ -28,12 +25,16 @@ namespace IdentityServer.Core.MongoDb
             ConsentStore =
                 Registration.RegisterSingleton<IConsentStore>(new ConsentStore(db, storeSettings.ConsentCollection));
             AuthorizationCodeStore =
-                Registration.RegisterSingleton<IAuthorizationCodeStore>(new AuthorizationCodeStore(db, storeSettings.AuthorizationCodeCollection));
+                Registration.RegisterSingleton<IAuthorizationCodeStore>(new AuthorizationCodeStore(db,
+                    storeSettings.AuthorizationCodeCollection));
+            AdminService = Registration.RegisterSingleton<IAdminService>(new AdminService(db, storeSettings));
         }
+
+        public Registration<IAdminService> AdminService { get; set; }
 
         private static MongoClientSettings DefaultSettings(string mongoUrl)
         {
-            var settings = MongoClientSettings.FromUrl(MongoUrl.Create(mongoUrl));
+            MongoClientSettings settings = MongoClientSettings.FromUrl(MongoUrl.Create(mongoUrl));
             settings.GuidRepresentation = GuidRepresentation.Standard;
             return settings;
         }
@@ -42,11 +43,14 @@ namespace IdentityServer.Core.MongoDb
         {
             return new StoreSettings
             {
+                ConnectionString = "mongodb://localhost",
                 Database = "identityserver",
                 ClientCollection = "clients",
                 ScopeCollection = "scopes",
-                ConsentCollection = "consent",
-                AuthorizationCodeCollection = "authorizationCodes"
+                ConsentCollection = "consents",
+                AuthorizationCodeCollection = "authorizationCodes",
+                RefreshTokenCollection = "refreshtokens",
+                TokenHandleCollection = "tokenhandles"
             };
         }
     }

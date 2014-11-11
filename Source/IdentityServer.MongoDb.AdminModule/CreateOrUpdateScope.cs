@@ -55,9 +55,8 @@ namespace IdentityServer.MongoDb.AdminModule
                     ShowInDiscoveryDocument.GetValueOrDefault(DefaultValues.ShowInDiscoveryDocument),
                 Type = Type.GetValueOrDefault(DefaultValues.Type)
             };
-            var doc = new ScopeSerializer().Serialize(scope);
-            var db = OpenDatabase();
-            db.GetCollection(ScopeCollection).Save(doc);
+            
+            AdminService.Save(scope);
         }
     }
 

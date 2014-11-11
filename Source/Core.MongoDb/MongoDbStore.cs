@@ -5,8 +5,8 @@ namespace IdentityServer.Core.MongoDb
 {
     public abstract class MongoDbStore
     {
-        private readonly MongoDatabase _db;
         private readonly string _collectionName;
+        private readonly MongoDatabase _db;
 
         protected MongoDbStore(MongoDatabase db, string collectionName)
         {
@@ -14,6 +14,9 @@ namespace IdentityServer.Core.MongoDb
             _collectionName = collectionName;
         }
 
-        public MongoCollection<BsonDocument> Collection { get { return _db.GetCollection(_collectionName); } }
+        public MongoCollection<BsonDocument> Collection
+        {
+            get { return _db.GetCollection(_collectionName); }
+        }
     }
 }

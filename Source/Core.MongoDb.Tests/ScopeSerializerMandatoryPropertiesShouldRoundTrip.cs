@@ -8,6 +8,7 @@ namespace Core.MongoDb.Tests
     {
         private readonly Scope _expected;
         private readonly Scope _actual;
+
         public ScopeSerializerMandatoryPropertiesShouldRoundTrip()
         {
             _expected = TestData.ScopeMandatoryProperties();
@@ -44,6 +45,7 @@ namespace Core.MongoDb.Tests
         {
             Assert.Equal(_expected.Description, _actual.Description);
         }
+
         [Fact]
         public void CheckDisplayName()
         {

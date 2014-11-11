@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Wrappers;
 using Thinktecture.IdentityServer.Core.Models;
@@ -20,7 +20,7 @@ namespace IdentityServer.Core.MongoDb
 
         public Task<IEnumerable<Consent>> LoadAllAsync(string subject)
         {
-            var result = Collection.FindAll().Select(_serializer.Deserialize).ToArray();
+            Consent[] result = Collection.Find(new QueryWrapper(subject)).Select(_serializer.Deserialize).ToArray();
             return Task.FromResult<IEnumerable<Consent>>(result);
         }
 
@@ -30,17 +30,12 @@ namespace IdentityServer.Core.MongoDb
             return Task.FromResult(0);
         }
 
-        private QueryWrapper QueryByClientAndSubject(string subject, string client)
-        {
-            return new QueryWrapper(new {_id = _serializer.GetId(client, subject)});
-        }
-
         public Task<Consent> LoadAsync(string subject, string client)
         {
-            var found = Collection.FindOne(QueryByClientAndSubject(subject, client));
+            BsonDocument found = Collection.FindOne(QueryByClientAndSubject(subject, client));
 
             if (found == null) return Task.FromResult<Consent>(null);
-            var result = _serializer.Deserialize(found);
+            Consent result = _serializer.Deserialize(found);
 
             return Task.FromResult(result);
         }
@@ -49,6 +44,11 @@ namespace IdentityServer.Core.MongoDb
         {
             Collection.Save(_serializer.Serialize(consent));
             return Task.FromResult(0);
+        }
+
+        private QueryWrapper QueryByClientAndSubject(string subject, string client)
+        {
+            return new QueryWrapper(new {_id = _serializer.GetId(client, subject)});
         }
     }
 }

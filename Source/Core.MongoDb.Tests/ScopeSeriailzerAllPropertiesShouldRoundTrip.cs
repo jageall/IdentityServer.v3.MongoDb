@@ -16,7 +16,6 @@ namespace Core.MongoDb.Tests
             _expected = TestData.ScopeAllProperties();
             var scopeSerializer = new ScopeSerializer();
             _actual = scopeSerializer.Deserialize(scopeSerializer.Serialize(_expected));
-
         }
 
         [Fact]
@@ -66,6 +65,7 @@ namespace Core.MongoDb.Tests
         {
             Assert.Equal(_expected.Description, _actual.Description);
         }
+
         [Fact]
         public void CheckDisplayName()
         {

@@ -14,11 +14,10 @@ namespace IdentityServer.Core.MongoDb
         //Implements rfc 4122
         public static Guid CreateGuidFromName(Guid @namespace, string name, int version)
         {
-
             var dest = new byte[16 + name.Length];
-            var ns = @namespace.ToByteArray();
+            byte[] ns = @namespace.ToByteArray();
 
-            var bytes = Encoding.UTF8.GetBytes(name);
+            byte[] bytes = Encoding.UTF8.GetBytes(name);
             //Guid structure is int, short, short, int8, int8, byte[5]
             //switch all values to network byte order for consistent hashing
             dest[0] = ns[3];
@@ -33,16 +32,16 @@ namespace IdentityServer.Core.MongoDb
             Array.Copy(ns, 8, dest, 8, 8);
             Array.Copy(bytes, 0, dest, 16, bytes.Length);
             byte[] hashed;
-            using (var hash = version == 3 ? (HashAlgorithm)MD5.Create() : SHA1.Create())
+            using (HashAlgorithm hash = version == 3 ? (HashAlgorithm) MD5.Create() : SHA1.Create())
                 hashed = hash.ComputeHash(dest);
 
             //Set the four most significant bits (bits 12 through 15) of the
             //time_hi_and_version field to the appropriate 4-bit version number
-            hashed[6] = (byte)((hashed[6] & 0x0F) | (version << 4));
+            hashed[6] = (byte) ((hashed[6] & 0x0F) | (version << 4));
 
             //Set the two most significant bits (bits 6 and 7) of the
             //clock_seq_hi_and_reserved to zero and one, respectively
-            hashed[8] = (byte)((hashed[8] & 0x3F) | 0x80);
+            hashed[8] = (byte) ((hashed[8] & 0x3F) | 0x80);
 
             var guid = new Guid(new[]
             {
