@@ -27,6 +27,8 @@ namespace IdentityServer.Core.MongoDb
             ScopeStore = Registration.RegisterSingleton<IScopeStore>(new ScopeStore(db, storeSettings.ScopeCollection));
             ConsentStore =
                 Registration.RegisterSingleton<IConsentStore>(new ConsentStore(db, storeSettings.ConsentCollection));
+            AuthorizationCodeStore =
+                Registration.RegisterSingleton<IAuthorizationCodeStore>(new AuthorizationCodeStore(db, storeSettings.AuthorizationCodeCollection));
         }
 
         private static MongoClientSettings DefaultSettings(string mongoUrl)
@@ -43,7 +45,8 @@ namespace IdentityServer.Core.MongoDb
                 Database = "identityserver",
                 ClientCollection = "clients",
                 ScopeCollection = "scopes",
-                ConsentCollection = "consent"
+                ConsentCollection = "consent",
+                AuthorizationCodeCollection = "authorizationCodes"
             };
         }
     }

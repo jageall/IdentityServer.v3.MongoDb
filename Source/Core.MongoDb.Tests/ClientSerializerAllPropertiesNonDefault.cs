@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -18,32 +17,7 @@ namespace Core.MongoDb.Tests
 
         public ClientSerializerAllPropertiesNonDefault()
         {
-            _expected = new Client
-            {
-                AbsoluteRefreshTokenLifetime = 10,
-                AccessTokenLifetime = 20,
-                AccessTokenType = AccessTokenType.Reference,
-                AllowLocalLogin = false,
-                AllowRememberConsent = true,
-                AuthorizationCodeLifetime = 30,
-                ClientId = "123",
-                ClientName = "TEST",
-                ClientSecret = "secret",
-                ClientUri = "clientUri",
-                Enabled = true,
-                Flow = Flows.AuthorizationCode,
-                IdentityProviderRestrictions = new[] { "idpr" },
-                IdentityTokenLifetime = 40,
-                IdentityTokenSigningKeyType = SigningKeyTypes.ClientSecret,
-                LogoUri = new Uri("uri:logo"),
-                PostLogoutRedirectUris = { new Uri("uri:logout") },
-                RedirectUris = { new Uri("uri:redirect") },
-                RefreshTokenExpiration = TokenExpiration.Sliding,
-                RefreshTokenUsage = TokenUsage.ReUse,
-                RequireConsent = true,
-                ScopeRestrictions = { "restriction" },
-                SlidingRefreshTokenLifetime = 50
-            };
+            _expected = TestData.ClientAllProperties();
             var serializer = new ClientSerializer();
             var doc = serializer.Serialize(_expected);
             
@@ -173,6 +147,5 @@ namespace Core.MongoDb.Tests
         {
             Assert.Equal(_expected.SlidingRefreshTokenLifetime, _actual.SlidingRefreshTokenLifetime);
         }
-        
     }
 }

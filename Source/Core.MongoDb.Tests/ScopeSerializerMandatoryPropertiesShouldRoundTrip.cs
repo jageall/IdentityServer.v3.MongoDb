@@ -10,11 +10,7 @@ namespace Core.MongoDb.Tests
         private readonly Scope _actual;
         public ScopeSerializerMandatoryPropertiesShouldRoundTrip()
         {
-            _expected = new Scope
-            {
-                Name = "name",
-                DisplayName = "displayName"
-            };
+            _expected = TestData.ScopeMandatoryProperties();
             var scopeSerializer = new ScopeSerializer();
             _actual = scopeSerializer.Deserialize(scopeSerializer.Serialize(_expected));
         }

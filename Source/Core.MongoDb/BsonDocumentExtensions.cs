@@ -36,6 +36,15 @@ namespace IdentityServer.Core.MongoDb
             return @default;
         }
 
+        public static DateTime GetValueOrDefault(this BsonDocument doc, string name, DateTime @default)
+        {
+            if (doc.Contains(name) && doc[name].IsValidDateTime)
+            {
+                return doc[name].ToUniversalTime();
+            }
+            return @default;
+        }
+
         public static string GetValueOrDefault(this BsonDocument doc, string name, string @default)
         {
             if (doc.Contains(name) && doc[name].IsString)

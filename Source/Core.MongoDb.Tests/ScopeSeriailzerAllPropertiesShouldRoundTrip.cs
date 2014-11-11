@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using IdentityServer.Core.MongoDb;
-using MongoDB.Bson;
 using Thinktecture.IdentityServer.Core.Models;
 using Xunit;
 
@@ -17,34 +13,7 @@ namespace Core.MongoDb.Tests
 
         public ScopeSeriailzerAllPropertiesShouldRoundTrip()
         {
-            _expected = new Scope
-            {
-                Name = "name",
-                DisplayName = "displayName",
-                Claims = new List<ScopeClaim>
-                {
-                    new ScopeClaim
-                    {
-                        Name = "claim1", 
-                        AlwaysIncludeInIdToken = false, 
-                        Description = "claim1 description"
-                    },
-                    new ScopeClaim
-                    {
-                        Name = "claim2", 
-                        AlwaysIncludeInIdToken = true, 
-                        Description = "claim2 description"
-                    },
-                },
-                ClaimsRule = "claimsRule",
-                Description = "Description",
-                Emphasize = true,
-                Enabled = false,
-                IncludeAllClaimsForUser = true,
-                Required = true,
-                ShowInDiscoveryDocument = false,
-                Type = ScopeType.Identity
-            };
+            _expected = TestData.ScopeAllProperties();
             var scopeSerializer = new ScopeSerializer();
             _actual = scopeSerializer.Deserialize(scopeSerializer.Serialize(_expected));
 
