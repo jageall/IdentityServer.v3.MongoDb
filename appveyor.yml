@@ -10,7 +10,7 @@ assembly_info:
 configuration: Release
 
 install:
-  - cisnt MongoDb
+  - ps: choco install MongoDb
 
 before_build:
   - nuget restore source\IdentityServer.v3.MongoDb.sln
