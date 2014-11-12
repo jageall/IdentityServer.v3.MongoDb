@@ -1,9 +1,5 @@
 version: 0.0.1.{build}
 
-branches:
-  only:
-     - master
-
 assembly_info:
   patch: true
   file: AssemblyInfo.*
@@ -12,6 +8,9 @@ assembly_info:
   assembly_informational_version: "{appveyor_repo_branch}"
 
 configuration: Release
+
+install:
+  - cisnt MongoDb
 
 before_build:
   - nuget restore source\IdentityServer.v3.MongoDb.sln
