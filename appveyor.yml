@@ -9,7 +9,7 @@ assembly_info:
   file: AssemblyInfo.*
   assembly_version: "{version}"
   assembly_file_version: "{version}"
-  assembly_informational_version: "0.0.1-alpha-{build}"
+  assembly_informational_version: "{appveyor_repo_branch}"
 
 configuration: Release
 
@@ -31,6 +31,9 @@ artifacts:
 
 deploy:
   provider: NuGet
+  on:
+    branch: master
+    appveyor_repo_tag: true
   api_key: 
     secure: k1FLU1hRZEYRxDnZ8wS99CqjVgzr2nVFLnwhpYZ0ChTSDEJ5L5yJT7DgErg7vlG/
   artifact: /.*\.nupkg/
