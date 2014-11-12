@@ -14,27 +14,27 @@ namespace IdentityServer.Core.MongoDb
             var doc = new BsonDocument();
             doc["_id"] = client.ClientId;
             doc["_version"] = 1;
-            doc["AbsoluteRefreshTokenLifetime"] = client.AbsoluteRefreshTokenLifetime;
-            doc["AccessTokenLifetime"] = client.AccessTokenLifetime;
-            doc["AccessTokenType"] = client.AccessTokenType.ToString();
-            doc["AllowLocalLogin"] = client.AllowLocalLogin;
-            doc["AllowRememberConsent"] = client.AllowRememberConsent;
-            doc["AuthorizationCodeLifetime"] = client.AuthorizationCodeLifetime;
-            doc["ClientName"] = client.ClientName;
-            doc.SetIfNotNull("ClientSecret", client.ClientSecret);
+            doc["absoluteRefreshTokenLifetime"] = client.AbsoluteRefreshTokenLifetime;
+            doc["accessTokenLifetime"] = client.AccessTokenLifetime;
+            doc["accessTokenType"] = client.AccessTokenType.ToString();
+            doc["allowLocalLogin"] = client.AllowLocalLogin;
+            doc["allowRememberConsent"] = client.AllowRememberConsent;
+            doc["authorizationCodeLifetime"] = client.AuthorizationCodeLifetime;
+            doc["clientName"] = client.ClientName;
+            doc.SetIfNotNull("clientSecret", client.ClientSecret);
             if (client.ClientUri != null)
-                doc.SetIfNotNull("ClientUri", client.ClientUri);
-            doc["Enabled"] = client.Enabled;
-            doc["Flow"] = client.Flow.ToString();
+                doc.SetIfNotNull("clientUri", client.ClientUri);
+            doc["enabled"] = client.Enabled;
+            doc["flow"] = client.Flow.ToString();
             var idpr = new BsonArray();
             foreach (string restriction in client.IdentityProviderRestrictions)
             {
                 idpr.Add(restriction);
             }
-            doc["IdentityProviderRestrictions"] = idpr;
-            doc["IdentityTokenLifetime"] = client.IdentityTokenLifetime;
-            doc["IdentityTokenSigningKeyType"] = client.IdentityTokenSigningKeyType.ToString();
-            doc.SetIfNotNull("LogoUri", client.LogoUri);
+            doc["identityProviderRestrictions"] = idpr;
+            doc["identityTokenLifetime"] = client.IdentityTokenLifetime;
+            doc["identityTokenSigningKeyType"] = client.IdentityTokenSigningKeyType.ToString();
+            doc.SetIfNotNull("logoUri", client.LogoUri);
             var postLogoutRedirectUris = new BsonArray();
             foreach (Uri uri in client.PostLogoutRedirectUris)
             {
@@ -46,18 +46,18 @@ namespace IdentityServer.Core.MongoDb
             {
                 redirectUris.Add(uri.ToString());
             }
-            doc["RedirectUris"] = redirectUris;
-            doc["PostLogoutRedirectUris"] = postLogoutRedirectUris;
-            doc["RefreshTokenExpiration"] = client.RefreshTokenExpiration.ToString();
-            doc["RefreshTokenUsage"] = client.RefreshTokenUsage.ToString();
-            doc["RequireConsent"] = client.RequireConsent;
+            doc["redirectUris"] = redirectUris;
+            doc["postLogoutRedirectUris"] = postLogoutRedirectUris;
+            doc["refreshTokenExpiration"] = client.RefreshTokenExpiration.ToString();
+            doc["refreshTokenUsage"] = client.RefreshTokenUsage.ToString();
+            doc["requireConsent"] = client.RequireConsent;
             var scopeRestrictions = new BsonArray();
             foreach (string restriction in client.ScopeRestrictions)
             {
                 scopeRestrictions.Add(restriction);
             }
-            doc["ScopeRestrictions"] = scopeRestrictions;
-            doc["SlidingRefreshTokenLifetime"] = client.SlidingRefreshTokenLifetime;
+            doc["scopeRestrictions"] = scopeRestrictions;
+            doc["slidingRefreshTokenLifetime"] = client.SlidingRefreshTokenLifetime;
             return doc;
         }
 
@@ -68,82 +68,81 @@ namespace IdentityServer.Core.MongoDb
 
             //Required
             client.ClientId = doc["_id"].AsString;
-            client.ClientName = doc["ClientName"].AsString;
+            client.ClientName = doc["clientName"].AsString;
 
             client.AbsoluteRefreshTokenLifetime = doc.GetValueOrDefault(
-                "AbsoluteRefreshTokenLifetime",
+                "absoluteRefreshTokenLifetime",
                 DefaultValues.AbsoluteRefreshTokenLifetime);
             client.AbsoluteRefreshTokenLifetime = doc.GetValueOrDefault(
-                "AbsoluteRefreshTokenLifetime",
+                "absoluteRefreshTokenLifetime",
                 DefaultValues.AbsoluteRefreshTokenLifetime);
             client.AccessTokenLifetime = doc.GetValueOrDefault(
-                "AccessTokenLifetime",
+                "accessTokenLifetime",
                 DefaultValues.AccessTokenLifetime);
 
             client.AccessTokenType = doc.GetValueOrDefault(
-                "AccessTokenType",
+                "accessTokenType",
                 DefaultValues.AccessTokenType);
 
             client.AllowLocalLogin = doc.GetValueOrDefault(
-                "AllowLocalLogin",
+                "allowLocalLogin",
                 DefaultValues.AllowLocalLogin);
 
             client.AllowRememberConsent = doc.GetValueOrDefault(
-                "AllowRememberConsent", DefaultValues.AllowRememberConsent);
+                "allowRememberConsent", DefaultValues.AllowRememberConsent);
             client.AuthorizationCodeLifetime =
-                doc.GetValueOrDefault("AuthorizationCodeLifetime",
+                doc.GetValueOrDefault("authorizationCodeLifetime",
                     DefaultValues.AuthorizationCodeLifetime);
 
             client.ClientSecret = doc.GetValueOrDefault(
-                "ClientSecret",
+                "clientSecret",
                 DefaultValues.ClientSecret);
 
             client.ClientUri = doc.GetValueOrDefault(
-                "ClientUri",
+                "clientUri",
                 DefaultValues.ClientUri);
             client.Enabled = doc.GetValueOrDefault(
-                "Enabled",
+                "enabled",
                 DefaultValues.Enabled);
 
             client.Flow = doc.GetValueOrDefault(
-                "Flow",
+                "flow",
                 DefaultValues.Flow);
             client.IdentityProviderRestrictions =
-                doc["IdentityProviderRestrictions"].AsBsonArray.Select(x => x.AsString);
+                doc["identityProviderRestrictions"].AsBsonArray.Select(x => x.AsString);
             client.IdentityTokenLifetime = doc.GetValueOrDefault(
-                "IdentityTokenLifetime",
+                "identityTokenLifetime",
                 DefaultValues.IdentityTokenLifetime);
 
             client.IdentityTokenSigningKeyType = doc.GetValueOrDefault(
-                "IdentityTokenSigningKeyType",
+                "identityTokenSigningKeyType",
                 DefaultValues.IdentityTokenSigningKeyType);
 
             client.LogoUri = doc.GetValueOrDefault(
-                "LogoUri",
+                "logoUri",
                 DefaultValues.LogoUri);
 
             client.PostLogoutRedirectUris.AddRange(
-                doc["PostLogoutRedirectUris"].AsBsonArray.Select(x => new Uri(x.AsString)));
+                doc["postLogoutRedirectUris"].AsBsonArray.Select(x => new Uri(x.AsString)));
 
             client.RedirectUris.AddRange(
-                doc["RedirectUris"].AsBsonArray.Select(x => new Uri(x.AsString)));
+                doc["redirectUris"].AsBsonArray.Select(x => new Uri(x.AsString)));
 
 
             client.RefreshTokenExpiration = doc.GetValueOrDefault(
-                "RefreshTokenExpiration",
+                "refreshTokenExpiration",
                 DefaultValues.RefreshTokenExpiration);
-            TokenUsage tokenUsage;
-            if (Enum.TryParse(doc["RefreshTokenUsage"].AsString, out tokenUsage))
-                client.RefreshTokenUsage = doc.GetValueOrDefault(
-                    "RefreshTokenUsage",
-                    DefaultValues.RefreshTokenUsage);
+
+            client.RefreshTokenUsage = doc.GetValueOrDefault(
+                "refreshTokenUsage",
+                DefaultValues.RefreshTokenUsage);
 
             client.RequireConsent = doc.GetValueOrDefault(
-                "RequireConsent",
+                "requireConsent",
                 DefaultValues.RequireConsent);
-            client.ScopeRestrictions.AddRange(doc["ScopeRestrictions"].AsBsonArray.Select(x => x.AsString));
+            client.ScopeRestrictions.AddRange(doc["scopeRestrictions"].AsBsonArray.Select(x => x.AsString));
             client.SlidingRefreshTokenLifetime = doc.GetValueOrDefault(
-                "SlidingRefreshTokenLifetime",
+                "slidingRefreshTokenLifetime",
                 DefaultValues.SlidingRefreshTokenLifetime);
             return client;
         }

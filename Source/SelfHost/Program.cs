@@ -33,12 +33,12 @@ namespace SelfHost
         {
             var factory = new ServiceFactory(Registration.RegisterSingleton<IUserService>(new InMemoryUserService(Users())));
             var adminService = factory.AdminService.TypeFactory();
-            ConfigureClientsAndScopes(adminService);
+            SetupDatabase(adminService);
             var options = new IdentityServerOptions
             {
                 IssuerUri = "https://idsrv3.com",
                 SiteName = "Thinktecture IdentityServer v3 - beta3 (EntityFramework)",
-
+                RequireSsl = false,
                 SigningCertificate = Certificate(),
                 Factory = factory,
                 CorsPolicy = CorsPolicy.AllowAll
@@ -47,8 +47,10 @@ namespace SelfHost
             app.UseIdentityServer(options);
         }
 
-        private static void ConfigureClientsAndScopes(IAdminService adminService)
+        private static void SetupDatabase(IAdminService adminService)
         {
+            adminService.CreateDatabase();
+
             foreach (var client in Clients())
             {
                 adminService.Save(client);

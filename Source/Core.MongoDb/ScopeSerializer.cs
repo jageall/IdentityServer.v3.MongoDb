@@ -10,25 +10,26 @@ namespace IdentityServer.Core.MongoDb
         {
             var doc = new BsonDocument();
             doc["_id"] = scope.Name;
-            doc["DisplayName"] = scope.DisplayName;
+            doc["_version"] = 1;
+            doc["displayName"] = scope.DisplayName;
             var claims = new BsonArray();
             foreach (ScopeClaim scopeClaim in scope.Claims)
             {
                 var claim = new BsonDocument();
-                claim["Name"] = scopeClaim.Name;
-                claim["AlwaysIncludeInIdToken"] = scopeClaim.AlwaysIncludeInIdToken;
-                claim.SetIfNotNull("Description", scopeClaim.Description);
+                claim["name"] = scopeClaim.Name;
+                claim["alwaysIncludeInIdToken"] = scopeClaim.AlwaysIncludeInIdToken;
+                claim.SetIfNotNull("description", scopeClaim.Description);
                 claims.Add(claim);
             }
-            doc["Claims"] = claims;
-            doc.SetIfNotNull("ClaimsRule", scope.ClaimsRule);
-            doc.SetIfNotNull("Description", scope.Description);
-            doc["Emphasize"] = scope.Emphasize;
-            doc["Enabled"] = scope.Enabled;
-            doc["IncludeAllClaimsForUser"] = scope.IncludeAllClaimsForUser;
-            doc["Required"] = scope.Required;
-            doc["ShowInDiscoveryDocument"] = scope.ShowInDiscoveryDocument;
-            doc["Type"] = scope.Type.ToString();
+            doc["claims"] = claims;
+            doc.SetIfNotNull("claimsRule", scope.ClaimsRule);
+            doc.SetIfNotNull("description", scope.Description);
+            doc["emphasize"] = scope.Emphasize;
+            doc["enabled"] = scope.Enabled;
+            doc["includeAllClaimsForUser"] = scope.IncludeAllClaimsForUser;
+            doc["required"] = scope.Required;
+            doc["showInDiscoveryDocument"] = scope.ShowInDiscoveryDocument;
+            doc["type"] = scope.Type.ToString();
             return doc;
         }
 
@@ -37,32 +38,32 @@ namespace IdentityServer.Core.MongoDb
             var scope = new Scope
             {
                 Name = doc["_id"].AsString,
-                DisplayName = doc["DisplayName"].AsString,
+                DisplayName = doc["displayName"].AsString,
                 Claims = new List<ScopeClaim>(
                     doc.GetValueOrDefault(
-                        "Claims",
+                        "claims",
                         claimDoc =>
                         {
                             var claim = new ScopeClaim();
-                            claim.Name = claimDoc.GetValueOrDefault("Name", claim.Name);
-                            claim.AlwaysIncludeInIdToken = claimDoc.GetValueOrDefault("AlwaysIncludeInIdToken",
+                            claim.Name = claimDoc.GetValueOrDefault("name", claim.Name);
+                            claim.AlwaysIncludeInIdToken = claimDoc.GetValueOrDefault("alwaysIncludeInIdToken",
                                 claim.AlwaysIncludeInIdToken);
-                            claim.Description = claimDoc.GetValueOrDefault("Description", claim.Description);
+                            claim.Description = claimDoc.GetValueOrDefault("description", claim.Description);
                             return claim;
                         },
                         new ScopeClaim[] {}
                         )),
             };
-            scope.ClaimsRule = doc.GetValueOrDefault("ClaimsRule", scope.ClaimsRule);
-            scope.Description = doc.GetValueOrDefault("Description", scope.Description);
-            scope.Emphasize = doc.GetValueOrDefault("Emphasize", scope.Emphasize);
-            scope.Enabled = doc.GetValueOrDefault("Enabled", scope.Enabled);
-            scope.IncludeAllClaimsForUser = doc.GetValueOrDefault("IncludeAllClaimsForUser",
+            scope.ClaimsRule = doc.GetValueOrDefault("claimsRule", scope.ClaimsRule);
+            scope.Description = doc.GetValueOrDefault("description", scope.Description);
+            scope.Emphasize = doc.GetValueOrDefault("emphasize", scope.Emphasize);
+            scope.Enabled = doc.GetValueOrDefault("enabled", scope.Enabled);
+            scope.IncludeAllClaimsForUser = doc.GetValueOrDefault("includeAllClaimsForUser",
                 scope.IncludeAllClaimsForUser);
-            scope.Required = doc.GetValueOrDefault("Required", scope.Required);
-            scope.ShowInDiscoveryDocument = doc.GetValueOrDefault("ShowInDiscoveryDocument",
+            scope.Required = doc.GetValueOrDefault("required", scope.Required);
+            scope.ShowInDiscoveryDocument = doc.GetValueOrDefault("showInDiscoveryDocument",
                 scope.ShowInDiscoveryDocument);
-            scope.Type = doc.GetValueOrDefault("Type", scope.Type);
+            scope.Type = doc.GetValueOrDefault("type", scope.Type);
             return scope;
         }
     }
