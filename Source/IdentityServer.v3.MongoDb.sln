@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{A41D
 	ProjectSection(SolutionItems) = preProject
 		..\Samples\AddOrUpdateClient.ps1 = ..\Samples\AddOrUpdateClient.ps1
 		..\Samples\AddOrUpdateScope.ps1 = ..\Samples\AddOrUpdateScope.ps1
+		..\Samples\AddStandardScopes.ps1 = ..\Samples\AddStandardScopes.ps1
+		..\Samples\InstallDatabase.ps1 = ..\Samples\InstallDatabase.ps1
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfHost", "SelfHost\SelfHost.csproj", "{D2447108-E448-4B2B-8577-06D6DD5C52E8}"

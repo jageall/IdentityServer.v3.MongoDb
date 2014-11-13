@@ -6,7 +6,7 @@ namespace IdentityServer.MongoDb.AdminModule
     [Cmdlet(VerbsCommon.Set, "Client")]
     public class SaveClient : MongoCmdlet
     {
-        [Parameter]
+        [Parameter(ValueFromPipeline = true)]
         [ValidateNotNull]
         public Client Client { get; set; }
         
