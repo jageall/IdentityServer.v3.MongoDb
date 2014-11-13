@@ -1,20 +1,14 @@
-using IdentityServer.Core.MongoDb;
+using System.Linq;
 using Thinktecture.IdentityServer.Core.Models;
 using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ScopeSerializerMandatoryPropertiesShouldRoundTrip
+    public class ScopeSerializerMandatoryPropertiesShouldRoundTrip : PersistenceTest, IUseFixture<RequireAdminService>
     {
-        private readonly Scope _expected;
-        private readonly Scope _actual;
+        private Scope _expected;
+        private Scope _actual;
 
-        public ScopeSerializerMandatoryPropertiesShouldRoundTrip()
-        {
-            _expected = TestData.ScopeMandatoryProperties();
-            var scopeSerializer = new ScopeSerializer();
-            _actual = scopeSerializer.Deserialize(scopeSerializer.Serialize(_expected));
-        }
 
         [Fact]
         public void ShouldNotBeNull()
@@ -86,6 +80,14 @@ namespace Core.MongoDb.Tests
         public void CheckType()
         {
             Assert.Equal(_expected.Type, _actual.Type);
+        }
+
+        protected override void Initialize()
+        {
+            _expected = TestData.ScopeMandatoryProperties();
+            AdminService.Save(_expected);
+            _actual = Factory.ScopeStore.TypeFactory().GetScopesAsync().Result.SingleOrDefault(x => x.Name == _expected.Name);
+
         }
     }
 }

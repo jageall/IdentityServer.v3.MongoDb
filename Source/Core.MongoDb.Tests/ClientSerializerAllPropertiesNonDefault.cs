@@ -1,22 +1,13 @@
-﻿using IdentityServer.Core.MongoDb;
-using Thinktecture.IdentityServer.Core.Models;
+﻿using Thinktecture.IdentityServer.Core.Models;
 using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ClientSerializerAllPropertiesNonDefault
+    public class ClientSerializerAllPropertiesNonDefault : PersistenceTest, IUseFixture<RequireAdminService>
     {
-        private readonly Client _expected;
-        private readonly Client _actual;
+        private Client _expected;
+        private Client _actual;
 
-        public ClientSerializerAllPropertiesNonDefault()
-        {
-            _expected = TestData.ClientAllProperties();
-            var serializer = new ClientSerializer();
-            var doc = serializer.Serialize(_expected);
-
-            _actual = serializer.Deserialize(doc);
-        }
 
         [Fact]
         public void CheckDeserializedShouldNotBeNull()
@@ -160,6 +151,17 @@ namespace Core.MongoDb.Tests
         public void CheckSlidingRefreshTokenLifetime()
         {
             Assert.Equal(_expected.SlidingRefreshTokenLifetime, _actual.SlidingRefreshTokenLifetime);
+        }
+
+        protected override void Initialize()
+        {
+
+            _expected = TestData.ClientAllProperties();
+            
+            var store = Factory.ClientStore.TypeFactory();
+            
+            AdminService.Save(_expected);
+            _actual = store.FindClientByIdAsync(_expected.ClientId).Result;
         }
     }
 }

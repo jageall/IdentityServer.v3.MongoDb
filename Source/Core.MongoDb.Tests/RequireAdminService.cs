@@ -32,7 +32,7 @@ namespace Core.MongoDb.Tests
 
         public void Dispose()
         {
-            _adminService.RemoveDatabase();
+            //_adminService.RemoveDatabase();
         }
     }
 }

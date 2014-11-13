@@ -1,41 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using IdentityServer.Core.MongoDb;
-using MongoDB.Bson;
+using System.Security.Claims;
 using Thinktecture.IdentityServer.Core.Models;
 using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class AuthorizationCodeSerializationTests
+    public class AuthorizationCodeSerializationTests : PersistenceTest, IUseFixture<RequireAdminService>
     {
-        private readonly AuthorizationCode _expected;
-        private readonly AuthorizationCode _actual;
-        private readonly string _key;
-        private readonly BsonDocument _doc;
-
-        public AuthorizationCodeSerializationTests()
-        {
-            _expected = TestData.AuthorizationCode();
-
-            _key = Guid.NewGuid().ToString("N");
-            var serializer = new AuthorizationCodeSerializer();
-            _doc = serializer.Serialize(_key, _expected);
-            _actual = serializer.Deserialize(_doc);
-        }
-
-        [Fact]
-        public void ShouldSerializeKeyAsId()
-        {
-            Assert.Equal(_key, _doc["_id"].AsString);
-        }
-
-        [Fact]
-        public void CheckExpiry()
-        {
-            var expected = _expected.CreationTime.AddSeconds(_expected.Client.AuthorizationCodeLifetime);
-            Assert.Equal(expected, _doc["_expiry"].ToUniversalTime());
-        }
+        private AuthorizationCode _expected;
+        private AuthorizationCode _actual;
 
         [Fact]
         public void CheckCreationTime()
@@ -72,19 +47,7 @@ namespace Core.MongoDb.Tests
                     _actual.Subject.Identities.SingleOrDefault(
                         x => string.Equals(x.AuthenticationType, identity.AuthenticationType, StringComparison.Ordinal));
                 Assert.NotNull(actual);
-                var expectedClaims = identity.Claims.GroupBy(x => x.Type + x.Value).OrderBy(x => x.Key).ToArray();
-                var actualClaims =
-                    actual.Claims.GroupBy(x => x.Type + x.Value)
-                        .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
-                        .ToArray();
-                foreach (var expectedClaim in expectedClaims)
-                {
-                    Assert.True(
-                        actualClaims.Any(
-                            x =>
-                                string.Equals(x.Key, expectedClaim.Key, StringComparison.Ordinal) &&
-                                x.Count() == expectedClaim.Count()));
-                }
+                CommonVerifications.VerifyClaimset(identity.Claims, actual.Claims);
             }
         }
 
@@ -99,6 +62,15 @@ namespace Core.MongoDb.Tests
         public void CheckClient()
         {
             Assert.Equal(_expected.ClientId, _actual.ClientId);
+        }
+
+        protected override void Initialize()
+        {
+            var key = "AuthorizationCodeTests";
+            _expected = TestData.AuthorizationCode();
+            var store = Factory.AuthorizationCodeStore.TypeFactory();
+            store.StoreAsync(key, _expected).Wait();
+            _actual = store.GetAsync(key).Result;
         }
     }
 }

@@ -5,15 +5,17 @@ using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public class AuthorizationCodeSerializer
+    class AuthorizationCodeSerializer
     {
         private readonly ClientSerializer _clientSerializer;
         private readonly ScopeSerializer _scopeSerializer;
+        private readonly ClaimSetSerializer _claimSetSerializer;
 
         public AuthorizationCodeSerializer()
         {
             _clientSerializer = new ClientSerializer();
             _scopeSerializer = new ScopeSerializer();
+            _claimSetSerializer = new ClaimSetSerializer();
         }
 
         public BsonDocument Serialize(string key, AuthorizationCode code)
@@ -28,8 +30,7 @@ namespace IdentityServer.Core.MongoDb
             doc["isOpenId"] = code.IsOpenId;
             doc["redirectUri"] = code.RedirectUri.ToString();
             doc["wasConsentShown"] = code.WasConsentShown;
-            BsonArray subject = SerializeIdentities(code);
-            doc["subject"] = subject;
+            doc["subject"] = SerializeIdentities(code);
             doc["client"] = _clientSerializer.Serialize(code.Client);
             var requestedScopes = new BsonArray();
             foreach (Scope scope in code.RequestedScopes)
@@ -40,7 +41,7 @@ namespace IdentityServer.Core.MongoDb
             return doc;
         }
 
-        private static BsonArray SerializeIdentities(AuthorizationCode code)
+        private BsonArray SerializeIdentities(AuthorizationCode code)
         {
             var subject = new BsonArray();
             foreach (ClaimsIdentity claimsIdentity in code.Subject.Identities)
@@ -48,21 +49,17 @@ namespace IdentityServer.Core.MongoDb
                 var identity = new BsonDocument();
 
                 identity["authenticationType"] = claimsIdentity.AuthenticationType;
-                var claims = new BsonArray();
-                foreach (Claim claim in claimsIdentity.Claims)
-                {
-                    var c = new BsonDocument();
-                    c["type"] = claim.Type;
-                    c["value"] = claim.Value;
-                    claims.Add(c);
-                }
+                var enumerable = claimsIdentity.Claims;
+                var claims = _claimSetSerializer.Serialize(enumerable);
 
-                identity["claims"] = claims;
+                identity["claimSet"] = claims;
                 subject.Add(identity);
             }
 
             return subject;
         }
+
+        
 
         public AuthorizationCode Deserialize(BsonDocument doc)
         {
@@ -77,10 +74,7 @@ namespace IdentityServer.Core.MongoDb
             IEnumerable<ClaimsIdentity> identities = doc.GetValueOrDefault("subject", sub =>
             {
                 string authenticationType = sub.GetValueOrDefault("authenticationType", (string) null);
-                IEnumerable<Claim> claims = sub.GetValueOrDefault(
-                    "claims",
-                    c => new Claim(c["type"].AsString, c["value"].AsString),
-                    new Claim[] {});
+                var claims = sub.GetNestedValueOrDefault("claimSet", _claimSetSerializer.Deserialize, new Claim[]{});
                 ClaimsIdentity identity = authenticationType == null
                     ? new ClaimsIdentity(claims)
                     : new ClaimsIdentity(claims, authenticationType);

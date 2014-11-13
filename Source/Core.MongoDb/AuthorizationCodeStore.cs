@@ -9,7 +9,7 @@ using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {
-    internal class AuthorizationCodeStore : MongoDbStore, IAuthorizationCodeStore
+    class AuthorizationCodeStore : MongoDbStore, IAuthorizationCodeStore
     {
         private readonly AuthorizationCodeSerializer _serializer;
 

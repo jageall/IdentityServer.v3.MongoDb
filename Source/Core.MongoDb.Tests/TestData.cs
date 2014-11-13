@@ -23,16 +23,16 @@ namespace Core.MongoDb.Tests
                 ClientUri = "clientUri",
                 Enabled = true,
                 Flow = Flows.AuthorizationCode,
-                IdentityProviderRestrictions = new[] {"idpr"},
+                IdentityProviderRestrictions = new[] { "idpr" },
                 IdentityTokenLifetime = 40,
                 IdentityTokenSigningKeyType = SigningKeyTypes.ClientSecret,
                 LogoUri = new Uri("uri:logo"),
-                PostLogoutRedirectUris = {new Uri("uri:logout")},
-                RedirectUris = {new Uri("uri:redirect")},
+                PostLogoutRedirectUris = { new Uri("uri:logout") },
+                RedirectUris = { new Uri("uri:redirect") },
                 RefreshTokenExpiration = TokenExpiration.Sliding,
                 RefreshTokenUsage = TokenUsage.ReUse,
                 RequireConsent = true,
-                ScopeRestrictions = {"restriction"},
+                ScopeRestrictions = { "restriction" },
                 SlidingRefreshTokenLifetime = 50
             };
         }
@@ -41,7 +41,7 @@ namespace Core.MongoDb.Tests
         {
             return new Scope
             {
-                Name = "name",
+                Name = "all",
                 DisplayName = "displayName",
                 Claims = new List<ScopeClaim>
                 {
@@ -73,7 +73,7 @@ namespace Core.MongoDb.Tests
         {
             return new Scope
             {
-                Name = "name",
+                Name = "mandatory",
                 DisplayName = "displayName"
             };
         }
@@ -107,13 +107,45 @@ namespace Core.MongoDb.Tests
         {
             return new ClaimsPrincipal(
                 new ClaimsIdentity(
-                    new[]
-                    {
-                        new Claim("sub", "foo"),
-                        new Claim("name", "bar"),
-                        new Claim("email", "baz@qux.com")
-                    }, "authtype"
+                    Claims(), "authtype"
                     ));
+        }
+
+        private static List<Claim> Claims()
+        {
+            return new List<Claim>
+            {
+                new Claim("sub", "foo"),
+                new Claim("name", "bar"),
+                new Claim("email", "baz@qux.com"),
+                new Claim("scope", "scope1"),
+                new Claim("scope", "scope2"),
+            };
+        }
+
+        public static RefreshToken RefreshToken()
+        {
+            return new RefreshToken()
+            {
+                AccessToken = Token(),
+                ClientId = "clientId",
+                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0),
+                LifeTime = 100,
+            };
+        }
+
+        public static Token Token()
+        {
+            return new Token
+            {
+                Audience = "audience",
+                Claims = Claims(),
+                Client = ClientAllProperties(),
+                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0),
+                Issuer = "issuer",
+                Lifetime = 200,
+                Type = "tokenType"
+            };
         }
     }
 }

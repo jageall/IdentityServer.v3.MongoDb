@@ -6,7 +6,7 @@ using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public class ClientStore : MongoDbStore, IClientStore
+    class ClientStore : MongoDbStore, IClientStore
     {
         private readonly ClientSerializer _serializer;
 

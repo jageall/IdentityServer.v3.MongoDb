@@ -3,7 +3,7 @@ using MongoDB.Driver;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public abstract class MongoDbStore
+    abstract class MongoDbStore
     {
         private readonly string _collectionName;
         private readonly MongoDatabase _db;
@@ -14,7 +14,7 @@ namespace IdentityServer.Core.MongoDb
             _collectionName = collectionName;
         }
 
-        public MongoCollection<BsonDocument> Collection
+        protected MongoCollection<BsonDocument> Collection
         {
             get { return _db.GetCollection(_collectionName); }
         }

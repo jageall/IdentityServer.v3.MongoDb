@@ -27,6 +27,12 @@ namespace IdentityServer.Core.MongoDb
             AuthorizationCodeStore =
                 Registration.RegisterSingleton<IAuthorizationCodeStore>(new AuthorizationCodeStore(db,
                     storeSettings.AuthorizationCodeCollection));
+
+            RefreshTokenStore = Registration.RegisterSingleton<IRefreshTokenStore>(
+                new RefreshTokenStore(db, storeSettings.RefreshTokenCollection));
+
+            TokenHandleStore = Registration.RegisterSingleton<ITokenHandleStore>(
+                new TokenHandleStore(db, storeSettings.TokenHandleCollection));
             AdminService = Registration.RegisterSingleton<IAdminService>(new AdminService(db, storeSettings));
         }
 

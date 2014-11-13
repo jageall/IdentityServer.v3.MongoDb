@@ -7,7 +7,7 @@ using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public class ScopeStore : MongoDbStore, IScopeStore
+    class ScopeStore : MongoDbStore, IScopeStore
     {
         private readonly ScopeSerializer _serializer;
 

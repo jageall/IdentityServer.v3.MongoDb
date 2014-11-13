@@ -4,7 +4,7 @@ using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public class ScopeSerializer
+    class ScopeSerializer
     {
         public BsonDocument Serialize(Scope scope)
         {

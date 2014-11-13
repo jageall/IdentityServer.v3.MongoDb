@@ -9,7 +9,7 @@ using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public class ConsentStore : MongoDbStore, IConsentStore
+    class ConsentStore : MongoDbStore, IConsentStore
     {
         private readonly ConsentSerializer _serializer;
 

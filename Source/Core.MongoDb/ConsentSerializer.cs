@@ -4,7 +4,7 @@ using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public class ConsentSerializer
+    class ConsentSerializer
     {
         private static readonly Guid _namespace = new Guid("344A5569-E318-4A69-9207-C2EBC501D722");
 

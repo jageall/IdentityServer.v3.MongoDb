@@ -5,7 +5,7 @@ using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public class ClientSerializer
+    class ClientSerializer
     {
         private static readonly Client DefaultValues = new Client();
 

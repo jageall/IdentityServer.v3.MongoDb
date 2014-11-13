@@ -5,7 +5,7 @@ using MongoDB.Bson;
 
 namespace IdentityServer.Core.MongoDb
 {
-    public static class BsonDocumentExtensions
+    static class BsonDocumentExtensions
     {
         public static void SetIfNotNull(this BsonDocument doc, string name, string value)
         {
@@ -93,6 +93,36 @@ namespace IdentityServer.Core.MongoDb
                     .Where(x => x.IsBsonDocument)
                     .Select(x => x.AsBsonDocument)
                     .Select(reader).Where(x => x != null);
+            }
+            return @default;
+        }
+
+        public static IEnumerable<T> GetNestedValueOrDefault<T>(
+            this BsonDocument doc,
+            string name,
+            Func<BsonDocument, IEnumerable<T>> reader,
+            IEnumerable<T> @default)
+            where T : class
+        {
+            if (doc.Contains(name) && doc[name].IsBsonDocument)
+            {
+                var value = doc[name].AsBsonDocument;
+                return reader(value);
+            }
+            return @default;
+        }
+
+        public static T GetNestedValueOrDefault<T>(
+            this BsonDocument doc,
+            string name,
+            Func<BsonDocument, T> reader,
+            T @default)
+            where T : class
+        {
+            if (doc.Contains(name) && doc[name].IsBsonDocument)
+            {
+                var value = doc[name].AsBsonDocument;
+                return reader(value);
             }
             return @default;
         }

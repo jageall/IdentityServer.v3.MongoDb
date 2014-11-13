@@ -56,6 +56,7 @@
     <Compile Include="AuthorizationCodeSerializer.cs" />
     <Compile Include="AuthorizationCodeStore.cs" />
     <Compile Include="BsonDocumentExtensions.cs" />
+    <Compile Include="ClaimSetSerializer.cs" />
     <Compile Include="ConsentStore.cs" />
     <Compile Include="GuidGenerator.cs" />
     <Compile Include="ClientStore.cs" />
@@ -64,10 +65,14 @@
     <Compile Include="MongoDbStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ClientSerializer.cs" />
+    <Compile Include="RefreshTokenSerializer.cs" />
+    <Compile Include="RefreshTokenStore.cs" />
     <Compile Include="ScopeSerializer.cs" />
     <Compile Include="ScopeStore.cs" />
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="StoreSettings.cs" />
+    <Compile Include="TokenHandleStore.cs" />
+    <Compile Include="TokenSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
