@@ -16,7 +16,7 @@ namespace SelfHost
 {
     class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             Console.Title = "IdentityServer v3 SelfHost";
             LogProvider.SetCurrentLogProvider(new DiagnosticsTraceLogProvider());

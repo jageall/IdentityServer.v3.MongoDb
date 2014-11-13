@@ -2,6 +2,7 @@ using System;
 using System.Management.Automation;
 using IdentityServer.Core.MongoDb;
 using MongoDB.Driver;
+using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.MongoDb.AdminModule
 {
@@ -9,6 +10,7 @@ namespace IdentityServer.MongoDb.AdminModule
     {
         private readonly bool _createDb;
         private IAdminService _adminService;
+        private IScopeStore _scopeStore;
 
         protected MongoCmdlet(bool createDb = false)
         {
@@ -38,7 +40,11 @@ namespace IdentityServer.MongoDb.AdminModule
         {
             get { return _adminService; }
         }
-
+        
+        public IScopeStore ScopeStore
+        {
+            get { return _scopeStore; }
+        }
 
         protected override void BeginProcessing()
         {
@@ -51,19 +57,20 @@ namespace IdentityServer.MongoDb.AdminModule
             storeSettings.AuthorizationCodeCollection = AuthorizationCodeCollection ?? storeSettings.AuthorizationCodeCollection;
             storeSettings.RefreshTokenCollection = RefreshTokenCollection ?? storeSettings.RefreshTokenCollection;
             storeSettings.TokenHandleCollection = TokenHandleCollection ?? storeSettings.TokenHandleCollection;
-            CanCreateDatabase();
+            CanCreateDatabase(storeSettings);
+            
             var serviceFactory = new ServiceFactory(null, storeSettings);
 
             _adminService = serviceFactory.AdminService.TypeFactory();
-            
+            _scopeStore = serviceFactory.ScopeStore.TypeFactory();
             base.BeginProcessing();
         }
 
-        void CanCreateDatabase()
+        void CanCreateDatabase(StoreSettings settings)
         {
-            var client = new MongoClient(ServiceFactory.DefaultStoreSettings().ConnectionString);
+            var client = new MongoClient(settings.ConnectionString);
             var server = client.GetServer();
-            if(!server.DatabaseExists(Database) && !_createDb) throw new InvalidOperationException("Database does not exist");
+            if(!server.DatabaseExists(settings.Database) && !_createDb) throw new InvalidOperationException("Database does not exist");
         }
     }
 }

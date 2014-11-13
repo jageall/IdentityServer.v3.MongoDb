@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
-using IdentityServer.Core.MongoDb;
+﻿using System.Management.Automation;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.MongoDb.AdminModule
 {
-    [Cmdlet(VerbsCommon.Set, "Scope")]
-    public class CreateOrUpdateScope : MongoCmdlet
+    [Cmdlet(VerbsCommon.New, "Scope")]
+    public class CreateScope : PSCmdlet
     {
         static readonly Scope DefaultValues = new Scope();
         [Parameter]
@@ -56,9 +50,7 @@ namespace IdentityServer.MongoDb.AdminModule
                 Type = Type.GetValueOrDefault(DefaultValues.Type)
             };
             
-            AdminService.Save(scope);
+            WriteObject(scope);
         }
     }
-
-    
 }

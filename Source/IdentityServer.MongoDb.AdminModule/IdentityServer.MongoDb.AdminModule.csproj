@@ -57,12 +57,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CreateOrUpdateClient.cs" />
-    <Compile Include="CreateOrUpdateScope.cs" />
+    <Compile Include="CreateClient.cs" />
+    <Compile Include="CreateScope.cs" />
     <Compile Include="CreateScopeClaim.cs" />
     <Compile Include="IdentityServerDb.cs" />
     <Compile Include="MongoCmdlet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadScopes.cs" />
+    <Compile Include="SaveClient.cs" />
+    <Compile Include="SaveScope.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -79,10 +82,7 @@
   <Target Name="BeforeBuild">
   </Target>-->
   <Target Name="AfterBuild">
-    <MakeDir Directories="$(SolutionDir)..\out"
-             Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
-    <Exec Command="$(SolutionDir)\packages\ilmerge.2.13.0307\ILMerge.exe /internalize /out:$(SolutionDir)..\out\$(TargetName)$(TargetExt) $(TargetDir)$(TargetName)$(TargetExt) $(TargetDir)MongoDB.Bson.dll $(TargetDir)MongoDB.Driver.dll $(TargetDir)IdentityServer.Core.MongoDb.dll $(TargetDir)Owin.dll $(TargetDir)Thinktecture.IdentityServer.dll"
-          ContinueOnError="false"
-          Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
+    <MakeDir Directories="$(SolutionDir)..\out" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
+    <Exec Command="$(SolutionDir)\packages\ilmerge.2.13.0307\ILMerge.exe /internalize /out:$(SolutionDir)..\out\$(TargetName)$(TargetExt) $(TargetDir)$(TargetName)$(TargetExt) $(TargetDir)MongoDB.Bson.dll $(TargetDir)MongoDB.Driver.dll $(TargetDir)IdentityServer.Core.MongoDb.dll $(TargetDir)Owin.dll $(TargetDir)Thinktecture.IdentityServer.dll" ContinueOnError="false" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
   </Target>
 </Project>
