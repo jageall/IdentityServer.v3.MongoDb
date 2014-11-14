@@ -16,6 +16,7 @@ namespace IdentityServer.Core.MongoDb
             var doc = new BsonDocument();
             doc["_id"] = key;
             doc["_version"] = 1;
+            doc["_expires"] = value.CreationTime.AddSeconds(value.LifeTime);
             var accessToken = new BsonDocument();
             _tokenSerializer.Serialize(accessToken ,value.AccessToken);
             doc["accessToken"] = accessToken;

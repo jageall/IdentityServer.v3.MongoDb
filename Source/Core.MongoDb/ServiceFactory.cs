@@ -34,9 +34,12 @@ namespace IdentityServer.Core.MongoDb
             TokenHandleStore = Registration.RegisterSingleton<ITokenHandleStore>(
                 new TokenHandleStore(db, storeSettings.TokenHandleCollection));
             AdminService = Registration.RegisterSingleton<IAdminService>(new AdminService(db, storeSettings));
+            TokenCleanupService =
+                Registration.RegisterSingleton<ICleanupExpiredTokens>(new CleanupExpiredTokens(db, storeSettings));
         }
 
         public Registration<IAdminService> AdminService { get; set; }
+        public Registration<ICleanupExpiredTokens> TokenCleanupService { get; set; }
 
         private static MongoClientSettings DefaultSettings(string mongoUrl)
         {

@@ -19,6 +19,7 @@ namespace IdentityServer.Core.MongoDb
         {
             var doc = new BsonDocument();
             doc["_id"] = key;
+            doc["_expires"] = token.CreationTime.AddSeconds(token.Lifetime);
             Serialize(doc, token);
             return doc;
         }
