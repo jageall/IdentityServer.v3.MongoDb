@@ -83,7 +83,7 @@ namespace Core.MongoDb.Tests
             return new AuthorizationCode
             {
                 IsOpenId = true,
-                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0),
+                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0, DateTimeKind.Utc),
                 Client = Client(),
                 RedirectUri = new Uri("uri:redirect"),
                 RequestedScopes = Scopes(),
@@ -129,7 +129,7 @@ namespace Core.MongoDb.Tests
             {
                 AccessToken = Token(),
                 ClientId = "clientId",
-                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0),
+                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0, DateTimeKind.Utc),
                 LifeTime = 100,
             };
         }
@@ -141,7 +141,7 @@ namespace Core.MongoDb.Tests
                 Audience = "audience",
                 Claims = Claims(),
                 Client = ClientAllProperties(),
-                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0),
+                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0, DateTimeKind.Utc),
                 Issuer = "issuer",
                 Lifetime = 200,
                 Type = "tokenType"

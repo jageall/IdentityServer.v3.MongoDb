@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.Core.MongoDb
@@ -58,9 +60,7 @@ namespace IdentityServer.Core.MongoDb
 
             return subject;
         }
-
         
-
         public AuthorizationCode Deserialize(BsonDocument doc)
         {
             var code = new AuthorizationCode();
@@ -68,8 +68,7 @@ namespace IdentityServer.Core.MongoDb
             code.IsOpenId = doc.GetValueOrDefault("isOpenId", code.IsOpenId);
             code.RedirectUri = doc.GetValueOrDefault("redirectUri", code.RedirectUri);
             code.WasConsentShown = doc.GetValueOrDefault("wasConsentShown", code.WasConsentShown);
-
-
+            
             var claimsPrincipal = new ClaimsPrincipal();
             IEnumerable<ClaimsIdentity> identities = doc.GetValueOrDefault("subject", sub =>
             {

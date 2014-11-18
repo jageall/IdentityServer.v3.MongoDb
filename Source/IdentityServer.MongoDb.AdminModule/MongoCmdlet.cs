@@ -11,6 +11,7 @@ namespace IdentityServer.MongoDb.AdminModule
         private readonly bool _createDb;
         private IAdminService _adminService;
         private IScopeStore _scopeStore;
+        private ICleanupExpiredTokens _tokenCleanupService;
 
         protected MongoCmdlet(bool createDb = false)
         {
@@ -46,6 +47,11 @@ namespace IdentityServer.MongoDb.AdminModule
             get { return _scopeStore; }
         }
 
+        public ICleanupExpiredTokens TokenCleanupService
+        {
+            get { return _tokenCleanupService; }
+        }
+
         protected override void BeginProcessing()
         {
             var storeSettings = ServiceFactory.DefaultStoreSettings();
@@ -62,6 +68,7 @@ namespace IdentityServer.MongoDb.AdminModule
             var serviceFactory = new ServiceFactory(null, storeSettings);
 
             _adminService = serviceFactory.AdminService.TypeFactory();
+            _tokenCleanupService = serviceFactory.TokenCleanupService.TypeFactory();
             _scopeStore = serviceFactory.ScopeStore.TypeFactory();
             base.BeginProcessing();
         }

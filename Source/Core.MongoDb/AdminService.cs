@@ -59,7 +59,7 @@ namespace IdentityServer.Core.MongoDb
 
         public void RemoveDatabase()
         {
-            // _db.Drop();
+            _db.Drop();
         }
     }
 }

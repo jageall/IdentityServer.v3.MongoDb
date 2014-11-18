@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using IdentityServer.Core.MongoDb;
 
 namespace Core.MongoDb.Tests
@@ -7,7 +8,6 @@ namespace Core.MongoDb.Tests
     {
         private readonly ServiceFactory _factory;
         private readonly IAdminService _adminService;
-
         public RequireAdminService()
         {
             var storeSettings = ServiceFactory.DefaultStoreSettings();
@@ -16,7 +16,6 @@ namespace Core.MongoDb.Tests
                 null,
                 storeSettings);
             _adminService = Factory.AdminService.TypeFactory();
-            _adminService.RemoveDatabase();
             _adminService.CreateDatabase();
         }
 
