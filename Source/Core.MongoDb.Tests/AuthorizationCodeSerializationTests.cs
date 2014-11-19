@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
 using Xunit;
 
@@ -60,6 +62,16 @@ namespace Core.MongoDb.Tests
         public void CheckClient()
         {
             Assert.Equal(_expected.ClientId, _actual.ClientId);
+        }
+
+        [Fact]
+        public void CheckAll()
+        {
+            var serializer = new JsonSerializer(){ReferenceLoopHandling = ReferenceLoopHandling.Ignore};
+            var expected = JObject.FromObject(_expected, serializer).ToString();
+            var actual = JObject.FromObject(_actual, serializer).ToString();
+            Assert.Equal(expected, actual);
+            Console.WriteLine(actual);
         }
 
         protected override void Initialize()

@@ -67,6 +67,7 @@
     <Compile Include="ReadScopes.cs" />
     <Compile Include="SaveClient.cs" />
     <Compile Include="SaveScope.cs" />
+    <Compile Include="TokenTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
