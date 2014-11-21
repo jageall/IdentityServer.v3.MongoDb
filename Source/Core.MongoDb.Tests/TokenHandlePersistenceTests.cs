@@ -87,7 +87,7 @@ namespace Core.MongoDb.Tests
             var store = Factory.TokenHandleStore.TypeFactory();
             var key = GetType().Name;
             _expected = TestData.Token();
-            store.StoreAsync(key, _expected);
+            store.StoreAsync(key, TestData.Token());
             _actual = store.GetAsync(key).Result;
         }
     }

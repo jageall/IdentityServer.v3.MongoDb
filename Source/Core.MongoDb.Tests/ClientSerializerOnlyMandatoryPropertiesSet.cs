@@ -169,7 +169,7 @@ namespace Core.MongoDb.Tests
         {
             var store = Factory.ClientStore.TypeFactory();
             _expected = TestData.ClientAllProperties();
-            AdminService.Save(_expected);
+            AdminService.Save(TestData.ClientAllProperties());
             _actual = store.FindClientByIdAsync(_expected.ClientId).Result;
         }
     }

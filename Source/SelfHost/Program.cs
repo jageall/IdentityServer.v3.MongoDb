@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer.Core.MongoDb;
 using Microsoft.Owin.Hosting;
+using Microsoft.Owin.Security.DataProtection;
 using Owin;
 using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Logging;
@@ -12,6 +13,8 @@ using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 using Thinktecture.IdentityServer.Core.Services.InMemory;
 using Constants = Thinktecture.IdentityServer.Core.Constants;
+using IDataProtector = Microsoft.Owin.Security.DataProtection.IDataProtector;
+
 namespace SelfHost
 {
     class Program
@@ -32,6 +35,7 @@ namespace SelfHost
         private static void ConfigureIdentityServer(IAppBuilder app)
         {
             var factory = new ServiceFactory(Registration.RegisterSingleton<IUserService>(new InMemoryUserService(Users())));
+            app.ProtectClientSecretWithHostProtection(factory);
             var adminService = factory.AdminService.TypeFactory();
             SetupDatabase(adminService);
             var options = new IdentityServerOptions

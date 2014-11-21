@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Threading;
+using System.Linq;
 using IdentityServer.Core.MongoDb;
+using Thinktecture.IdentityServer.Core.Configuration;
 
 namespace Core.MongoDb.Tests
 {
@@ -15,6 +16,8 @@ namespace Core.MongoDb.Tests
             _factory = new ServiceFactory(
                 null,
                 storeSettings);
+            _factory.ProtectClientSecretWith(new ReverseDataProtector());
+
             _adminService = Factory.AdminService.TypeFactory();
             _adminService.CreateDatabase();
         }
@@ -32,6 +35,20 @@ namespace Core.MongoDb.Tests
         public void Dispose()
         {
             //_adminService.RemoveDatabase();
+        }
+
+        class ReverseDataProtector : IDataProtector
+        {
+            public byte[] Protect(byte[] data, string entropy = "")
+            {
+                return data.Reverse().ToArray();
+            }
+
+            public byte[] Unprotect(byte[] data, string entropy = "")
+            {
+                //return data;
+                return data.Reverse().ToArray();
+            }
         }
     }
 }

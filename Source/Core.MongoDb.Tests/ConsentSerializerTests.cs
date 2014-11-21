@@ -54,7 +54,7 @@ namespace Core.MongoDb.Tests
                 Subject = "subject",
                 Scopes = new[] { "scope1", "scope2" }
             };
-            ;
+            
             store.UpdateAsync(_expected).Wait();
             _actual = store.LoadAsync(_expected.Subject, _expected.ClientId).Result;
         }

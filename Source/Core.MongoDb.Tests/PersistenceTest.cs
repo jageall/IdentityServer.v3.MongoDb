@@ -1,4 +1,6 @@
+using System.Linq;
 using IdentityServer.Core.MongoDb;
+using Thinktecture.IdentityServer.Core.Configuration;
 
 namespace Core.MongoDb.Tests
 {

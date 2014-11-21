@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Tests.ps1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.MongoDb\Core.MongoDb.csproj">

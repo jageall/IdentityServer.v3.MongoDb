@@ -1,3 +1,5 @@
+using Thinktecture.IdentityServer.Core.Configuration;
+
 namespace IdentityServer.Core.MongoDb
 {
     public class StoreSettings

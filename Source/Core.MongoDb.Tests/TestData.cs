@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Text;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace Core.MongoDb.Tests
@@ -19,7 +20,7 @@ namespace Core.MongoDb.Tests
                 AuthorizationCodeLifetime = 30,
                 ClientId = "123",
                 ClientName = "TEST",
-                ClientSecret = "secret",
+                ClientSecret = Convert.ToBase64String(Encoding.UTF8.GetBytes("secret")),
                 ClientUri = "clientUri",
                 Enabled = true,
                 Flow = Flows.AuthorizationCode,

@@ -2,6 +2,9 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Management.Automation;
+using System.Security.Cryptography;
+using System.Text;
+using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.MongoDb.AdminModule
@@ -68,9 +71,19 @@ namespace IdentityServer.MongoDb.AdminModule
         [Parameter]
         public string[] ScopeRestrictions { get; set; }
 
+        [Parameter]
+        public IDataProtector ClientSecretProtector { get; set; }
+
+        //todo: Make this part of a parameter set
+        public string Password { get; set; }
+
         protected override void ProcessRecord()
         {
+            ValidateClientSecretSettings();
+            ProtectClientSecret();
+
             var client = new Client() { ClientId = ClientId, ClientName = ClientName };
+            
             client.AbsoluteRefreshTokenLifetime =
                 AbsoluteRefreshTokenLifetime.GetValueOrDefault(client.AbsoluteRefreshTokenLifetime);
             client.AccessTokenLifetime = AccessTokenLifetime.GetValueOrDefault(client.AccessTokenLifetime);
@@ -79,6 +92,7 @@ namespace IdentityServer.MongoDb.AdminModule
             client.AllowRememberConsent = AllowRememberConsent.GetValueOrDefault(client.AllowRememberConsent);
             client.AuthorizationCodeLifetime =
                 AuthorizationCodeLifetime.GetValueOrDefault(client.AuthorizationCodeLifetime);
+
             client.ClientSecret = ClientSecret;
             client.ClientUri = ClientUri;
             client.Enabled = Enabled.GetValueOrDefault(client.Enabled);
@@ -98,6 +112,49 @@ namespace IdentityServer.MongoDb.AdminModule
             client.SlidingRefreshTokenLifetime =
                 SlidingRefreshTokenLifetime.GetValueOrDefault(client.SlidingRefreshTokenLifetime);
             WriteObject(client);
+        }
+
+        private void ProtectClientSecret()
+        {
+            if (string.IsNullOrEmpty(ClientSecret) && string.IsNullOrEmpty(Password))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(Password))
+            {
+                var algorithm = SHA256.Create();
+                var hash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(Password));
+                ClientSecret = Convert.ToBase64String(hash);
+            }
+
+            if (ClientSecretProtector != null)
+            {
+                var bytes = Convert.FromBase64String(ClientSecret);
+                //TODO: where will the entrophy if any come from?
+                var @protected = ClientSecretProtector.Protect(bytes);
+                ClientSecret = Convert.ToBase64String(@protected);
+            }
+        }
+
+        private void ValidateClientSecretSettings()
+        {
+            if(string.IsNullOrWhiteSpace(ClientSecret) && IdentityTokenSigningKeyType == SigningKeyTypes.ClientSecret)
+                throw new InvalidOperationException("No client secret specified but signing key specified as client secret");
+
+            try
+            {
+                var result = Convert.FromBase64String(ClientSecret);
+            }
+            catch(FormatException)
+            {
+                throw new ArgumentException("ClientSecret is not a base64 encoded string");
+            }
+
+            if (ClientSecretProtector == null)
+            {
+                WriteWarning("No client secret protector set");
+            }
         }
     }
 }

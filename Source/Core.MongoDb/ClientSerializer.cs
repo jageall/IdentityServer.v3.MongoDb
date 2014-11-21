@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using MongoDB.Bson;
+using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.Core.MongoDb
