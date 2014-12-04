@@ -1,5 +1,7 @@
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.Core.MongoDb
@@ -33,13 +35,16 @@ namespace IdentityServer.Core.MongoDb
                 _settings.RefreshTokenCollection,
                 _settings.TokenHandleCollection
             };
+
             foreach (string tokenCollection in tokenCollections)
             {
-                if (!_db.CollectionExists(tokenCollection))
-                {
-                    MongoCollection<BsonDocument> collection = _db.GetCollection(tokenCollection);
-                    collection.CreateIndex("_clientId", "_subjectId");
-                }
+                var options = new IndexOptionsBuilder();
+                var keys = new IndexKeysBuilder();
+                keys.Ascending("_expires");
+                options.SetTimeToLive(TimeSpan.FromSeconds(1));
+                MongoCollection<BsonDocument> collection = _db.GetCollection(tokenCollection);
+                collection.CreateIndex("_clientId", "_subjectId");
+                collection.CreateIndex(keys, options);
             }
         }
 
