@@ -2,7 +2,6 @@ using System;
 using System.Management.Automation;
 using IdentityServer.Core.MongoDb;
 using MongoDB.Driver;
-using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.MongoDb.AdminModule

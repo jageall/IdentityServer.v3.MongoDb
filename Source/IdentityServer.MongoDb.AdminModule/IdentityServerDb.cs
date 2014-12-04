@@ -1,5 +1,4 @@
 ﻿using System.Management.Automation;
-using IdentityServer.Core.MongoDb;
 
 namespace IdentityServer.MongoDb.AdminModule
 {

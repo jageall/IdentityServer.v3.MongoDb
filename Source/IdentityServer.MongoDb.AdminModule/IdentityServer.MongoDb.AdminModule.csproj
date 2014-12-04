@@ -53,7 +53,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="Thinktecture.IdentityServer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Thinktecture.IdentityServer.v3.1.0.0-beta3-2\lib\net45\Thinktecture.IdentityServer.dll</HintPath>
+      <HintPath>..\packages\Thinktecture.IdentityServer.v3.1.0.0-beta3-4\lib\net45\Thinktecture.IdentityServer.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -85,7 +85,7 @@
   </Target>-->
   <Target Name="AfterBuild">
     <MakeDir Directories="$(SolutionDir)..\out" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
-    <Exec Command="$(SolutionDir)\packages\ilmerge.2.13.0307\ILMerge.exe /internalize /out:$(SolutionDir)..\out\$(TargetName)$(TargetExt) $(TargetDir)$(TargetName)$(TargetExt) $(TargetDir)MongoDB.Bson.dll $(TargetDir)MongoDB.Driver.dll $(TargetDir)IdentityServer.Core.MongoDb.dll $(TargetDir)Owin.dll" ContinueOnError="false" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
+    <Exec Command="$(SolutionDir)\packages\ilmerge.2.13.0307\ILMerge.exe /internalize /out:$(SolutionDir)..\out\$(TargetName)$(TargetExt) $(TargetDir)$(TargetName)$(TargetExt) $(TargetDir)MongoDB.Bson.dll $(TargetDir)MongoDB.Driver.dll $(TargetDir)IdentityServer.Core.MongoDb.dll $(TargetDir)Owin.dll $(TargetDir)Microsoft.Owin.Security.dll" ContinueOnError="false" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
     <Copy SourceFiles="$(TargetDir)Thinktecture.IdentityServer.dll" DestinationFolder="$(SolutionDir)..\out" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
   </Target>
 </Project>
