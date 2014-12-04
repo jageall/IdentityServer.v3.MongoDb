@@ -9,7 +9,9 @@ namespace IdentityServer.MongoDb.AdminModule
         [Parameter(Mandatory = true), 
          ValidateNotNullOrEmpty]
         public string Name { get; set; }
+        [Parameter]
         public bool? AlwaysIncludeInIdToken { get; set; }
+        [Parameter]
         public string Description { get; set; }
         protected override void ProcessRecord()
         {

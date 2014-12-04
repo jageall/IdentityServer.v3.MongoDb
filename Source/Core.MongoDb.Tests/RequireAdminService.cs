@@ -46,7 +46,6 @@ namespace Core.MongoDb.Tests
 
             public byte[] Unprotect(byte[] data, string entropy = "")
             {
-                //return data;
                 return data.Reverse().ToArray();
             }
         }
