@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Management.Automation;
+using System.Reflection;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.MongoDb.AdminModule
@@ -15,7 +17,11 @@ namespace IdentityServer.MongoDb.AdminModule
             IEnumerable<Scope> scopes;
             if (Predefined)
             {
-                scopes = StandardScopes.All;
+                var scopeAccessors =
+                    typeof (StandardScopes).GetProperties(BindingFlags.Static | BindingFlags.Public)
+                        .Where(x => x.PropertyType == typeof (Scope));
+                var builtin = scopeAccessors.Select(scopeAccessor => (Scope) scopeAccessor.GetValue(null)).ToList();
+                scopes = builtin;
             } else
             {
                 scopes = ScopeStore.GetScopesAsync().Result;
