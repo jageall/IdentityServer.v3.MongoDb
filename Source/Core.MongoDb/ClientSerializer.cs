@@ -37,15 +37,15 @@ namespace IdentityServer.Core.MongoDb
             doc["identityTokenSigningKeyType"] = client.IdentityTokenSigningKeyType.ToString();
             doc.SetIfNotNull("logoUri", client.LogoUri);
             var postLogoutRedirectUris = new BsonArray();
-            foreach (Uri uri in client.PostLogoutRedirectUris)
+            foreach (var uri in client.PostLogoutRedirectUris)
             {
-                postLogoutRedirectUris.Add(uri.ToString());
+                postLogoutRedirectUris.Add(uri);
             }
 
             var redirectUris = new BsonArray();
-            foreach (Uri uri in client.RedirectUris)
+            foreach (var uri in client.RedirectUris)
             {
-                redirectUris.Add(uri.ToString());
+                redirectUris.Add(uri);
             }
             doc["redirectUris"] = redirectUris;
             doc["postLogoutRedirectUris"] = postLogoutRedirectUris;
@@ -110,7 +110,7 @@ namespace IdentityServer.Core.MongoDb
                 "flow",
                 DefaultValues.Flow);
             client.IdentityProviderRestrictions =
-                doc["identityProviderRestrictions"].AsBsonArray.Select(x => x.AsString);
+                doc["identityProviderRestrictions"].AsBsonArray.Select(x => x.AsString).ToList();
             client.IdentityTokenLifetime = doc.GetValueOrDefault(
                 "identityTokenLifetime",
                 DefaultValues.IdentityTokenLifetime);
@@ -124,10 +124,10 @@ namespace IdentityServer.Core.MongoDb
                 DefaultValues.LogoUri);
 
             client.PostLogoutRedirectUris.AddRange(
-                doc["postLogoutRedirectUris"].AsBsonArray.Select(x => new Uri(x.AsString)));
+                doc["postLogoutRedirectUris"].AsBsonArray.Select(x => x.AsString));
 
             client.RedirectUris.AddRange(
-                doc["redirectUris"].AsBsonArray.Select(x => new Uri(x.AsString)));
+                doc["redirectUris"].AsBsonArray.Select(x => x.AsString));
 
 
             client.RefreshTokenExpiration = doc.GetValueOrDefault(

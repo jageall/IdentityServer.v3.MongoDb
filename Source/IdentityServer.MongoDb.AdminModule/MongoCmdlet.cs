@@ -67,9 +67,9 @@ namespace IdentityServer.MongoDb.AdminModule
             
             var serviceFactory = new ServiceFactory(null, storeSettings);
 
-            _adminService = serviceFactory.AdminService.TypeFactory();
-            _tokenCleanupService = serviceFactory.TokenCleanupService.TypeFactory();
-            _scopeStore = serviceFactory.ScopeStore.TypeFactory();
+            _adminService = serviceFactory.AdminService.TypeFactory(null);
+            _tokenCleanupService = serviceFactory.TokenCleanupService.TypeFactory(null);
+            _scopeStore = serviceFactory.ScopeStore.TypeFactory(null);
             base.BeginProcessing();
         }
 

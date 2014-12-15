@@ -47,7 +47,7 @@ namespace Core.MongoDb.Tests
 
         protected override void Initialize()
         {
-            var store = Factory.ConsentStore.TypeFactory();
+            var store = Factory.ConsentStore.TypeFactory(null);
             _expected = new Consent
             {
                 ClientId = "client",

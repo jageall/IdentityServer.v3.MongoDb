@@ -27,8 +27,8 @@ namespace IdentityServer.Core.MongoDb
             doc["_version"] = 1;
             doc["_clientId"] = code.ClientId;
             doc["_subjectId"] = code.SubjectId;
-            doc["_expires"] = code.CreationTime.AddSeconds(code.Client.AuthorizationCodeLifetime);
-            doc["creationTime"] = code.CreationTime;
+            doc["_expires"] = code.CreationTime.AddSeconds(code.Client.AuthorizationCodeLifetime).ToBsonDateTime();
+            doc["creationTime"] = code.CreationTime.ToBsonDateTime();
             doc["isOpenId"] = code.IsOpenId;
             doc["redirectUri"] = code.RedirectUri.ToString();
             doc["wasConsentShown"] = code.WasConsentShown;

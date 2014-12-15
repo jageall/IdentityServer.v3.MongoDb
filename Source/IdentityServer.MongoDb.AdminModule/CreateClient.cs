@@ -97,14 +97,14 @@ namespace IdentityServer.MongoDb.AdminModule
             client.ClientUri = ClientUri;
             client.Enabled = Enabled.GetValueOrDefault(client.Enabled);
             client.Flow = Flow.GetValueOrDefault(client.Flow);
-            client.IdentityProviderRestrictions = IdentityProviderRestrictions ?? client.IdentityProviderRestrictions;
+            client.IdentityProviderRestrictions = IdentityProviderRestrictions.ToList() ?? client.IdentityProviderRestrictions;
             client.IdentityTokenLifetime = IdentityTokenLifetime.GetValueOrDefault(client.IdentityTokenLifetime);
             client.IdentityTokenSigningKeyType =
                 IdentityTokenSigningKeyType.GetValueOrDefault(client.IdentityTokenSigningKeyType);
-            client.LogoUri = string.IsNullOrEmpty(LogoUri) ? null : new Uri(LogoUri);
+            client.LogoUri = LogoUri;
             
-            client.PostLogoutRedirectUris.AddRange((PostLogoutRedirectUris ?? new string[] { }).Select(x => new Uri(x)));
-            client.RedirectUris.AddRange((RedirectUris ?? new string[] { }).Select(x=> new Uri(x)));
+            client.PostLogoutRedirectUris.AddRange(PostLogoutRedirectUris ?? new string[] { });
+            client.RedirectUris.AddRange(RedirectUris ?? new string[] { });
             client.RefreshTokenExpiration = RefreshTokenExpiration.GetValueOrDefault(client.RefreshTokenExpiration);
             client.RefreshTokenUsage = RefreshTokenUsage.GetValueOrDefault(client.RefreshTokenUsage);
             client.RequireConsent = RequireConsent.GetValueOrDefault(client.RequireConsent);

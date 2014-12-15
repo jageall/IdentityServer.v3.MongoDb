@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using Thinktecture.IdentityServer.Core.Models;
@@ -24,12 +25,12 @@ namespace Core.MongoDb.Tests
                 ClientUri = "clientUri",
                 Enabled = true,
                 Flow = Flows.AuthorizationCode,
-                IdentityProviderRestrictions = new[] { "idpr" },
+                IdentityProviderRestrictions = new[] { "idpr" }.ToList(),
                 IdentityTokenLifetime = 40,
                 IdentityTokenSigningKeyType = SigningKeyTypes.ClientSecret,
-                LogoUri = new Uri("uri:logo"),
-                PostLogoutRedirectUris = { new Uri("uri:logout") },
-                RedirectUris = { new Uri("uri:redirect") },
+                LogoUri = "uri:logo",
+                PostLogoutRedirectUris = { "uri:logout" },
+                RedirectUris = { "uri:redirect" },
                 RefreshTokenExpiration = TokenExpiration.Sliding,
                 RefreshTokenUsage = TokenUsage.ReUse,
                 RequireConsent = true,
@@ -86,7 +87,7 @@ namespace Core.MongoDb.Tests
                 IsOpenId = true,
                 CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0, DateTimeKind.Utc),
                 Client = Client(),
-                RedirectUri = new Uri("uri:redirect"),
+                RedirectUri = "uri:redirect",
                 RequestedScopes = Scopes(),
                 Subject = Subject(),
                 WasConsentShown = true
