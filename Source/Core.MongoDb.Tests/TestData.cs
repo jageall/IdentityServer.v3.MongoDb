@@ -34,7 +34,7 @@ namespace Core.MongoDb.Tests
                 RefreshTokenExpiration = TokenExpiration.Sliding,
                 RefreshTokenUsage = TokenUsage.ReUse,
                 RequireConsent = true,
-                ScopeRestrictions = { "restriction" },
+                ScopeRestrictions = { "restriction1", "restriction2", "restriction3" },
                 SlidingRefreshTokenLifetime = 50
             };
         }
@@ -85,7 +85,7 @@ namespace Core.MongoDb.Tests
             return new AuthorizationCode
             {
                 IsOpenId = true,
-                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0, DateTimeKind.Utc),
+                CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 Client = Client(),
                 RedirectUri = "uri:redirect",
                 RequestedScopes = Scopes(),
@@ -127,11 +127,11 @@ namespace Core.MongoDb.Tests
 
         public static RefreshToken RefreshToken()
         {
-            return new RefreshToken()
+            return new RefreshToken
             {
                 AccessToken = Token(),
                 ClientId = "clientId",
-                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0, DateTimeKind.Utc),
+                CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 LifeTime = 100,
             };
         }
@@ -143,7 +143,7 @@ namespace Core.MongoDb.Tests
                 Audience = "audience",
                 Claims = Claims(),
                 Client = ClientAllProperties(),
-                CreationTime = new DateTime(2000, 1, 1, 1, 1, 1, 0, DateTimeKind.Utc),
+                CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 Issuer = "issuer",
                 Lifetime = 200,
                 Type = "tokenType"
