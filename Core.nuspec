@@ -14,7 +14,7 @@
     <dependencies>
       <dependency id="Owin" version="1.0" />
       <dependency id="Thinktecture.IdentityServer.v3"
-                  version="1.0.0-beta3-1" />
+                  version="1.0.0-beta4" />
     </dependencies>
   </metadata>
   <files>
