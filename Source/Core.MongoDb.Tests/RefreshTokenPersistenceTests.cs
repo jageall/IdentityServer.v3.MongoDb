@@ -65,7 +65,7 @@ namespace Core.MongoDb.Tests
 
         protected override void Initialize()
         {
-            var store = Factory.RefreshTokenStore.TypeFactory();
+            var store = Factory.RefreshTokenStore.TypeFactory(null);
             var key = GetType().Name;
             _expected = TestData.RefreshToken();
             store.StoreAsync(key, TestData.RefreshToken());

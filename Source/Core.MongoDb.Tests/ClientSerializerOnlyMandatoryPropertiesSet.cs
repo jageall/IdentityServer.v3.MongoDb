@@ -167,7 +167,7 @@ namespace Core.MongoDb.Tests
 
         protected override void Initialize()
         {
-            var store = Factory.ClientStore.TypeFactory();
+            var store = Factory.ClientStore.TypeFactory(null);
             _expected = TestData.ClientAllProperties();
             AdminService.Save(TestData.ClientAllProperties());
             _actual = store.FindClientByIdAsync(_expected.ClientId).Result;

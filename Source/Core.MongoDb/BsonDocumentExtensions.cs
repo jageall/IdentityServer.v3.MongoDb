@@ -37,7 +37,7 @@ namespace IdentityServer.Core.MongoDb
             return @default;
         }
 
-        public static DateTime GetValueOrDefault(this BsonDocument doc, string name, DateTime @default)
+        public static DateTimeOffset GetValueOrDefault(this BsonDocument doc, string name, DateTimeOffset @default)
         {
             if (doc.Contains(name) && doc[name].IsValidDateTime)
             {
@@ -140,6 +140,11 @@ namespace IdentityServer.Core.MongoDb
                     .Select(x => x.AsString);
             }
             return @default;
+        }
+
+        public static BsonValue ToBsonDateTime(this DateTimeOffset dateTime)
+        {
+            return BsonTypeMapper.MapToBsonValue(dateTime, BsonType.DateTime);
         }
     }
 }

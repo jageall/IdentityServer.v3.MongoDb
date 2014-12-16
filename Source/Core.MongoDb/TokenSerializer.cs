@@ -19,7 +19,7 @@ namespace IdentityServer.Core.MongoDb
         {
             var doc = new BsonDocument();
             doc["_id"] = key;
-            doc["_expires"] = token.CreationTime.AddSeconds(token.Lifetime);
+            doc["_expires"] = token.CreationTime.AddSeconds(token.Lifetime).ToBsonDateTime();
             Serialize(doc, token);
             return doc;
         }
@@ -30,7 +30,7 @@ namespace IdentityServer.Core.MongoDb
             doc["audience"] = token.Audience;
             doc["claims"] = _claimsSetSerializer.Serialize(token.Claims);
             doc["client"] = _clientSerializer.Serialize(token.Client);
-            doc["creationTime"] = token.CreationTime;
+            doc["creationTime"] = token.CreationTime.ToBsonDateTime();
             doc["issuer"] = token.Issuer;
             doc["lifetime"] = token.Lifetime;
             doc["type"] = token.Type;

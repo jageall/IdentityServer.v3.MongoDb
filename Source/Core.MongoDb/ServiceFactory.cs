@@ -104,11 +104,11 @@ namespace IdentityServer.Core.MongoDb
         
         class ProtectedClientStore : IClientStore
         {
-            private readonly Func<IClientStore> _factory;
+            private readonly Func<IDependencyResolver, IClientStore> _factory;
             private readonly IDataProtector _protector;
 
             public ProtectedClientStore(
-                Func<IClientStore> factory,
+                Func<IDependencyResolver, IClientStore> factory,
                 IDataProtector protector)
             {
                 _factory = factory;
@@ -117,7 +117,7 @@ namespace IdentityServer.Core.MongoDb
 
             public async Task<Client> FindClientByIdAsync(string clientId)
             {
-                var inner = _factory();
+                var inner = _factory(null);
                 var client = await inner.FindClientByIdAsync(clientId);
                 Unprotect(client, _protector);
                 return client;
@@ -126,10 +126,10 @@ namespace IdentityServer.Core.MongoDb
 
         class ProtectedAdminService : IAdminService
         {
-            private readonly Func<IAdminService> _factory;
+            private readonly Func<IDependencyResolver, IAdminService> _factory;
             private readonly IDataProtector _protector;
 
-            public ProtectedAdminService(Func<IAdminService> factory, IDataProtector protector)
+            public ProtectedAdminService(Func<IDependencyResolver, IAdminService> factory, IDataProtector protector)
             {
                 _factory = factory;
                 _protector = protector;
@@ -137,32 +137,32 @@ namespace IdentityServer.Core.MongoDb
 
             public void CreateDatabase()
             {
-                _factory().CreateDatabase();
+                _factory(null).CreateDatabase();
             }
 
             public void Save(Scope scope)
             {
-                _factory().Save(scope);
+                _factory(null).Save(scope);
             }
 
             public void Save(Client client)
             {
                 Protect(client, _protector);
-                _factory().Save(client);
+                _factory(null).Save(client);
             }
 
             public void RemoveDatabase()
             {
-                _factory().RemoveDatabase();
+                _factory(null).RemoveDatabase();
             }
         }
 
         class ProtectedAuthorizationCodeStore : IAuthorizationCodeStore
         {
-            private readonly Func<IAuthorizationCodeStore> _inner;
+            private readonly Func<IDependencyResolver, IAuthorizationCodeStore> _inner;
             private readonly IDataProtector _protector;
 
-            public ProtectedAuthorizationCodeStore(Func<IAuthorizationCodeStore> inner, IDataProtector protector)
+            public ProtectedAuthorizationCodeStore(Func<IDependencyResolver, IAuthorizationCodeStore> inner, IDataProtector protector)
             {
                 _inner = inner;
                 _protector = protector;
@@ -171,24 +171,24 @@ namespace IdentityServer.Core.MongoDb
             public Task StoreAsync(string key, AuthorizationCode value)
             {
                 Protect(value.Client, _protector);
-                return _inner().StoreAsync(key, value);
+                return _inner(null).StoreAsync(key, value);
             }
 
             public async Task<AuthorizationCode> GetAsync(string key)
             {
-                var result = await _inner().GetAsync(key);
+                var result = await _inner(null).GetAsync(key);
                 Unprotect(result.Client, _protector);
                 return result;
             }
 
             public Task RemoveAsync(string key)
             {
-                return _inner().RemoveAsync(key);
+                return _inner(null).RemoveAsync(key);
             }
 
             public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
             {
-                var results = await _inner().GetAllAsync(subject);
+                var results = await _inner(null).GetAllAsync(subject);
                 return results
                     .OfType<AuthorizationCode>()
                     .Select(ac =>
@@ -202,16 +202,16 @@ namespace IdentityServer.Core.MongoDb
 
             public Task RevokeAsync(string subject, string client)
             {
-                return _inner().RevokeAsync(subject, client);
+                return _inner(null).RevokeAsync(subject, client);
             }
         }
 
         class ProtectedTokenHandleStore : ITokenHandleStore
         {
-            private readonly Func<ITokenHandleStore> _inner;
+            private readonly Func<IDependencyResolver, ITokenHandleStore> _inner;
             private readonly IDataProtector _protector;
 
-            public ProtectedTokenHandleStore(Func<ITokenHandleStore> inner, IDataProtector protector)
+            public ProtectedTokenHandleStore(Func<IDependencyResolver, ITokenHandleStore> inner, IDataProtector protector)
             {
                 _inner = inner;
                 _protector = protector;
@@ -220,24 +220,24 @@ namespace IdentityServer.Core.MongoDb
             public Task StoreAsync(string key, Token value)
             {
                 Protect(value.Client, _protector);
-                return _inner().StoreAsync(key, value);
+                return _inner(null).StoreAsync(key, value);
             }
 
             public async Task<Token> GetAsync(string key)
             {
-                var result = await _inner().GetAsync(key);
+                var result = await _inner(null).GetAsync(key);
                 Unprotect(result.Client, _protector);
                 return result;
             }
 
             public Task RemoveAsync(string key)
             {
-                return _inner().RemoveAsync(key);
+                return _inner(null).RemoveAsync(key);
             }
 
             public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
             {
-                var result = await _inner().GetAllAsync(subject);
+                var result = await _inner(null).GetAllAsync(subject);
 
                 return result
                     .OfType<Token>()
@@ -251,16 +251,16 @@ namespace IdentityServer.Core.MongoDb
 
             public Task RevokeAsync(string subject, string client)
             {
-                return _inner().RevokeAsync(subject, client);
+                return _inner(null).RevokeAsync(subject, client);
             }
         }
 
         class ProtectedRefreshTokenStore : IRefreshTokenStore
         {
-            private readonly Func<IRefreshTokenStore> _inner;
+            private readonly Func<IDependencyResolver, IRefreshTokenStore> _inner;
             private readonly IDataProtector _protector;
 
-            public ProtectedRefreshTokenStore(Func<IRefreshTokenStore> inner, IDataProtector protector)
+            public ProtectedRefreshTokenStore(Func<IDependencyResolver, IRefreshTokenStore> inner, IDataProtector protector)
             {
                 _inner = inner;
                 _protector = protector;
@@ -269,24 +269,24 @@ namespace IdentityServer.Core.MongoDb
             public Task StoreAsync(string key, RefreshToken value)
             {
                 Protect(value.AccessToken.Client, _protector);
-                return _inner().StoreAsync(key, value);
+                return _inner(null).StoreAsync(key, value);
             }
 
             public async Task<RefreshToken> GetAsync(string key)
             {
-                var result = await _inner().GetAsync(key);
+                var result = await _inner(null).GetAsync(key);
                 Unprotect(result.AccessToken.Client, _protector);
                 return result;
             }
 
             public Task RemoveAsync(string key)
             {
-                return _inner().RemoveAsync(key);
+                return _inner(null).RemoveAsync(key);
             }
 
             public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
             {
-                var result = await _inner().GetAllAsync(subject);
+                var result = await _inner(null).GetAllAsync(subject);
 
                 return result
                     .OfType<Token>()
@@ -300,7 +300,7 @@ namespace IdentityServer.Core.MongoDb
 
             public Task RevokeAsync(string subject, string client)
             {
-                return _inner().RevokeAsync(subject, client);
+                return _inner(null).RevokeAsync(subject, client);
             }
         }
         internal class WrappedDataProtector : IDataProtector

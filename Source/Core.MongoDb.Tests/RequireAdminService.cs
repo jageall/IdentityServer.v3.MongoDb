@@ -18,7 +18,7 @@ namespace Core.MongoDb.Tests
                 storeSettings);
             _factory.ProtectClientSecretWith(new ReverseDataProtector());
 
-            _adminService = Factory.AdminService.TypeFactory();
+            _adminService = Factory.AdminService.TypeFactory(null);
             _adminService.CreateDatabase();
         }
 

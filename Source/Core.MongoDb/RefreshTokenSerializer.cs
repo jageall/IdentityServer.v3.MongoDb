@@ -16,12 +16,12 @@ namespace IdentityServer.Core.MongoDb
             var doc = new BsonDocument();
             doc["_id"] = key;
             doc["_version"] = 1;
-            doc["_expires"] = value.CreationTime.AddSeconds(value.LifeTime);
+            doc["_expires"] = value.CreationTime.AddSeconds(value.LifeTime).ToBsonDateTime();
             var accessToken = new BsonDocument();
             _tokenSerializer.Serialize(accessToken ,value.AccessToken);
             doc["accessToken"] = accessToken;
             doc["clientId"] = value.ClientId;
-            doc["creationTime"] = value.CreationTime;
+            doc["creationTime"] = value.CreationTime.ToBsonDateTime();
             doc["lifetime"] = value.LifeTime;
             return doc;
         }

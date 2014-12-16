@@ -78,7 +78,7 @@ namespace Core.MongoDb.Tests
         {
             var key = "AuthorizationCodeTests";
             _expected = TestData.AuthorizationCode();
-            var store = Factory.AuthorizationCodeStore.TypeFactory();
+            var store = Factory.AuthorizationCodeStore.TypeFactory(null);
             store.StoreAsync(key, TestData.AuthorizationCode()).Wait();
             _actual = store.GetAsync(key).Result;
         }

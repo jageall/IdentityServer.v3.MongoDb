@@ -106,7 +106,7 @@ namespace Core.MongoDb.Tests
             _expected = TestData.ScopeAllProperties();
             AdminService.Save(_expected);
             _actual =
-                Factory.ScopeStore.TypeFactory().GetScopesAsync().Result.SingleOrDefault(x => x.Name == _expected.Name);
+                Factory.ScopeStore.TypeFactory(null).GetScopesAsync().Result.SingleOrDefault(x => x.Name == _expected.Name);
 
         }
     }
