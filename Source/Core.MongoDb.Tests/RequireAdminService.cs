@@ -5,7 +5,7 @@ using Thinktecture.IdentityServer.Core.Configuration;
 
 namespace Core.MongoDb.Tests
 {
-    public class RequireAdminService : IDisposable
+    public class RequireAdminService
     {
         private readonly ServiceFactory _factory;
         private readonly IAdminService _adminService;
@@ -31,12 +31,7 @@ namespace Core.MongoDb.Tests
         {
             get { return _factory; }
         }
-
-        public void Dispose()
-        {
-            //_adminService.RemoveDatabase();
-        }
-
+        
         class ReverseDataProtector : IDataProtector
         {
             public byte[] Protect(byte[] data, string entropy = "")

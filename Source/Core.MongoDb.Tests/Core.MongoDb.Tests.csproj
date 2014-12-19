@@ -79,6 +79,7 @@
     <Compile Include="ScopeSerializerMandatoryPropertiesShouldRoundTrip.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScopeSeriailzerAllPropertiesShouldRoundTrip.cs" />
+    <Compile Include="ScopeStoreTests.cs" />
     <Compile Include="TestData.cs" />
     <Compile Include="TokenHandlePersistenceTests.cs" />
   </ItemGroup>
