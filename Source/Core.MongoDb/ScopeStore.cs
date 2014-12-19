@@ -5,6 +5,8 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
+using MongoDB.Driver.Builders;
+using MongoDB.Bson;
 
 namespace IdentityServer.Core.MongoDb
 {
@@ -19,9 +21,12 @@ namespace IdentityServer.Core.MongoDb
 
         public Task<IEnumerable<Scope>> FindScopesAsync(IEnumerable<string> scopeNames)
         {
+            var scopesAsBson = scopeNames
+                .Select(s => BsonValue.Create(s));
+
             return Task.FromResult(
                 Collection.AsQueryable()
-                    .Where(doc => scopeNames.Any(n => n == doc["displayName"]))
+                    .Where(doc => scopesAsBson.Contains(doc["_id"]))
                     .Select(doc => _serializer.Deserialize(doc))
                     .AsEnumerable()
             );
