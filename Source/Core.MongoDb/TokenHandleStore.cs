@@ -12,9 +12,9 @@ namespace IdentityServer.Core.MongoDb
     class TokenHandleStore : MongoDbStore, ITokenHandleStore{
         private readonly TokenSerializer _serializer;
 
-        public TokenHandleStore(MongoDatabase db, string collectionName) : base(db, collectionName)
+        public TokenHandleStore(MongoDatabase db, string collectionName, ClientSerializer clientSerializer) : base(db, collectionName)
         {
-            _serializer = new TokenSerializer();
+            _serializer = new TokenSerializer(clientSerializer);
         }
 
         public Task StoreAsync(string key, Token value)

@@ -7,9 +7,9 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly TokenSerializer _tokenSerializer;
 
-        public RefreshTokenSerializer()
+        public RefreshTokenSerializer(ClientSerializer clientSerializer)
         {
-            _tokenSerializer = new TokenSerializer();
+            _tokenSerializer = new TokenSerializer(clientSerializer);
         }
         public BsonDocument Serialize(string key, RefreshToken value)
         {

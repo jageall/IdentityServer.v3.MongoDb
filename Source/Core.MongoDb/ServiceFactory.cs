@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Owin.Security.DataProtection;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Owin;
 using Thinktecture.IdentityServer.Core.Configuration;
-using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 using IDataProtector = Thinktecture.IdentityServer.Core.Configuration.IDataProtector;
 
@@ -24,26 +20,31 @@ namespace IdentityServer.Core.MongoDb
             StoreSettings storeSettings)
         {
             var client = new MongoClient(MongoClientSettings(storeSettings.ConnectionString));
+            Func<IDependencyResolver,ClientSerializer> resolveClientSerializer = di => new ClientSerializer(di.Resolve<IProtectClientSecrets>());
             MongoServer server = client.GetServer();
             MongoDatabase db = server.GetDatabase(storeSettings.Database);
             UserService = userService;
             ClientStore =
-                Registration.RegisterSingleton<IClientStore>(new ClientStore(db, storeSettings.ClientCollection));
+                Registration.RegisterFactory<IClientStore>(di => new ClientStore(
+                    db, storeSettings.ClientCollection,
+                    resolveClientSerializer(di)));
             ScopeStore = Registration.RegisterSingleton<IScopeStore>(new ScopeStore(db, storeSettings.ScopeCollection));
             ConsentStore =
                 Registration.RegisterSingleton<IConsentStore>(new ConsentStore(db, storeSettings.ConsentCollection));
+            
             AuthorizationCodeStore =
-                Registration.RegisterSingleton<IAuthorizationCodeStore>(new AuthorizationCodeStore(db,
-                    storeSettings.AuthorizationCodeCollection));
+                Registration.RegisterFactory<IAuthorizationCodeStore>(di => new AuthorizationCodeStore(db,
+                    storeSettings.AuthorizationCodeCollection, resolveClientSerializer(di)));
 
-            RefreshTokenStore = Registration.RegisterSingleton<IRefreshTokenStore>(
-                new RefreshTokenStore(db, storeSettings.RefreshTokenCollection));
+            RefreshTokenStore = Registration.RegisterFactory<IRefreshTokenStore>(di =>
+                new RefreshTokenStore(db, storeSettings.RefreshTokenCollection, resolveClientSerializer(di)));
 
-            TokenHandleStore = Registration.RegisterSingleton<ITokenHandleStore>(
-                new TokenHandleStore(db, storeSettings.TokenHandleCollection));
-            AdminService = Registration.RegisterSingleton<IAdminService>(new AdminService(db, storeSettings));
+            TokenHandleStore = Registration.RegisterFactory<ITokenHandleStore>(di =>
+                new TokenHandleStore(db, storeSettings.TokenHandleCollection, new ClientSerializer(di.Resolve<IProtectClientSecrets>())));
+            AdminService = Registration.RegisterFactory<IAdminService>(di => new AdminService(db, storeSettings, resolveClientSerializer(di)));
             TokenCleanupService =
                 Registration.RegisterSingleton<ICleanupExpiredTokens>(new CleanupExpiredTokens(db, storeSettings));
+            Register(Registration.RegisterFactory<IProtectClientSecrets>(di => new DoNotProtectClientSecrets()));
         }
 
         public Registration<IAdminService> AdminService { get; set; }
@@ -72,6 +73,19 @@ namespace IdentityServer.Core.MongoDb
         }
     }
 
+    class DoNotProtectClientSecrets : IProtectClientSecrets
+    {
+        public string Protect(string clientId, string clientSecret)
+        {
+            return clientSecret;
+        }
+
+        public string Unprotect(string clientId, string clientSecret)
+        {
+            return clientSecret;
+        }
+    }
+
     //TODO: this class will die once identity server provides client secret protection
     public static class PatchingExtensionMethods
     {
@@ -86,223 +100,11 @@ namespace IdentityServer.Core.MongoDb
 
         public static void ProtectClientSecretWith(this ServiceFactory factory, IDataProtector protector)
         {
-            factory.ClientStore = Registration.RegisterSingleton<IClientStore>(
-                new ProtectedClientStore(factory.ClientStore.TypeFactory, protector));
 
-            factory.AdminService = Registration.RegisterSingleton<IAdminService>(
-                new ProtectedAdminService(factory.AdminService.TypeFactory, protector));
-
-            factory.AuthorizationCodeStore = Registration.RegisterSingleton<IAuthorizationCodeStore>(
-                new ProtectedAuthorizationCodeStore(factory.AuthorizationCodeStore.TypeFactory, protector));
-
-            factory.RefreshTokenStore = Registration.RegisterSingleton<IRefreshTokenStore>(
-                new ProtectedRefreshTokenStore(factory.RefreshTokenStore.TypeFactory, protector));
-
-            factory.TokenHandleStore = Registration.RegisterSingleton<ITokenHandleStore>(
-                new ProtectedTokenHandleStore(factory.TokenHandleStore.TypeFactory, protector));
+            factory.Register(Registration.RegisterFactory<IProtectClientSecrets>(di => new ProtectClientSecretWithDataProtector(protector)));
+            
         }
         
-        class ProtectedClientStore : IClientStore
-        {
-            private readonly Func<IDependencyResolver, IClientStore> _factory;
-            private readonly IDataProtector _protector;
-
-            public ProtectedClientStore(
-                Func<IDependencyResolver, IClientStore> factory,
-                IDataProtector protector)
-            {
-                _factory = factory;
-                _protector = protector;
-            }
-
-            public async Task<Client> FindClientByIdAsync(string clientId)
-            {
-                var inner = _factory(null);
-                var client = await inner.FindClientByIdAsync(clientId);
-                Unprotect(client, _protector);
-                return client;
-            }
-        }
-
-        class ProtectedAdminService : IAdminService
-        {
-            private readonly Func<IDependencyResolver, IAdminService> _factory;
-            private readonly IDataProtector _protector;
-
-            public ProtectedAdminService(Func<IDependencyResolver, IAdminService> factory, IDataProtector protector)
-            {
-                _factory = factory;
-                _protector = protector;
-            }
-
-            public void CreateDatabase()
-            {
-                _factory(null).CreateDatabase();
-            }
-
-            public void Save(Scope scope)
-            {
-                _factory(null).Save(scope);
-            }
-
-            public void Save(Client client)
-            {
-                Protect(client, _protector);
-                _factory(null).Save(client);
-            }
-
-            public void RemoveDatabase()
-            {
-                _factory(null).RemoveDatabase();
-            }
-        }
-
-        class ProtectedAuthorizationCodeStore : IAuthorizationCodeStore
-        {
-            private readonly Func<IDependencyResolver, IAuthorizationCodeStore> _inner;
-            private readonly IDataProtector _protector;
-
-            public ProtectedAuthorizationCodeStore(Func<IDependencyResolver, IAuthorizationCodeStore> inner, IDataProtector protector)
-            {
-                _inner = inner;
-                _protector = protector;
-            }
-
-            public Task StoreAsync(string key, AuthorizationCode value)
-            {
-                Protect(value.Client, _protector);
-                return _inner(null).StoreAsync(key, value);
-            }
-
-            public async Task<AuthorizationCode> GetAsync(string key)
-            {
-                var result = await _inner(null).GetAsync(key);
-                Unprotect(result.Client, _protector);
-                return result;
-            }
-
-            public Task RemoveAsync(string key)
-            {
-                return _inner(null).RemoveAsync(key);
-            }
-
-            public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
-            {
-                var results = await _inner(null).GetAllAsync(subject);
-                return results
-                    .OfType<AuthorizationCode>()
-                    .Select(ac =>
-                    {
-                        Unprotect(ac.Client, _protector);
-                        return ac;
-                    })
-                    .ToArray();
-
-            }
-
-            public Task RevokeAsync(string subject, string client)
-            {
-                return _inner(null).RevokeAsync(subject, client);
-            }
-        }
-
-        class ProtectedTokenHandleStore : ITokenHandleStore
-        {
-            private readonly Func<IDependencyResolver, ITokenHandleStore> _inner;
-            private readonly IDataProtector _protector;
-
-            public ProtectedTokenHandleStore(Func<IDependencyResolver, ITokenHandleStore> inner, IDataProtector protector)
-            {
-                _inner = inner;
-                _protector = protector;
-            }
-
-            public Task StoreAsync(string key, Token value)
-            {
-                Protect(value.Client, _protector);
-                return _inner(null).StoreAsync(key, value);
-            }
-
-            public async Task<Token> GetAsync(string key)
-            {
-                var result = await _inner(null).GetAsync(key);
-                Unprotect(result.Client, _protector);
-                return result;
-            }
-
-            public Task RemoveAsync(string key)
-            {
-                return _inner(null).RemoveAsync(key);
-            }
-
-            public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
-            {
-                var result = await _inner(null).GetAllAsync(subject);
-
-                return result
-                    .OfType<Token>()
-                    .Select(t =>
-                    {
-                        Unprotect(t.Client, _protector);
-                        return t;
-                    })
-                    .ToArray();
-            }
-
-            public Task RevokeAsync(string subject, string client)
-            {
-                return _inner(null).RevokeAsync(subject, client);
-            }
-        }
-
-        class ProtectedRefreshTokenStore : IRefreshTokenStore
-        {
-            private readonly Func<IDependencyResolver, IRefreshTokenStore> _inner;
-            private readonly IDataProtector _protector;
-
-            public ProtectedRefreshTokenStore(Func<IDependencyResolver, IRefreshTokenStore> inner, IDataProtector protector)
-            {
-                _inner = inner;
-                _protector = protector;
-            }
-
-            public Task StoreAsync(string key, RefreshToken value)
-            {
-                Protect(value.AccessToken.Client, _protector);
-                return _inner(null).StoreAsync(key, value);
-            }
-
-            public async Task<RefreshToken> GetAsync(string key)
-            {
-                var result = await _inner(null).GetAsync(key);
-                Unprotect(result.AccessToken.Client, _protector);
-                return result;
-            }
-
-            public Task RemoveAsync(string key)
-            {
-                return _inner(null).RemoveAsync(key);
-            }
-
-            public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
-            {
-                var result = await _inner(null).GetAllAsync(subject);
-
-                return result
-                    .OfType<Token>()
-                    .Select(t =>
-                    {
-                        Unprotect(t.Client, _protector);
-                        return t;
-                    })
-                    .ToArray();
-            }
-
-            public Task RevokeAsync(string subject, string client)
-            {
-                return _inner(null).RevokeAsync(subject, client);
-            }
-        }
         internal class WrappedDataProtector : IDataProtector
         {
             private readonly IDataProtectionProvider _provider;
@@ -323,20 +125,6 @@ namespace IdentityServer.Core.MongoDb
                 var protector = _provider.Create(entropy);
                 return protector.Unprotect(data);
             }
-        }
-
-        static void Protect(Client client, IDataProtector protector)
-        {
-            var decoded = Convert.FromBase64String(client.ClientSecret);
-            var bytes = protector.Protect(decoded);
-            client.ClientSecret = Convert.ToBase64String(bytes);
-        }
-
-        static void Unprotect(Client client, IDataProtector protector)
-        {
-            var decoded = Convert.FromBase64String(client.ClientSecret);
-            var bytes = protector.Unprotect(decoded);
-            client.ClientSecret = Convert.ToBase64String(bytes);
         }
     }
 }

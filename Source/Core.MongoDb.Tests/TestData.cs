@@ -80,7 +80,7 @@ namespace Core.MongoDb.Tests
             };
         }
 
-        public static AuthorizationCode AuthorizationCode()
+        public static AuthorizationCode AuthorizationCode(string subjectId = null)
         {
             return new AuthorizationCode
             {
@@ -89,8 +89,9 @@ namespace Core.MongoDb.Tests
                 Client = Client(),
                 RedirectUri = "uri:redirect",
                 RequestedScopes = Scopes(),
-                Subject = Subject(),
-                WasConsentShown = true
+                Subject = Subject(subjectId),
+                WasConsentShown = true,
+                Nonce = "test"
             };
         }
 
@@ -105,19 +106,19 @@ namespace Core.MongoDb.Tests
             yield return ScopeMandatoryProperties();
         }
 
-        private static ClaimsPrincipal Subject()
+        private static ClaimsPrincipal Subject(string subjectId)
         {
             return new ClaimsPrincipal(
                 new ClaimsIdentity(
-                    Claims(), "authtype"
+                    Claims(subjectId), "authtype"
                     ));
         }
 
-        private static List<Claim> Claims()
+        private static List<Claim> Claims(string subjectId)
         {
             return new List<Claim>
             {
-                new Claim("sub", "foo"),
+                new Claim("sub", subjectId ?? "foo"),
                 new Claim("name", "bar"),
                 new Claim("email", "baz@qux.com"),
                 new Claim("scope", "scope1"),
@@ -141,7 +142,7 @@ namespace Core.MongoDb.Tests
             return new Token
             {
                 Audience = "audience",
-                Claims = Claims(),
+                Claims = Claims(null),
                 Client = ClientAllProperties(),
                 CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 Issuer = "issuer",

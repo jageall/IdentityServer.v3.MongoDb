@@ -10,10 +10,10 @@ namespace IdentityServer.Core.MongoDb
         private readonly ClaimSetSerializer _claimsSetSerializer;
         private readonly ClientSerializer _clientSerializer;
 
-        public TokenSerializer()
+        public TokenSerializer(ClientSerializer clientSerializer)
         {
+            _clientSerializer = clientSerializer;
             _claimsSetSerializer = new ClaimSetSerializer();
-            _clientSerializer = new ClientSerializer();
         }
         public BsonDocument Serialize(string key, Token token)
         {

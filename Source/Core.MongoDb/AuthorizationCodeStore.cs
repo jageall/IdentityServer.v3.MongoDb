@@ -13,9 +13,9 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly AuthorizationCodeSerializer _serializer;
 
-        public AuthorizationCodeStore(MongoDatabase db, string collectionName) : base(db, collectionName)
+        public AuthorizationCodeStore(MongoDatabase db, string collectionName, ClientSerializer clientSerializer) : base(db, collectionName)
         {
-            _serializer = new AuthorizationCodeSerializer();
+            _serializer = new AuthorizationCodeSerializer(clientSerializer);
         }
 
         public Task StoreAsync(string key, AuthorizationCode value)

@@ -10,9 +10,9 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly ClientSerializer _serializer;
 
-        public ClientStore(MongoDatabase db, string collectionName) : base(db, collectionName)
+        public ClientStore(MongoDatabase db, string collectionName, ClientSerializer serializer) : base(db, collectionName)
         {
-            _serializer = new ClientSerializer();
+            _serializer = serializer;
         }
 
         public Task<Client> FindClientByIdAsync(string clientId)

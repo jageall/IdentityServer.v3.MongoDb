@@ -10,11 +10,13 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly MongoDatabase _db;
         private readonly StoreSettings _settings;
+        private readonly ClientSerializer _clientSerializer;
 
-        public AdminService(MongoDatabase db, StoreSettings settings)
+        public AdminService(MongoDatabase db, StoreSettings settings, ClientSerializer clientSerializer)
         {
             _db = db;
             _settings = settings;
+            _clientSerializer = clientSerializer;
         }
 
         public void CreateDatabase()
@@ -57,7 +59,7 @@ namespace IdentityServer.Core.MongoDb
 
         public void Save(Client client)
         {
-            BsonDocument doc = new ClientSerializer().Serialize(client);
+            BsonDocument doc = _clientSerializer.Serialize(client);
             MongoCollection<BsonDocument> collection = _db.GetCollection(_settings.ClientCollection);
             collection.Save(doc);
         }

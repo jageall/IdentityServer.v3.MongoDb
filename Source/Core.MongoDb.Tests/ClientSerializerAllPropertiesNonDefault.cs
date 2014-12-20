@@ -169,8 +169,8 @@ namespace Core.MongoDb.Tests
         {
 
             _expected = TestData.ClientAllProperties();
-            
-            var store = Factory.ClientStore.TypeFactory(null);
+
+            var store = Factory.ClientStore.TypeFactory(DependencyResolver);
 
             AdminService.Save(TestData.ClientAllProperties());
             _actual = store.FindClientByIdAsync(_expected.ClientId).Result;

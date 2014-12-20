@@ -73,6 +73,7 @@
     <Compile Include="MongoDbStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ClientSerializer.cs" />
+    <Compile Include="ProtectClientSecretWithDataProtector.cs" />
     <Compile Include="RefreshTokenSerializer.cs" />
     <Compile Include="RefreshTokenStore.cs" />
     <Compile Include="ScopeSerializer.cs" />

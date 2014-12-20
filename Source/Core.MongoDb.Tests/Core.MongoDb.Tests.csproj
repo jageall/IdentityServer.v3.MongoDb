@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthorizationCodeSerializationTests.cs" />
+    <Compile Include="AuthorizationCodeStoreTests.cs" />
     <Compile Include="ClientSerializerAllPropertiesNonDefault.cs" />
     <Compile Include="ClientSerializerOnlyMandatoryPropertiesSet.cs" />
     <Compile Include="CommonVerifications.cs" />

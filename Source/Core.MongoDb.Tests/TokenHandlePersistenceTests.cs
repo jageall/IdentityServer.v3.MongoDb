@@ -84,7 +84,7 @@ namespace Core.MongoDb.Tests
 
         protected override void Initialize()
         {
-            var store = Factory.TokenHandleStore.TypeFactory(null);
+            var store = Factory.TokenHandleStore.TypeFactory(DependencyResolver);
             var key = GetType().Name;
             _expected = TestData.Token();
             store.StoreAsync(key, TestData.Token());

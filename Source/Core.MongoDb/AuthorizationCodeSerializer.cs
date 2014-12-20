@@ -13,9 +13,9 @@ namespace IdentityServer.Core.MongoDb
         private readonly ScopeSerializer _scopeSerializer;
         private readonly ClaimSetSerializer _claimSetSerializer;
 
-        public AuthorizationCodeSerializer()
+        public AuthorizationCodeSerializer(ClientSerializer clientSerializer)
         {
-            _clientSerializer = new ClientSerializer();
+            _clientSerializer = clientSerializer;
             _scopeSerializer = new ScopeSerializer();
             _claimSetSerializer = new ClaimSetSerializer();
         }
@@ -30,8 +30,9 @@ namespace IdentityServer.Core.MongoDb
             doc["_expires"] = code.CreationTime.AddSeconds(code.Client.AuthorizationCodeLifetime).ToBsonDateTime();
             doc["creationTime"] = code.CreationTime.ToBsonDateTime();
             doc["isOpenId"] = code.IsOpenId;
-            doc["redirectUri"] = code.RedirectUri.ToString();
+            doc["redirectUri"] = code.RedirectUri;
             doc["wasConsentShown"] = code.WasConsentShown;
+            doc["nonce"] = code.Nonce;
             doc["subject"] = SerializeIdentities(code);
             doc["client"] = _clientSerializer.Serialize(code.Client);
             var requestedScopes = new BsonArray();
@@ -68,7 +69,7 @@ namespace IdentityServer.Core.MongoDb
             code.IsOpenId = doc.GetValueOrDefault("isOpenId", code.IsOpenId);
             code.RedirectUri = doc.GetValueOrDefault("redirectUri", code.RedirectUri);
             code.WasConsentShown = doc.GetValueOrDefault("wasConsentShown", code.WasConsentShown);
-            
+            code.Nonce = doc.GetValueOrDefault("nonce", code.Nonce);
             var claimsPrincipal = new ClaimsPrincipal();
             IEnumerable<ClaimsIdentity> identities = doc.GetValueOrDefault("subject", sub =>
             {
@@ -83,7 +84,7 @@ namespace IdentityServer.Core.MongoDb
             code.Subject = claimsPrincipal;
 
             code.Client = _clientSerializer.Deserialize(doc["client"].AsBsonDocument);
-
+            
             code.RequestedScopes = doc.GetValueOrDefault(
                 "requestedScopes",
                 _scopeSerializer.Deserialize,
