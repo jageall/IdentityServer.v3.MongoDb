@@ -20,7 +20,7 @@ namespace IdentityServer.Core.MongoDb
             _clientSerializer = clientSerializer;
         }
 
-        public void CreateDatabase(bool createExpires = true)
+        public void CreateDatabase(bool expireUsingIndex = true)
         {
             if (!_db.CollectionExists(_settings.ClientCollection))
                 _db.CreateCollection(_settings.ClientCollection);
@@ -44,14 +44,23 @@ namespace IdentityServer.Core.MongoDb
                 var options = new IndexOptionsBuilder();
                 var keys = new IndexKeysBuilder();
                 keys.Ascending("_expires");
-                if (createExpires)
+                if (expireUsingIndex)
                 {
                     options.SetTimeToLive(TimeSpan.FromSeconds(1));
                 }
                 MongoCollection<BsonDocument> collection = _db.GetCollection(tokenCollection);
+                
                 collection.CreateIndex("_clientId", "_subjectId");
                 collection.CreateIndex("_subjectId");
-                collection.CreateIndex(keys, options);
+                try
+                {
+                    collection.CreateIndex(keys, options);
+                } catch (WriteConcernException)
+                {
+                    collection.DropIndex("_expires");
+                    collection.CreateIndex(keys, options);
+                }
+
             }
         }
 
