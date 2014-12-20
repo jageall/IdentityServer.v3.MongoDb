@@ -7,7 +7,7 @@ namespace Core.MongoDb.Tests
 {
     public abstract class PersistenceTest
     {
-        private RequireAdminService _data;
+        private PersistenceTestFixture _data;
 
         protected ServiceFactory Factory
         {
@@ -26,7 +26,7 @@ namespace Core.MongoDb.Tests
                 return _data.DependencyResolver;
             }
         }
-        public void SetFixture(RequireAdminService data)
+        public void SetFixture(PersistenceTestFixture data)
         {
             _data = data;
 

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class AuthorizationCodeSerializationTests : PersistenceTest, IUseFixture<RequireAdminService>
+    public class AuthorizationCodeSerializationTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
     {
         private AuthorizationCode _expected;
         private AuthorizationCode _actual;

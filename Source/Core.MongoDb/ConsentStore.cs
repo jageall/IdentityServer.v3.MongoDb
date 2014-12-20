@@ -20,7 +20,8 @@ namespace IdentityServer.Core.MongoDb
 
         public Task<IEnumerable<Consent>> LoadAllAsync(string subject)
         {
-            Consent[] result = Collection.Find(new QueryWrapper(subject)).Select(_serializer.Deserialize).ToArray();
+            Consent[] result = Collection.Find(new QueryWrapper(
+                new {subject})).Select(_serializer.Deserialize).ToArray();
             return Task.FromResult<IEnumerable<Consent>>(result);
         }
 

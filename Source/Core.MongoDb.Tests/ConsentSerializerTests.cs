@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ConsentSerializerTests : PersistenceTest, IUseFixture<RequireAdminService>
+    public class ConsentSerializerTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
     {
         private Consent _expected;
         private Consent _actual;

@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ClientSerializerAllPropertiesNonDefault : PersistenceTest, IUseFixture<RequireAdminService>
+    public class ClientSerializerAllPropertiesNonDefault : PersistenceTest, IUseFixture<PersistenceTestFixture>
     {
         private Client _expected;
         private Client _actual;

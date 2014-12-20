@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class RefreshTokenStoreTests : PersistenceTest, IUseFixture<RequireAdminService>
+    public class RefreshTokenStoreTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
     {
         private const string NotRemovedKey = "notremoved";
         private const string RemovedKey = "removed";

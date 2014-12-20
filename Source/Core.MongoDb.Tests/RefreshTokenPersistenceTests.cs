@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class RefreshTokenPersistenceTests: PersistenceTest, IUseFixture<RequireAdminService>
+    public class RefreshTokenPersistenceTests: PersistenceTest, IUseFixture<PersistenceTestFixture>
     {
         private RefreshToken _actual;
         private RefreshToken _expected;

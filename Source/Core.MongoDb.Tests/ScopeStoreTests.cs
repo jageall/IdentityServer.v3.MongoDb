@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ScopeStoreTests : PersistenceTest, IUseFixture<RequireAdminService>
+    public class ScopeStoreTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
     {
         private List<string> _evenScopeNames;
         private List<string> _oddScopeNames;

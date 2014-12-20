@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ScopeSeriailzerAllPropertiesShouldRoundTrip : PersistenceTest, IUseFixture<RequireAdminService>
+    public class ScopeSeriailzerAllPropertiesShouldRoundTrip : PersistenceTest, IUseFixture<PersistenceTestFixture>
     {
         private Scope _expected;
         private Scope _actual;

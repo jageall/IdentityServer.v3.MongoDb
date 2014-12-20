@@ -7,13 +7,13 @@ using Thinktecture.IdentityServer.Core.Services;
 
 namespace Core.MongoDb.Tests
 {
-    public class RequireAdminService
+    public class PersistenceTestFixture
     {
         private readonly ServiceFactory _factory;
         private readonly IAdminService _adminService;
         private readonly IDependencyResolver _dependencyResolver;
 
-        public RequireAdminService()
+        public PersistenceTestFixture()
         {
             var storeSettings = ServiceFactory.DefaultStoreSettings();
             storeSettings.Database = "testidentityserver";

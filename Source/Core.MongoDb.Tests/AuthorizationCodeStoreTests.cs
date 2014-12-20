@@ -14,7 +14,7 @@ using Xunit.Sdk;
 
 namespace Core.MongoDb.Tests
 {
-    public class AuthorizationCodeStoreTests : PersistenceTest, IUseFixture<RequireAdminService>
+    public class AuthorizationCodeStoreTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
     {
         private IAuthorizationCodeStore _authorizationStore;
         private string _removeKey = "remove";

@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class TokenHandlePersistenceTests : PersistenceTest, IUseFixture<RequireAdminService>
+    public class TokenHandlePersistenceTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
     {
         private Token _actual;
         private Token _expected;

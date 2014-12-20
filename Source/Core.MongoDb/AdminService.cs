@@ -30,6 +30,7 @@ namespace IdentityServer.Core.MongoDb
             {
                 MongoCollection<BsonDocument> collection = _db.GetCollection(_settings.ConsentCollection);
                 collection.CreateIndex("subject");
+                collection.CreateIndex("clientId", "subject");
             }
 
             var tokenCollections = new[]
