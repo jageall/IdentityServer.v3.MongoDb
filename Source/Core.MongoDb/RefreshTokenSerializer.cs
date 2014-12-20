@@ -17,10 +17,11 @@ namespace IdentityServer.Core.MongoDb
             doc["_id"] = key;
             doc["_version"] = 1;
             doc["_expires"] = value.CreationTime.AddSeconds(value.LifeTime).ToBsonDateTime();
+            doc["_clientId"] = value.ClientId;
+            doc["_subjectId"] = value.SubjectId;
             var accessToken = new BsonDocument();
             _tokenSerializer.Serialize(accessToken ,value.AccessToken);
             doc["accessToken"] = accessToken;
-            doc["clientId"] = value.ClientId;
             doc["creationTime"] = value.CreationTime.ToBsonDateTime();
             doc["lifetime"] = value.LifeTime;
             return doc;
@@ -34,7 +35,7 @@ namespace IdentityServer.Core.MongoDb
                 _tokenSerializer.Deserialize,
                 token.AccessToken);
 
-            token.ClientId = doc.GetValueOrDefault("clientId", token.ClientId);
+            token.ClientId = doc.GetValueOrDefault("_clientId", token.ClientId);
             token.CreationTime = doc.GetValueOrDefault("creationTime", token.CreationTime);
             token.LifeTime = doc.GetValueOrDefault("lifetime", token.LifeTime);
             return token;

@@ -74,6 +74,7 @@
     <Compile Include="ConsentSerializerTests.cs" />
     <Compile Include="DependencyCompatibilityTests.cs" />
     <Compile Include="RefreshTokenPersistenceTests.cs" />
+    <Compile Include="RefreshTokenStoreTests.cs" />
     <Compile Include="RequireAdminService.cs" />
     <Compile Include="PersistenceTest.cs" />
     <Compile Include="Rfc4122UuidFromName.cs" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
@@ -39,13 +40,27 @@ namespace IdentityServer.Core.MongoDb
 
         public Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
-            var result = Collection.Find(new QueryWrapper(new {subject})).Select(_serializer.Deserialize).ToArray();
+
+            var filter = new QueryWrapper(
+                new
+                {
+                    _subjectId = subject
+                });
+            var result = Collection.Find(filter)
+                .Select(_serializer.Deserialize)
+                .ToArray();
             return Task.FromResult<IEnumerable<ITokenMetadata>>(result);
         }
 
         public Task RevokeAsync(string subject, string client)
         {
-            Collection.Remove(new QueryWrapper(new { subject, client}));
+            var filter = new QueryWrapper(
+                new
+                {
+                    _subjectId = subject, 
+                    _clientId = client
+                });
+            Collection.Remove(filter);
             return Task.FromResult(0);
         }
     }

@@ -26,7 +26,7 @@ namespace Core.MongoDb.Tests
             resolver.Register<IProtectClientSecrets>(new ProtectClientSecretWithDataProtector(protector));
             _dependencyResolver = resolver;
             _adminService = Factory.AdminService.TypeFactory(resolver);
-            _adminService.CreateDatabase();
+            _adminService.CreateDatabase(createExpires:false);
         }
 
         public IAdminService AdminService

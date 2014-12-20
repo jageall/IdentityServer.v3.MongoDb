@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace Core.MongoDb.Tests
@@ -126,29 +128,36 @@ namespace Core.MongoDb.Tests
             };
         }
 
-        public static RefreshToken RefreshToken()
+        public static RefreshToken RefreshToken(string subject = null)
         {
             return new RefreshToken
             {
-                AccessToken = Token(),
+                AccessToken = Token(subject),
                 ClientId = "clientId",
                 CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 LifeTime = 100,
             };
         }
 
-        public static Token Token()
+        public static Token Token(string subject = null)
         {
             return new Token
             {
                 Audience = "audience",
-                Claims = Claims(null),
+                Claims = Claims(subject),
                 Client = ClientAllProperties(),
                 CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 Issuer = "issuer",
                 Lifetime = 200,
                 Type = "tokenType"
             };
+        }
+
+        private static readonly JsonSerializer Serializer = new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+        
+        public static string ToTestableString<T>(T subject)
+        {
+            return JObject.FromObject(subject, Serializer).ToString();
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
@@ -19,7 +20,7 @@ namespace IdentityServer.Core.MongoDb
             _clientSerializer = clientSerializer;
         }
 
-        public void CreateDatabase()
+        public void CreateDatabase(bool createExpires = true)
         {
             if (!_db.CollectionExists(_settings.ClientCollection))
                 _db.CreateCollection(_settings.ClientCollection);
@@ -43,9 +44,13 @@ namespace IdentityServer.Core.MongoDb
                 var options = new IndexOptionsBuilder();
                 var keys = new IndexKeysBuilder();
                 keys.Ascending("_expires");
-                options.SetTimeToLive(TimeSpan.FromSeconds(1));
+                if (createExpires)
+                {
+                    options.SetTimeToLive(TimeSpan.FromSeconds(1));
+                }
                 MongoCollection<BsonDocument> collection = _db.GetCollection(tokenCollection);
                 collection.CreateIndex("_clientId", "_subjectId");
+                collection.CreateIndex("_subjectId");
                 collection.CreateIndex(keys, options);
             }
         }
