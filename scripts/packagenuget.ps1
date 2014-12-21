@@ -9,5 +9,8 @@ nuget pack core.nuspec -version $version
 nuget pack AdminModule.nuspec -version $version
 
 #Publish packages to project feed
-appveyor PushArtifact IdentityServer.v3.MongoDb.nupkg
-appveyor PushArtifact IdentityServer.MongoDb.AdminModule.nupkg
+$core = 'IdentityServer.v3.MongoDb.' + $version + '.nupkg'
+$admin = 'IdentityServer.MongoDb.AdminModule.' + $version + '.nupkg'
+
+appveyor PushArtifact $core
+appveyor PushArtifact $admin
