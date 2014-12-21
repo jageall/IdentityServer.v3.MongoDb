@@ -13,4 +13,4 @@ $core = 'IdentityServer.v3.MongoDb.' + $version + '.nupkg'
 $admin = 'IdentityServer.MongoDb.AdminModule.' + $version + '.nupkg'
 
 appveyor PushArtifact $core
-appveyor PushArtifact $admin
+#appveyor PushArtifact $admin
