@@ -16,6 +16,7 @@ before_build:
   - nuget restore source\IdentityServer.v3.MongoDb.sln
 
 build:
+  parallel: true
   project:  Source\IdentityServer.v3.MongoDb.sln
 
 after_test: 
@@ -27,6 +28,10 @@ artifacts:
   - path: Source\IdentityServer.MongoDb.AdminModule\bin\Release\IdentityServer.MongoDb.AdminModule.dll
     name: IdentityServer.MongoDb.AdminModule.dll
   - path: '*.nupkg'
+
+nuget:
+  project_feed: true
+  disable_publish_on_pr: true
 
 deploy:
   provider: NuGet
