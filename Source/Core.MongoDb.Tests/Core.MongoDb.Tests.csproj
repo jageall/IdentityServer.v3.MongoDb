@@ -85,6 +85,7 @@
     <Compile Include="ScopeStoreTests.cs" />
     <Compile Include="TestData.cs" />
     <Compile Include="TokenHandlePersistenceTests.cs" />
+    <Compile Include="TokenHandleStoreTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -38,13 +38,18 @@ namespace IdentityServer.Core.MongoDb
 
         public Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
-            var result = Collection.Find(new QueryWrapper(new {subject})).Select(_serializer.Deserialize).ToArray();
+            var result = Collection.Find(new QueryWrapper(new {_subjectId = subject})).Select(_serializer.Deserialize).ToArray();
             return Task.FromResult<IEnumerable<ITokenMetadata>>(result);
         }
 
         public Task RevokeAsync(string subject, string client)
         {
-            Collection.Remove(new QueryWrapper(new { subject, client}));
+            Collection.Remove(new QueryWrapper(
+                new
+                {
+                    _subjectId = subject, 
+                    _clientId = client
+                }));
             return Task.FromResult(0);
         }
     }
