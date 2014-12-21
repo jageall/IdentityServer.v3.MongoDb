@@ -66,6 +66,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdminModuleTests.cs" />
+    <Compile Include="AdminModule\AddBuiltInScopes.cs" />
+    <Compile Include="AdminModule\AddClient.cs" />
+    <Compile Include="AdminModule\AddScope.cs" />
+    <Compile Include="AdminModule\CleanUpTokens.cs" />
+    <Compile Include="AdminModule\DeleteClient.cs" />
+    <Compile Include="AdminModule\DeleteDatabase.cs" />
+    <Compile Include="AdminModule\DeleteScope.cs" />
+    <Compile Include="AdminModule\InstallDatabase.cs" />
+    <Compile Include="AdminModule\PowershellAdminModuleFixture.cs" />
+    <Compile Include="AdminModule\UpdateClient.cs" />
+    <Compile Include="AdminModule\UpdateDatabase.cs" />
+    <Compile Include="AdminModule\UpdateScope.cs" />
     <Compile Include="AuthorizationCodeSerializationTests.cs" />
     <Compile Include="AuthorizationCodeStoreTests.cs" />
     <Compile Include="ClientSerializerAllPropertiesNonDefault.cs" />
@@ -89,7 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Tests.ps1" />
+    <EmbeddedResource Include="AdminModule\Scripts\InstallDatabase.ps1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.MongoDb\Core.MongoDb.csproj">

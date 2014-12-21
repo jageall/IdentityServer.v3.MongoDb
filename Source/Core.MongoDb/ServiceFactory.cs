@@ -19,8 +19,9 @@ namespace IdentityServer.Core.MongoDb
         public ServiceFactory(Registration<IUserService> userService,
             StoreSettings storeSettings)
         {
+            Func<IDependencyResolver, ClientSerializer> resolveClientSerializer = di => new ClientSerializer(di.Resolve<IProtectClientSecrets>());
+
             var client = new MongoClient(MongoClientSettings(storeSettings.ConnectionString));
-            Func<IDependencyResolver,ClientSerializer> resolveClientSerializer = di => new ClientSerializer(di.Resolve<IProtectClientSecrets>());
             MongoServer server = client.GetServer();
             MongoDatabase db = server.GetDatabase(storeSettings.Database);
             UserService = userService;
@@ -73,7 +74,7 @@ namespace IdentityServer.Core.MongoDb
         }
     }
 
-    class DoNotProtectClientSecrets : IProtectClientSecrets
+    public class DoNotProtectClientSecrets : IProtectClientSecrets
     {
         public string Protect(string clientId, string clientSecret)
         {

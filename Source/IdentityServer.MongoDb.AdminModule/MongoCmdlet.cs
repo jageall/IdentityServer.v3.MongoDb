@@ -12,10 +12,13 @@ namespace IdentityServer.MongoDb.AdminModule
         private IAdminService _adminService;
         private IScopeStore _scopeStore;
         private ICleanupExpiredTokens _tokenCleanupService;
+        private SimpleResolver _resolver;
 
         protected MongoCmdlet(bool createDb = false)
         {
             _createDb = createDb;
+            _resolver = new SimpleResolver();
+            Register<IProtectClientSecrets>(new DoNotProtectClientSecrets());
         }
 
         [Parameter]
@@ -66,10 +69,10 @@ namespace IdentityServer.MongoDb.AdminModule
             CanCreateDatabase(storeSettings);
             
             var serviceFactory = new ServiceFactory(null, storeSettings);
-
-            _adminService = serviceFactory.AdminService.TypeFactory(null);
-            _tokenCleanupService = serviceFactory.TokenCleanupService.TypeFactory(null);
-            _scopeStore = serviceFactory.ScopeStore.TypeFactory(null);
+            
+            _adminService = serviceFactory.AdminService.TypeFactory(_resolver);
+            _tokenCleanupService = serviceFactory.TokenCleanupService.TypeFactory(_resolver);
+            _scopeStore = serviceFactory.ScopeStore.TypeFactory(_resolver);
             base.BeginProcessing();
         }
 
@@ -78,6 +81,11 @@ namespace IdentityServer.MongoDb.AdminModule
             var client = new MongoClient(settings.ConnectionString);
             var server = client.GetServer();
             if(!server.DatabaseExists(settings.Database) && !_createDb) throw new InvalidOperationException("Database does not exist");
+        }
+
+        protected void Register<T>(T instance)
+        {
+            _resolver.Register(instance);
         }
     }
 }
