@@ -31,15 +31,15 @@ namespace IdentityServer.MongoDb.AdminModule
             }
         }
 
-        public static List<Scope> BuiltInScopes(bool alwaysInclude = false)
+        public static IEnumerable<Scope> BuiltInScopes()
         {
-            var scopeAccessors =
-                typeof (StandardScopes).GetProperties(BindingFlags.Static | BindingFlags.Public)
-                    .Where(x => x.PropertyType == typeof (Scope)
-                    && alwaysInclude == x.Name.EndsWith("AlwaysInclude")
-                    );
-            var builtin = scopeAccessors.Select(scopeAccessor => (Scope) scopeAccessor.GetValue(null)).ToList();
-            return builtin;
+            foreach (var scope in StandardScopes.All)
+            {
+                yield return scope;
+            }
+            yield return StandardScopes.AllClaims;
+            yield return StandardScopes.OfflineAccess;
+            yield return StandardScopes.Roles;
         }
     }
 }
