@@ -12,7 +12,7 @@ namespace IdentityServer.MongoDb.AdminModule
         private IAdminService _adminService;
         private IScopeStore _scopeStore;
         private ICleanupExpiredTokens _tokenCleanupService;
-        private SimpleResolver _resolver;
+        private readonly SimpleResolver _resolver;
 
         protected MongoCmdlet(bool createDb = false)
         {

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
+using IdentityServer.Core.MongoDb;
 using IdentityServer.MongoDb.AdminModule;
 using MongoDB.Driver;
 
@@ -14,6 +15,8 @@ namespace Core.MongoDb.Tests.AdminModule
         private readonly PowerShell _powerShell;
         private readonly string _database;
         private readonly MongoServer _server;
+        private readonly ServiceFactory _serviceFactory;
+        private readonly SimpleResolver _dependencyResolver;
 
         public PowershellAdminModuleFixture()
         {
@@ -22,6 +25,12 @@ namespace Core.MongoDb.Tests.AdminModule
             _database = Guid.NewGuid().ToString("N");
             var client = new MongoClient("mongodb://localhost");
             _server = client.GetServer();
+            var settings = ServiceFactory.DefaultStoreSettings();
+            settings.Database = _database;
+            _serviceFactory = new ServiceFactory(null, settings);
+            _dependencyResolver = new SimpleResolver();
+            _dependencyResolver.Register<IProtectClientSecrets>(new DoNotProtectClientSecrets());
+            
         }
 
         public PowerShell PowerShell
@@ -39,6 +48,16 @@ namespace Core.MongoDb.Tests.AdminModule
             get { return _server; }
         }
 
+        public ServiceFactory Factory
+        {
+            get { return _serviceFactory; }
+        }
+
+        public SimpleResolver DependencyResolver
+        {
+            get { return _dependencyResolver; }
+        }
+
         public void Dispose()
         {
             AggregateException failed = null;
@@ -53,6 +72,8 @@ namespace Core.MongoDb.Tests.AdminModule
 
             }
             PowerShell.Dispose();
+            if (_server.DatabaseExists(Database))
+                _server.DropDatabase(Database);
             if (failed != null) throw failed;
         }
 
