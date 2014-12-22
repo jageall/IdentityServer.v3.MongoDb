@@ -67,6 +67,7 @@
     <Compile Include="ReadScopes.cs" />
     <Compile Include="SaveClient.cs" />
     <Compile Include="SaveScope.cs" />
+    <Compile Include="SetScopeClaim.cs" />
     <Compile Include="SimpleResolver.cs" />
     <Compile Include="TokenTypes.cs" />
   </ItemGroup>

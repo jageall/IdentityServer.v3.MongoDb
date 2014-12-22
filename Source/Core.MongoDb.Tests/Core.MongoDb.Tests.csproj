@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="AdminModule\Scripts\AddScope.ps1" />
+    <EmbeddedResource Include="AdminModule\Scripts\AddBuiltInScopes.ps1" />
     <None Include="packages.config" />
     <EmbeddedResource Include="AdminModule\Scripts\InstallDatabase.ps1" />
   </ItemGroup>

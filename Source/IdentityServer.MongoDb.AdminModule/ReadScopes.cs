@@ -17,12 +17,10 @@ namespace IdentityServer.MongoDb.AdminModule
             IEnumerable<Scope> scopes;
             if (Predefined)
             {
-                var scopeAccessors =
-                    typeof (StandardScopes).GetProperties(BindingFlags.Static | BindingFlags.Public)
-                        .Where(x => x.PropertyType == typeof (Scope));
-                var builtin = scopeAccessors.Select(scopeAccessor => (Scope) scopeAccessor.GetValue(null)).ToList();
+                var builtin = BuiltInScopes();
                 scopes = builtin;
-            } else
+            }
+            else
             {
                 scopes = ScopeStore.GetScopesAsync().Result;
             }
@@ -31,6 +29,17 @@ namespace IdentityServer.MongoDb.AdminModule
             {
                 WriteObject(scope);
             }
+        }
+
+        public static List<Scope> BuiltInScopes(bool alwaysInclude = false)
+        {
+            var scopeAccessors =
+                typeof (StandardScopes).GetProperties(BindingFlags.Static | BindingFlags.Public)
+                    .Where(x => x.PropertyType == typeof (Scope)
+                    && alwaysInclude == x.Name.EndsWith("AlwaysInclude")
+                    );
+            var builtin = scopeAccessors.Select(scopeAccessor => (Scope) scopeAccessor.GetValue(null)).ToList();
+            return builtin;
         }
     }
 }

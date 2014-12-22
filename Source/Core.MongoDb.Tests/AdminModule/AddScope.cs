@@ -16,7 +16,6 @@ namespace Core.MongoDb.Tests.AdminModule
         private PowerShell _ps;
         private string _script;
         private string _database;
-        private MongoServer _server;
         private IScopeStore _scopeStore;
 
         [Fact]
@@ -58,7 +57,6 @@ namespace Core.MongoDb.Tests.AdminModule
             _script = data.LoadScript(this);
             _database = data.Database;
             _ps.AddScript(_script).AddParameter("Database", _database);
-            _server = data.Server;
             var adminService = data.Factory.AdminService.TypeFactory(data.DependencyResolver);
             adminService.CreateDatabase();
             _scopeStore = data.Factory.ScopeStore.TypeFactory(data.DependencyResolver);
