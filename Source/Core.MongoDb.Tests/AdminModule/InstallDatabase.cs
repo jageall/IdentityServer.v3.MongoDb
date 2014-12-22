@@ -1,4 +1,5 @@
-﻿using System.Management.Automation;
+﻿using System;
+using System.Management.Automation;
 using IdentityServer.Core.MongoDb;
 using MongoDB.Driver;
 using Xunit;
@@ -27,6 +28,7 @@ namespace Core.MongoDb.Tests.AdminModule
             Assert.True(db.CollectionExists(defaults.ScopeCollection));
             Assert.True(db.CollectionExists(defaults.TokenHandleCollection));
             //TODO: verify indexes maybe?
+            _server.DropDatabase(_database);
         }
 
         public void SetFixture(PowershellAdminModuleFixture data)
