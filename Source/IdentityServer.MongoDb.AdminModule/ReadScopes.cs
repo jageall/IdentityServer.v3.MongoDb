@@ -12,6 +12,12 @@ namespace IdentityServer.MongoDb.AdminModule
         [Parameter(HelpMessage = "Gets the predefined standard scopes from identity server. These need to be persisted into the database using Set-Scope if you want them available to the application at runtime")]
         public SwitchParameter Predefined { get; set; }
 
+        protected override void BeginProcessing()
+        {
+            if(!Predefined)
+                base.BeginProcessing();
+        }
+
         protected override void ProcessRecord()
         {
             IEnumerable<Scope> scopes;
