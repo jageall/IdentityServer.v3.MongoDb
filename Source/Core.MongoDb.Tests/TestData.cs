@@ -133,7 +133,6 @@ namespace Core.MongoDb.Tests
             return new RefreshToken
             {
                 AccessToken = Token(subject),
-                ClientId = "clientId",
                 CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 LifeTime = 100,
             };

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
+using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
 
 namespace Core.MongoDb.Tests
@@ -65,7 +66,7 @@ namespace Core.MongoDb.Tests
 
         protected override void Initialize()
         {
-            var store = Factory.RefreshTokenStore.TypeFactory(DependencyResolver);
+            var store = Factory.Resolve<IRefreshTokenStore>();
             var key = GetType().Name;
             _expected = TestData.RefreshToken();
             store.StoreAsync(key, TestData.RefreshToken());

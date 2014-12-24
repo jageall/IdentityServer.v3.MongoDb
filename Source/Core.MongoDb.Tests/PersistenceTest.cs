@@ -1,5 +1,6 @@
 using System.Linq;
 using IdentityServer.Core.MongoDb;
+using IdentityServer.MongoDb.AdminModule;
 using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Services;
 
@@ -9,7 +10,7 @@ namespace Core.MongoDb.Tests
     {
         private PersistenceTestFixture _data;
 
-        protected ServiceFactory Factory
+        protected Factory Factory
         {
             get { return _data.Factory; }
         }
@@ -19,13 +20,6 @@ namespace Core.MongoDb.Tests
             get { return _data.AdminService; }
         }
 
-        protected IDependencyResolver DependencyResolver
-        {
-            get
-            {
-                return _data.DependencyResolver;
-            }
-        }
         public void SetFixture(PersistenceTestFixture data)
         {
             _data = data;

@@ -2,31 +2,30 @@ using System;
 using System.Management.Automation;
 using IdentityServer.Core.MongoDb;
 using MongoDB.Driver;
+using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.MongoDb.AdminModule
 {
-    public abstract class MongoCmdlet: PSCmdlet
+    public abstract class MongoCmdlet : PSCmdlet
     {
         private readonly bool _createDb;
         private IAdminService _adminService;
         private IScopeStore _scopeStore;
         private ICleanupExpiredTokens _tokenCleanupService;
-        private readonly SimpleResolver _resolver;
+        private IDataProtector _dataProtector;
 
         protected MongoCmdlet(bool createDb = false)
         {
             _createDb = createDb;
-            _resolver = new SimpleResolver();
-            Register<IProtectClientSecrets>(new DoNotProtectClientSecrets());
         }
 
         [Parameter]
         public string ConnectionString { get; set; }
-        
+
         [Parameter]
         public string Database { get; set; }
-        
+
         [Parameter]
         public string ClientCollection { get; set; }
         [Parameter]
@@ -44,7 +43,7 @@ namespace IdentityServer.MongoDb.AdminModule
         {
             get { return _adminService; }
         }
-        
+
         public IScopeStore ScopeStore
         {
             get { return _scopeStore; }
@@ -69,10 +68,14 @@ namespace IdentityServer.MongoDb.AdminModule
             CanCreateDatabase(storeSettings);
             
             var serviceFactory = new ServiceFactory(null, storeSettings);
-            
-            _adminService = serviceFactory.AdminService.TypeFactory(_resolver);
-            _tokenCleanupService = serviceFactory.TokenCleanupService.TypeFactory(_resolver);
-            _scopeStore = serviceFactory.ScopeStore.TypeFactory(_resolver);
+            if (_dataProtector != null)
+            {
+                serviceFactory.ProtectClientSecretWith(_dataProtector);
+            }
+            var factory = new Factory(serviceFactory);
+            _adminService = factory.Resolve<IAdminService>();
+            _tokenCleanupService = factory.Resolve<ICleanupExpiredTokens>();
+            _scopeStore = factory.Resolve<IScopeStore>();
             base.BeginProcessing();
         }
 
@@ -80,12 +83,12 @@ namespace IdentityServer.MongoDb.AdminModule
         {
             var client = new MongoClient(settings.ConnectionString);
             var server = client.GetServer();
-            if(!server.DatabaseExists(settings.Database) && !_createDb) throw new InvalidOperationException("Database does not exist");
+            if (!server.DatabaseExists(settings.Database) && !_createDb) throw new InvalidOperationException("Database does not exist");
         }
 
-        protected void Register<T>(T instance)
+        protected void ProtectClientSecrets(IDataProtector dataProtector)
         {
-            _resolver.Register(instance);
+            _dataProtector = dataProtector;
         }
     }
 }

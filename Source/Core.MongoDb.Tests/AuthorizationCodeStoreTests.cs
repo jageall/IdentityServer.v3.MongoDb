@@ -106,7 +106,7 @@ namespace Core.MongoDb.Tests
         }
         protected override void Initialize()
         {
-            _authorizationStore = Factory.AuthorizationCodeStore.TypeFactory(DependencyResolver);
+            _authorizationStore = Factory.Resolve<IAuthorizationCodeStore>();
             _authorizationStore.StoreAsync(_removeKey, TestData.AuthorizationCode());
             _authorizationStore.StoreAsync(_notRemovedKey, TestData.AuthorizationCode());
             var subjectACodes = new List<AuthorizationCode>();

@@ -13,7 +13,8 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly ConsentSerializer _serializer;
 
-        public ConsentStore(MongoDatabase db, string collectionName) : base(db, collectionName)
+        public ConsentStore(MongoDatabase db, StoreSettings settings) :
+            base(db, settings.ConsentCollection)
         {
             _serializer = new ConsentSerializer();
         }

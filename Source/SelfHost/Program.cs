@@ -34,10 +34,7 @@ namespace SelfHost
 
         private static void ConfigureIdentityServer(IAppBuilder app)
         {
-            var factory = new ServiceFactory(Registration.RegisterSingleton<IUserService>(new InMemoryUserService(Users())));
-            app.ProtectClientSecretWithHostProtection(factory);
-            var adminService = factory.AdminService.TypeFactory(null);
-            SetupDatabase(adminService);
+            var factory = new ServiceFactory(new Registration<IUserService>(new InMemoryUserService(Users())));
             var options = new IdentityServerOptions
             {
                 IssuerUri = "https://idsrv3.com",

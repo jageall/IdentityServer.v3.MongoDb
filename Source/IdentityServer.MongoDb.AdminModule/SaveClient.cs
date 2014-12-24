@@ -20,7 +20,7 @@ namespace IdentityServer.MongoDb.AdminModule
         protected override void BeginProcessing()
         {
             if (ClientSecretProtector != null)
-                base.Register<IProtectClientSecrets>(new ProtectClientSecretWithDataProtector(ClientSecretProtector));
+                base.ProtectClientSecrets(ClientSecretProtector);
             else
             {
                 WriteWarning("No client secret protector set");

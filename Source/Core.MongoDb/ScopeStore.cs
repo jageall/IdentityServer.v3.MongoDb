@@ -15,7 +15,8 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly ScopeSerializer _serializer;
 
-        public ScopeStore(MongoDatabase db, string collectionName) : base(db, collectionName)
+        public ScopeStore(MongoDatabase db, StoreSettings settings) :
+            base(db, settings.ScopeCollection)
         {
             _serializer = new ScopeSerializer();
         }

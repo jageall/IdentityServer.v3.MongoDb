@@ -35,7 +35,6 @@ namespace IdentityServer.Core.MongoDb
                 _tokenSerializer.Deserialize,
                 token.AccessToken);
 
-            token.ClientId = doc.GetValueOrDefault("_clientId", token.ClientId);
             token.CreationTime = doc.GetValueOrDefault("creationTime", token.CreationTime);
             token.LifeTime = doc.GetValueOrDefault("lifetime", token.LifeTime);
             return token;

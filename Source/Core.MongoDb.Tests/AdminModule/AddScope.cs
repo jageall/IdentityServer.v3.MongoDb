@@ -4,6 +4,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Text;
 using System.Threading.Tasks;
+using IdentityServer.Core.MongoDb;
 using MongoDB.Driver;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
@@ -57,9 +58,9 @@ namespace Core.MongoDb.Tests.AdminModule
             _script = data.LoadScript(this);
             _database = data.Database;
             _ps.AddScript(_script).AddParameter("Database", _database);
-            var adminService = data.Factory.AdminService.TypeFactory(data.DependencyResolver);
+            var adminService = data.Factory.Resolve<IAdminService>();
             adminService.CreateDatabase();
-            _scopeStore = data.Factory.ScopeStore.TypeFactory(data.DependencyResolver);
+            _scopeStore = data.Factory.Resolve<IScopeStore>();
         }
     }
 }

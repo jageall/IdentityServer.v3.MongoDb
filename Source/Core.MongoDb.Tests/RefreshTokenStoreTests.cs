@@ -92,7 +92,7 @@ namespace Core.MongoDb.Tests
 
         protected override void Initialize()
         {
-            _store = Factory.RefreshTokenStore.TypeFactory(DependencyResolver);
+            _store = Factory.Resolve<IRefreshTokenStore>();
             _store.StoreAsync(NotRemovedKey, TestData.RefreshToken());
             _store.StoreAsync(RemovedKey, TestData.RefreshToken());
             var subjectATokens = new List<RefreshToken>();
@@ -101,7 +101,7 @@ namespace Core.MongoDb.Tests
             {
                 var token = TestData.RefreshToken(SubjectA);
                 token.LifeTime += (100 + 100 * i);
-                token.ClientId = token.AccessToken.Client.ClientId = "Client" + i % 2;
+                token.AccessToken.Client.ClientId = "Client" + i % 2;
                 
                 _store.StoreAsync(SubjectA + i, token).Wait();
                 subjectATokens.Add(token);
@@ -111,7 +111,7 @@ namespace Core.MongoDb.Tests
             {
                 var token =  TestData.RefreshToken(SubjectB);
                 token.LifeTime += (100 + 100*i);
-                token.ClientId = token.AccessToken.Client.ClientId = "Client" + i % 2;
+                token.AccessToken.Client.ClientId = "Client" + i % 2;
                 _store.StoreAsync(SubjectB + i, token).Wait();
                 subjectBTokens.Add(token);
             }

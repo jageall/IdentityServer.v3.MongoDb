@@ -92,7 +92,7 @@ namespace Core.MongoDb.Tests
 
         protected override void Initialize()
         {
-            _store = Factory.ConsentStore.TypeFactory(DependencyResolver);
+            _store = Factory.Resolve<IConsentStore>();
             _subjectAConsents = new List<Consent>();
             _subjectBConsents = new List<Consent>();
             _subjectCConsents = new List<Consent>();

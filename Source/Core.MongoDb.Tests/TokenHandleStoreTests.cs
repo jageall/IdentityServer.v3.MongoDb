@@ -95,7 +95,7 @@ namespace Core.MongoDb.Tests
         }
         protected override void Initialize()
         {
-            _store = Factory.TokenHandleStore.TypeFactory(DependencyResolver);
+            _store = Factory.Resolve<ITokenHandleStore>();
             var removed = TestData.Token(SubjectA);
             removed.Client.ClientId = removed.ClientId + 0;
             _store.StoreAsync(RemovedKey, removed).Wait();

@@ -3,6 +3,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
+using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
 
 namespace Core.MongoDb.Tests
@@ -98,7 +99,7 @@ namespace Core.MongoDb.Tests
         {
             _expected = TestData.ScopeMandatoryProperties();
             AdminService.Save(_expected);
-            _actual = Factory.ScopeStore.TypeFactory(null).GetScopesAsync().Result.SingleOrDefault(x => x.Name == _expected.Name);
+            _actual = Factory.Resolve<IScopeStore>().GetScopesAsync().Result.SingleOrDefault(x => x.Name == _expected.Name);
 
         }
     }

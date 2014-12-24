@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Thinktecture.IdentityServer.Core.Models;
+using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
 
 namespace Core.MongoDb.Tests
@@ -106,7 +107,7 @@ namespace Core.MongoDb.Tests
             _expected = TestData.ScopeAllProperties();
             AdminService.Save(_expected);
             _actual =
-                Factory.ScopeStore.TypeFactory(null).GetScopesAsync(publicOnly:false).Result.SingleOrDefault(x => x.Name == _expected.Name);
+                Factory.Resolve<IScopeStore>().GetScopesAsync(publicOnly:false).Result.SingleOrDefault(x => x.Name == _expected.Name);
 
         }
     }

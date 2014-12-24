@@ -19,37 +19,32 @@ namespace IdentityServer.Core.MongoDb
         public ServiceFactory(Registration<IUserService> userService,
             StoreSettings storeSettings)
         {
-            Func<IDependencyResolver, ClientSerializer> resolveClientSerializer = di => new ClientSerializer(di.Resolve<IProtectClientSecrets>());
-
             var client = new MongoClient(MongoClientSettings(storeSettings.ConnectionString));
             MongoServer server = client.GetServer();
             MongoDatabase db = server.GetDatabase(storeSettings.Database);
+            Register(new Registration<MongoDatabase>(db));
+            Register(new Registration<StoreSettings>(storeSettings));
             UserService = userService;
-            ClientStore =
-                Registration.RegisterFactory<IClientStore>(di => new ClientStore(
-                    db, storeSettings.ClientCollection,
-                    resolveClientSerializer(di)));
-            ScopeStore = Registration.RegisterSingleton<IScopeStore>(new ScopeStore(db, storeSettings.ScopeCollection));
-            ConsentStore =
-                Registration.RegisterSingleton<IConsentStore>(new ConsentStore(db, storeSettings.ConsentCollection));
+            ClientStore = new Registration<IClientStore>(typeof(ClientStore));
+            ScopeStore = new Registration<IScopeStore>(typeof(ScopeStore));
+            ConsentStore = new Registration<IConsentStore>(typeof (ConsentStore));
             
-            AuthorizationCodeStore =
-                Registration.RegisterFactory<IAuthorizationCodeStore>(di => new AuthorizationCodeStore(db,
-                    storeSettings.AuthorizationCodeCollection, resolveClientSerializer(di)));
+            AuthorizationCodeStore = new Registration<IAuthorizationCodeStore>(typeof(AuthorizationCodeStore));
 
-            RefreshTokenStore = Registration.RegisterFactory<IRefreshTokenStore>(di =>
-                new RefreshTokenStore(db, storeSettings.RefreshTokenCollection, resolveClientSerializer(di)));
-
-            TokenHandleStore = Registration.RegisterFactory<ITokenHandleStore>(di =>
-                new TokenHandleStore(db, storeSettings.TokenHandleCollection, new ClientSerializer(di.Resolve<IProtectClientSecrets>())));
-            AdminService = Registration.RegisterFactory<IAdminService>(di => new AdminService(db, storeSettings, resolveClientSerializer(di)));
+            RefreshTokenStore = new Registration<IRefreshTokenStore>(typeof (RefreshTokenStore));
+            TokenHandleStore = new Registration<ITokenHandleStore>(typeof (TokenHandleStore));
+            AdminService = new Registration<IAdminService>(typeof(AdminService));
             TokenCleanupService =
-                Registration.RegisterSingleton<ICleanupExpiredTokens>(new CleanupExpiredTokens(db, storeSettings));
-            Register(Registration.RegisterFactory<IProtectClientSecrets>(di => new DoNotProtectClientSecrets()));
+                new Registration<ICleanupExpiredTokens>(typeof (CleanupExpiredTokens));
+            ClientSecretProtector = new Registration<IProtectClientSecrets>(di => new DoNotProtectClientSecrets());
+            Register(new Registration<ClientSerializer>(typeof(ClientSerializer)));
         }
 
         public Registration<IAdminService> AdminService { get; set; }
+
         public Registration<ICleanupExpiredTokens> TokenCleanupService { get; set; }
+
+        public Registration<IProtectClientSecrets> ClientSecretProtector { get; set; }
 
         private static MongoClientSettings MongoClientSettings(string mongoUrl)
         {
@@ -101,9 +96,7 @@ namespace IdentityServer.Core.MongoDb
 
         public static void ProtectClientSecretWith(this ServiceFactory factory, IDataProtector protector)
         {
-
-            factory.Register(Registration.RegisterFactory<IProtectClientSecrets>(di => new ProtectClientSecretWithDataProtector(protector)));
-            
+            factory.ClientSecretProtector = new Registration<IProtectClientSecrets>(di => new ProtectClientSecretWithDataProtector(protector));
         }
         
         internal class WrappedDataProtector : IDataProtector

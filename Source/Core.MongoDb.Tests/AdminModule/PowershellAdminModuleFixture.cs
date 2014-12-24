@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
+using Autofac;
 using IdentityServer.Core.MongoDb;
 using IdentityServer.MongoDb.AdminModule;
 using MongoDB.Driver;
@@ -15,8 +16,7 @@ namespace Core.MongoDb.Tests.AdminModule
         private readonly PowerShell _powerShell;
         private readonly string _database;
         private readonly MongoServer _server;
-        private readonly ServiceFactory _serviceFactory;
-        private readonly SimpleResolver _dependencyResolver;
+        private readonly Factory _factory;
 
         public PowershellAdminModuleFixture()
         {
@@ -27,10 +27,7 @@ namespace Core.MongoDb.Tests.AdminModule
             _server = client.GetServer();
             var settings = ServiceFactory.DefaultStoreSettings();
             settings.Database = _database;
-            _serviceFactory = new ServiceFactory(null, settings);
-            _dependencyResolver = new SimpleResolver();
-            _dependencyResolver.Register<IProtectClientSecrets>(new DoNotProtectClientSecrets());
-            
+            _factory = new Factory(new ServiceFactory(null, settings));            
         }
 
         public PowerShell PowerShell
@@ -48,17 +45,21 @@ namespace Core.MongoDb.Tests.AdminModule
             get { return _server; }
         }
 
-        public ServiceFactory Factory
+        public Factory Factory
         {
-            get { return _serviceFactory; }
-        }
-
-        public SimpleResolver DependencyResolver
-        {
-            get { return _dependencyResolver; }
+            get { return _factory; }
         }
 
         public void Dispose()
+        {
+            var failed = GetPowershellErrors();
+            PowerShell.Dispose();
+            if (_server.DatabaseExists(Database))
+                _server.DropDatabase(Database);
+            if (failed != null) throw failed;
+        }
+
+        public AggregateException GetPowershellErrors()
         {
             AggregateException failed = null;
             if (PowerShell.Streams.Error.Count > 0)
@@ -69,12 +70,8 @@ namespace Core.MongoDb.Tests.AdminModule
                     Console.WriteLine(exception);
                 }
                 failed = new AggregateException(exceptions);
-
             }
-            PowerShell.Dispose();
-            if (_server.DatabaseExists(Database))
-                _server.DropDatabase(Database);
-            if (failed != null) throw failed;
+            return failed;
         }
 
         public string LoadScript(object o)

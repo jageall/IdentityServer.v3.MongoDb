@@ -64,7 +64,7 @@ namespace Core.MongoDb.Tests
 
         protected override void Initialize()
         {
-            _scopeStore = Factory.ScopeStore.TypeFactory(null);
+            _scopeStore = Factory.Resolve<IScopeStore>();
             _evenScopeNames = new List<string>();
             _oddScopeNames = new List<string>();
             var scopes = Enumerable.Range(1, 10).Select(x =>

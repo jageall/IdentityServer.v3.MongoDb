@@ -6,12 +6,13 @@ namespace IdentityServer.Core.MongoDb
 {
     class ScopeSerializer
     {
+        static readonly Scope Default = new Scope();
         public BsonDocument Serialize(Scope scope)
         {
             var doc = new BsonDocument();
             doc["_id"] = scope.Name;
             doc["_version"] = 1;
-            doc["displayName"] = scope.DisplayName;
+            doc.SetIfNotNull("displayName", scope.DisplayName);
             var claims = new BsonArray();
             foreach (ScopeClaim scopeClaim in scope.Claims)
             {
@@ -38,7 +39,7 @@ namespace IdentityServer.Core.MongoDb
             var scope = new Scope
             {
                 Name = doc["_id"].AsString,
-                DisplayName = doc["displayName"].AsString,
+                DisplayName = doc.GetValueOrDefault("displayName", Default.DisplayName),
                 Claims = new List<ScopeClaim>(
                     doc.GetValueOrDefault(
                         "claims",

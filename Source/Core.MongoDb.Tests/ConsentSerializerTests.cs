@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
+using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
 
 namespace Core.MongoDb.Tests
@@ -47,7 +48,7 @@ namespace Core.MongoDb.Tests
 
         protected override void Initialize()
         {
-            var store = Factory.ConsentStore.TypeFactory(null);
+            var store = Factory.Resolve<IConsentStore>();
             _expected = new Consent
             {
                 ClientId = "client",

@@ -14,7 +14,7 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly RefreshTokenSerializer _serializer;
 
-        public RefreshTokenStore(MongoDatabase db, string collectionName, ClientSerializer clientSerializer) : base(db, collectionName)
+        public RefreshTokenStore(MongoDatabase db, StoreSettings settings, ClientSerializer clientSerializer) : base(db, settings.RefreshTokenCollection)
         {
             _serializer = new RefreshTokenSerializer(clientSerializer);
         }

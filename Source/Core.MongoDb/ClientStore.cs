@@ -10,7 +10,8 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly ClientSerializer _serializer;
 
-        public ClientStore(MongoDatabase db, string collectionName, ClientSerializer serializer) : base(db, collectionName)
+        public ClientStore(MongoDatabase db, StoreSettings settings, ClientSerializer serializer) :
+            base(db, settings.ClientCollection)
         {
             _serializer = serializer;
         }
