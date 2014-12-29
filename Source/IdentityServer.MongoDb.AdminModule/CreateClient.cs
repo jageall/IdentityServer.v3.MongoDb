@@ -17,7 +17,7 @@ namespace IdentityServer.MongoDb.AdminModule
         public bool? Enabled { get; set; }
         [Parameter(Mandatory = true)]
         public string ClientId { get; set; }
-        [Parameter]
+        [Parameter(ParameterSetName = "ClientSecret")]
         public string ClientSecret { get; set; }
         [Parameter(Mandatory = true)]
         public string ClientName { get; set; }
@@ -72,7 +72,7 @@ namespace IdentityServer.MongoDb.AdminModule
         [Parameter]
         public string[] ScopeRestrictions { get; set; }
 
-        //todo: Make this part of a parameter set
+        [Parameter(ParameterSetName = "Password")]
         public string Password { get; set; }
 
         protected override void ProcessRecord()
@@ -113,6 +113,11 @@ namespace IdentityServer.MongoDb.AdminModule
 
         private void ValidateClientSecretSettings()
         {
+            if (!string.IsNullOrEmpty(Password))
+            {
+                var hash = SHA1.Create();
+                ClientSecret = Convert.ToBase64String(hash.ComputeHash(Encoding.UTF8.GetBytes(Password)));
+            }
             if(string.IsNullOrWhiteSpace(ClientSecret) && IdentityTokenSigningKeyType == SigningKeyTypes.ClientSecret)
                 throw new InvalidOperationException("No client secret specified but signing key specified as client secret");
             if (string.IsNullOrWhiteSpace(ClientSecret)) return;
