@@ -7,37 +7,37 @@ namespace IdentityServer.MongoDb.AdminModule
     public class DeleteExpiredTokens : MongoCmdlet
     {
         [Parameter]
-        public TokenTypes Type { get; set; }
+        public TokenTypes Types { get; set; }
 
         [Parameter]
         [ValidateNotNull]
-        public DateTimeOffset ExpiredBefore { get; set; }
+        public DateTimeOffset? ExpiredBefore { get; set; }
 
         protected override void ProcessRecord()
         {
             var service = TokenCleanupService;
-            ExpiredBefore = ExpiredBefore.ToUniversalTime();
+            var expiredBefore = (ExpiredBefore ?? DateTimeOffset.UtcNow).ToUniversalTime();
             var expiry = new DateTime(
-                ExpiredBefore.Year,
-                ExpiredBefore.Month,
-                ExpiredBefore.Day,
-                ExpiredBefore.Hour,
-                ExpiredBefore.Minute,
-                ExpiredBefore.Second,
-                ExpiredBefore.Millisecond,
+                expiredBefore.Year,
+                expiredBefore.Month,
+                expiredBefore.Day,
+                expiredBefore.Hour,
+                expiredBefore.Minute,
+                expiredBefore.Second,
+                expiredBefore.Millisecond,
                 DateTimeKind.Utc);
 
-            if ((Type & TokenTypes.AuthorizationCode) == TokenTypes.AuthorizationCode)
+            if ((Types & TokenTypes.AuthorizationCode) == TokenTypes.AuthorizationCode)
             {
                 service.CleanupAuthorizationCodes(expiry);
             }
 
-            if ((Type & TokenTypes.Refresh) == TokenTypes.Refresh)
+            if ((Types & TokenTypes.Refresh) == TokenTypes.Refresh)
             {
                 service.CleanupRefreshTokens(expiry);
             }
 
-            if ((Type & TokenTypes.Handle) == TokenTypes.Handle)
+            if ((Types & TokenTypes.Handle) == TokenTypes.Handle)
             {
                 service.CleanupTokenHandles(expiry);
             }
