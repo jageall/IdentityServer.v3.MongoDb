@@ -7,24 +7,24 @@ using Xunit;
 
 namespace Core.MongoDb.Tests.AdminModule
 {
-    public class CleanUpAuthorizationCodes : IUseFixture<PowershellAdminModuleFixture>
+    public class CleanUpRefreshTokens : IUseFixture<PowershellAdminModuleFixture>
     {
         private PowerShell _ps;
         private string _script;
         private string _database;
-        private IAuthorizationCodeStore _acStore;
+        private IRefreshTokenStore _rtStore;
         private const string Subject = "expired";
 
 
         [Fact]
-        public void AuthorizationCodesAreDeleted()
+        public void RefreshTokensAreDeleted()
         {
-            Assert.NotEmpty(_acStore.GetAllAsync(Subject).Result);
+            Assert.NotEmpty(_rtStore.GetAllAsync(Subject).Result);
             _ps.Invoke();
 
             Assert.Equal(
                 new string[] { },
-                _acStore.GetAllAsync(Subject).Result.Select(TestData.ToTestableString));
+                _rtStore.GetAllAsync(Subject).Result.Select(TestData.ToTestableString));
             
         }
 
@@ -36,16 +36,13 @@ namespace Core.MongoDb.Tests.AdminModule
             _ps.AddScript(_script).AddParameter("Database", _database);
             var adminService = data.Factory.Resolve<IAdminService>();
             adminService.CreateDatabase(expireUsingIndex: false);
-            data.Factory.Resolve<ICleanupExpiredTokens>();
             AddExpiredTokens(data.Factory);
         }
 
         private void AddExpiredTokens(Factory factory)
         {
-            _acStore = factory.Resolve<IAuthorizationCodeStore>();
-            _acStore.StoreAsync("ac", TestData.AuthorizationCode(Subject)).Wait();
-
-
+            _rtStore = factory.Resolve<IRefreshTokenStore>();
+            _rtStore.StoreAsync("ac", TestData.RefreshToken(Subject)).Wait();
         }
     }
 }

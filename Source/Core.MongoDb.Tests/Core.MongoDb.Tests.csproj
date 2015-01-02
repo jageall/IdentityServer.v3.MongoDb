@@ -69,7 +69,9 @@
     <Compile Include="AdminModule\AddBuiltInScopes.cs" />
     <Compile Include="AdminModule\AddClient.cs" />
     <Compile Include="AdminModule\AddScope.cs" />
+    <Compile Include="AdminModule\CleanUpRefreshTokens.cs" />
     <Compile Include="AdminModule\CleanUpAuthorizationCodes.cs" />
+    <Compile Include="AdminModule\CleanUpTokenHandles.cs" />
     <Compile Include="AdminModule\DeleteClient.cs" />
     <Compile Include="AdminModule\DeleteDatabase.cs" />
     <Compile Include="AdminModule\DeleteScope.cs" />
@@ -104,6 +106,8 @@
     <EmbeddedResource Include="AdminModule\Scripts\AddBuiltInScopes.ps1" />
     <EmbeddedResource Include="AdminModule\Scripts\AddClient.ps1" />
     <EmbeddedResource Include="AdminModule\Scripts\CleanUpAuthorizationCodes.ps1" />
+    <EmbeddedResource Include="AdminModule\Scripts\CleanUpRefreshTokens.ps1" />
+    <EmbeddedResource Include="AdminModule\Scripts\CleanUpTokenHandles.ps1" />
     <None Include="packages.config" />
     <EmbeddedResource Include="AdminModule\Scripts\InstallDatabase.ps1" />
   </ItemGroup>
