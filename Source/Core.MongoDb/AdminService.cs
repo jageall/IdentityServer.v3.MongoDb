@@ -3,6 +3,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Wrappers;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.Core.MongoDb
@@ -82,6 +83,12 @@ namespace IdentityServer.Core.MongoDb
         public void RemoveDatabase()
         {
             _db.Drop();
+        }
+
+        public void DeleteClient(string clientId)
+        {
+            MongoCollection<BsonDocument> collection = _db.GetCollection(_settings.ClientCollection);
+            collection.Remove(new QueryWrapper(new{_id = clientId}));
         }
     }
 }

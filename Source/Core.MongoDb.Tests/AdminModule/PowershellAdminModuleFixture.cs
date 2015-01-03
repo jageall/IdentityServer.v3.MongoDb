@@ -56,6 +56,15 @@ namespace Core.MongoDb.Tests.AdminModule
             PowerShell.Dispose();
             if (_server.DatabaseExists(Database))
                 _server.DropDatabase(Database);
+
+            //var dbns = _server.GetDatabaseNames();
+            //foreach (var dbn in dbns)
+            //{
+            //    Guid ignored;
+            //    if (Guid.TryParse(dbn, out ignored))
+            //        _server.DropDatabase(dbn);
+            //}
+
             if (failed != null) throw failed;
         }
 

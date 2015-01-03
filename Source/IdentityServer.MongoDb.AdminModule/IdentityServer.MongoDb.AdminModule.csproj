@@ -69,6 +69,7 @@
     <Compile Include="MongoCmdlet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadScopes.cs" />
+    <Compile Include="RemoveClient.cs" />
     <Compile Include="SaveClient.cs" />
     <Compile Include="SaveScope.cs" />
     <Compile Include="SetScopeClaim.cs" />

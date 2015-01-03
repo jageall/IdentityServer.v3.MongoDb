@@ -16,7 +16,6 @@ namespace Core.MongoDb.Tests.AdminModule
     {
         private PowershellAdminModuleFixture _data;
         private PowerShell _ps;
-        private string _script;
         private string _database;
         private IClientStore _store;
 
@@ -56,9 +55,8 @@ namespace Core.MongoDb.Tests.AdminModule
         {
             _data = data;
             _ps = data.PowerShell;
-            _script = data.LoadScript(this);
             _database = data.Database;
-            _ps.AddScript(_script).AddParameter("Database", _database);
+            _ps.AddScript(data.LoadScript(this)).AddParameter("Database", _database);
             _store = data.Factory.Resolve<IClientStore>();
             var adminService = data.Factory.Resolve<IAdminService>();
             adminService.CreateDatabase();
