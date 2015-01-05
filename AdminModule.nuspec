@@ -13,7 +13,7 @@
     <tags>IdentityServer MongoDb Powershell</tags>
   </metadata>
   <files>
-    <file src="Out\Identityserver.MongoDb.AdminModule.dll" target="lib\net45"/>
-    <file src="Out\ThinkTecture.Identityserver.dll" target="lib\net45"/>
+    <file src="Out\Identityserver.MongoDb.AdminModule.dll" target="tools"/>
+    <file src="Out\ThinkTecture.Identityserver.dll" target="tools"/>
   </files>
 </package>
