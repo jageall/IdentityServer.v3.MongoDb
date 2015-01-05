@@ -8,13 +8,7 @@ namespace IdentityServer.Core.MongoDb
 {
     class ClientSerializer
     {
-        private readonly IProtectClientSecrets _protector;
         private static readonly Client DefaultValues = new Client();
-
-        public ClientSerializer(IProtectClientSecrets protector)
-        {
-            _protector = protector;
-        }
 
         public BsonDocument Serialize(Client client)
         {
@@ -28,7 +22,7 @@ namespace IdentityServer.Core.MongoDb
             doc["allowRememberConsent"] = client.AllowRememberConsent;
             doc["authorizationCodeLifetime"] = client.AuthorizationCodeLifetime;
             doc["clientName"] = client.ClientName;
-            doc.SetIfNotNull("clientSecret", _protector.Protect(client.ClientId, client.ClientSecret));
+            doc.SetIfNotNull("clientSecret", client.ClientSecret);
             if (client.ClientUri != null)
                 doc.SetIfNotNull("clientUri", client.ClientUri);
             doc["enabled"] = client.Enabled;
@@ -107,7 +101,7 @@ namespace IdentityServer.Core.MongoDb
 
             if (!string.Equals(client.ClientSecret, DefaultValues.ClientSecret))
             {
-                client.ClientSecret = _protector.Unprotect(client.ClientId, client.ClientSecret);
+                client.ClientSecret = client.ClientSecret;
             }
 
             client.ClientUri = doc.GetValueOrDefault(
@@ -158,11 +152,5 @@ namespace IdentityServer.Core.MongoDb
                 DefaultValues.SlidingRefreshTokenLifetime);
             return client;
         }
-    }
-
-    public interface IProtectClientSecrets
-    {
-        string Protect(string clientId, string clientSecret);
-        string Unprotect(string clientId, string clientSecret);
     }
 }

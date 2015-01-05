@@ -13,7 +13,6 @@ namespace IdentityServer.MongoDb.AdminModule
         private IAdminService _adminService;
         private IScopeStore _scopeStore;
         private ICleanupExpiredTokens _tokenCleanupService;
-        private IDataProtector _dataProtector;
 
         protected MongoCmdlet(bool createDb = false)
         {
@@ -68,10 +67,6 @@ namespace IdentityServer.MongoDb.AdminModule
             CanCreateDatabase(storeSettings);
             
             var serviceFactory = new ServiceFactory(null, storeSettings);
-            if (_dataProtector != null)
-            {
-                serviceFactory.ProtectClientSecretWith(_dataProtector);
-            }
             var factory = new Factory(serviceFactory);
             _adminService = factory.Resolve<IAdminService>();
             _tokenCleanupService = factory.Resolve<ICleanupExpiredTokens>();
@@ -84,11 +79,6 @@ namespace IdentityServer.MongoDb.AdminModule
             var client = new MongoClient(settings.ConnectionString);
             var server = client.GetServer();
             if (!server.DatabaseExists(settings.Database) && !_createDb) throw new InvalidOperationException("Database does not exist");
-        }
-
-        protected void ProtectClientSecrets(IDataProtector dataProtector)
-        {
-            _dataProtector = dataProtector;
         }
     }
 }

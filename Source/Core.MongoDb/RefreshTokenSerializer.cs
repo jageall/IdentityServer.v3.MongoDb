@@ -1,5 +1,8 @@
+using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using Thinktecture.IdentityServer.Core.Models;
+using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {
@@ -7,9 +10,9 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly TokenSerializer _tokenSerializer;
 
-        public RefreshTokenSerializer(ClientSerializer clientSerializer)
+        public RefreshTokenSerializer(IClientStore clientStore)
         {
-            _tokenSerializer = new TokenSerializer(clientSerializer);
+            _tokenSerializer = new TokenSerializer(clientStore);
         }
         public BsonDocument Serialize(string key, RefreshToken value)
         {
@@ -27,14 +30,15 @@ namespace IdentityServer.Core.MongoDb
             return doc;
         }
 
-        public RefreshToken Deserialize(BsonDocument doc)
+        public async Task<RefreshToken> Deserialize(BsonDocument doc)
         {
             var token = new RefreshToken();
-            token.AccessToken = doc.GetNestedValueOrDefault(
-                "accessToken", 
-                _tokenSerializer.Deserialize,
-                token.AccessToken);
+            BsonValue at;
+            if (doc.TryGetValue("accessToken", out at))
+            {
 
+               token.AccessToken = await _tokenSerializer.Deserialize(at.AsBsonDocument);
+            }
             token.CreationTime = doc.GetValueOrDefault("creationTime", token.CreationTime);
             token.LifeTime = doc.GetValueOrDefault("lifetime", token.LifeTime);
             return token;

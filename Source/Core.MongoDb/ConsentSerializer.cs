@@ -6,7 +6,7 @@ namespace IdentityServer.Core.MongoDb
 {
     class ConsentSerializer
     {
-        private static readonly Guid _namespace = new Guid("344A5569-E318-4A69-9207-C2EBC501D722");
+        private static readonly Guid Namespace = new Guid("344A5569-E318-4A69-9207-C2EBC501D722");
 
         public BsonDocument Serialize(Consent consent)
         {
@@ -35,7 +35,7 @@ namespace IdentityServer.Core.MongoDb
 
         public Guid GetId(string clientId, string subject)
         {
-            return GuidGenerator.CreateGuidFromName(_namespace, clientId + subject);
+            return GuidGenerator.CreateGuidFromName(Namespace, clientId + subject);
         }
     }
 }

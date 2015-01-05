@@ -23,8 +23,6 @@ namespace IdentityServer.MongoDb.AdminModule
             Register(cb, config.AdminService);
 
             Register(cb, config.TokenCleanupService);
-            Register(cb, config.ClientSecretProtector);
-
 
             foreach (var registration in config.Registrations)
             {

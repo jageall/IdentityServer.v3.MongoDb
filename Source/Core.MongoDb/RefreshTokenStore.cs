@@ -14,9 +14,9 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly RefreshTokenSerializer _serializer;
 
-        public RefreshTokenStore(MongoDatabase db, StoreSettings settings, ClientSerializer clientSerializer) : base(db, settings.RefreshTokenCollection)
+        public RefreshTokenStore(MongoDatabase db, StoreSettings settings, IClientStore clientStore) : base(db, settings.RefreshTokenCollection)
         {
-            _serializer = new RefreshTokenSerializer(clientSerializer);
+            _serializer = new RefreshTokenSerializer(clientStore);
         }
 
         public Task StoreAsync(string key, RefreshToken value)
@@ -29,7 +29,7 @@ namespace IdentityServer.Core.MongoDb
         {
             var result = Collection.FindOneById(key);
             if (result == null) return Task.FromResult<RefreshToken>(null);
-            return Task.FromResult(_serializer.Deserialize(result));
+            return _serializer.Deserialize(result);
         }
 
         public Task RemoveAsync(string key)
@@ -38,18 +38,17 @@ namespace IdentityServer.Core.MongoDb
             return Task.FromResult(0);
         }
 
-        public Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
+        public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
-
             var filter = new QueryWrapper(
                 new
                 {
                     _subjectId = subject
                 });
-            var result = Collection.Find(filter)
-                .Select(_serializer.Deserialize)
-                .ToArray();
-            return Task.FromResult<IEnumerable<ITokenMetadata>>(result);
+            var results = Collection.Find(filter)
+                .Select(_serializer.Deserialize);
+            var result = await Task.WhenAll(results);
+            return result;
         }
 
         public Task RevokeAsync(string subject, string client)

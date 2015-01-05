@@ -11,23 +11,6 @@ namespace IdentityServer.MongoDb.AdminModule
         [Parameter(ValueFromPipeline = true)]
         [ValidateNotNull]
         public Client Client { get; set; }
-        
-        [Parameter]
-        public IDataProtector ClientSecretProtector { get; set; }
-
-
-
-        protected override void BeginProcessing()
-        {
-            if (ClientSecretProtector != null)
-                base.ProtectClientSecrets(ClientSecretProtector);
-            else
-            {
-                WriteWarning("No client secret protector set");
-            }
-
-    base.BeginProcessing();
-        }
 
         protected override void ProcessRecord()
         {

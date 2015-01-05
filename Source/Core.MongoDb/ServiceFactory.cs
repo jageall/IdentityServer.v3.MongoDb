@@ -36,15 +36,12 @@ namespace IdentityServer.Core.MongoDb
             AdminService = new Registration<IAdminService>(typeof(AdminService));
             TokenCleanupService =
                 new Registration<ICleanupExpiredTokens>(typeof (CleanupExpiredTokens));
-            ClientSecretProtector = new Registration<IProtectClientSecrets>(di => new DoNotProtectClientSecrets());
             Register(new Registration<ClientSerializer>(typeof(ClientSerializer)));
         }
 
         public Registration<IAdminService> AdminService { get; set; }
 
         public Registration<ICleanupExpiredTokens> TokenCleanupService { get; set; }
-
-        public Registration<IProtectClientSecrets> ClientSecretProtector { get; set; }
 
         private static MongoClientSettings MongoClientSettings(string mongoUrl)
         {
@@ -66,59 +63,6 @@ namespace IdentityServer.Core.MongoDb
                 RefreshTokenCollection = "refreshtokens",
                 TokenHandleCollection = "tokenhandles"
             };
-        }
-    }
-
-    public class DoNotProtectClientSecrets : IProtectClientSecrets
-    {
-        public string Protect(string clientId, string clientSecret)
-        {
-            return clientSecret;
-        }
-
-        public string Unprotect(string clientId, string clientSecret)
-        {
-            return clientSecret;
-        }
-    }
-
-    //TODO: this class will die once identity server provides client secret protection
-    public static class PatchingExtensionMethods
-    {
-        public static void ProtectClientSecretWithHostProtection(this IAppBuilder app, ServiceFactory factory)
-        {
-            var protector = app.GetDataProtectionProvider();
-            if (protector != null)
-            {
-                factory.ProtectClientSecretWith(new WrappedDataProtector(protector));
-            }    
-        }
-
-        public static void ProtectClientSecretWith(this ServiceFactory factory, IDataProtector protector)
-        {
-            factory.ClientSecretProtector = new Registration<IProtectClientSecrets>(di => new ProtectClientSecretWithDataProtector(protector));
-        }
-        
-        internal class WrappedDataProtector : IDataProtector
-        {
-            private readonly IDataProtectionProvider _provider;
-
-            public WrappedDataProtector(IDataProtectionProvider provider)
-            {
-                _provider = provider;
-            }
-
-            public byte[] Protect(byte[] data, string entropy = "")
-            {
-                var protector = _provider.Create(entropy);
-                return protector.Protect(data);
-            }
-
-            public byte[] Unprotect(byte[] data, string entropy = "")
-            {
-                var protector = _provider.Create(entropy);
-                return protector.Unprotect(data);
-            }
         }
     }
 }

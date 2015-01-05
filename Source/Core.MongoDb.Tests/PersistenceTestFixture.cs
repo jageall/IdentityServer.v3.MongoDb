@@ -18,8 +18,6 @@ namespace Core.MongoDb.Tests
             var config = new ServiceFactory(
                 null,
                 storeSettings);
-            var protector = new ReverseDataProtector();
-            config.ProtectClientSecretWith(protector);
             _factory = new Factory(config);
             _adminService = _factory.Resolve<IAdminService>();
             _adminService.CreateDatabase(expireUsingIndex:false);
