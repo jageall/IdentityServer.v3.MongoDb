@@ -108,6 +108,7 @@
     <EmbeddedResource Include="AdminModule\Scripts\CleanUpRefreshTokens.ps1" />
     <EmbeddedResource Include="AdminModule\Scripts\CleanUpTokenHandles.ps1" />
     <EmbeddedResource Include="AdminModule\Scripts\DeleteClient.ps1" />
+    <EmbeddedResource Include="AdminModule\Scripts\DeleteDatabase.ps1" />
     <None Include="packages.config" />
     <EmbeddedResource Include="AdminModule\Scripts\InstallDatabase.ps1" />
   </ItemGroup>

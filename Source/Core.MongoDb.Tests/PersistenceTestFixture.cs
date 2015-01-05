@@ -32,18 +32,5 @@ namespace Core.MongoDb.Tests
         {
             get { return _factory; }
         }
-
-        class ReverseDataProtector : IDataProtector
-        {
-            public byte[] Protect(byte[] data, string entropy = "")
-            {
-                return data.Reverse().ToArray();
-            }
-
-            public byte[] Unprotect(byte[] data, string entropy = "")
-            {
-                return data.Reverse().ToArray();
-            }
-        }
     }
 }

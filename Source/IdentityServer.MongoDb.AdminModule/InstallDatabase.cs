@@ -3,9 +3,9 @@
 namespace IdentityServer.MongoDb.AdminModule
 {
     [Cmdlet(VerbsLifecycle.Install, "IdentityServerDb")]
-    public class IdentityServerDb : MongoCmdlet
+    public class InstallDatabase : MongoCmdlet
     {
-        public IdentityServerDb()
+        public InstallDatabase()
             : base(true)
         {
 
