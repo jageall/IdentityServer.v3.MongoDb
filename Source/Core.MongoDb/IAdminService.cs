@@ -9,5 +9,6 @@ namespace IdentityServer.Core.MongoDb
         void Save(Client client);
         void RemoveDatabase();
         void DeleteClient(string clientId);
+        void DeleteScope(string scopeName);
     }
 }

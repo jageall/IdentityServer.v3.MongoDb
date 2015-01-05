@@ -90,5 +90,11 @@ namespace IdentityServer.Core.MongoDb
             MongoCollection<BsonDocument> collection = _db.GetCollection(_settings.ClientCollection);
             collection.Remove(new QueryWrapper(new{_id = clientId}));
         }
+
+        public void DeleteScope(string scopeName)
+        {
+            MongoCollection<BsonDocument> collection = _db.GetCollection(_settings.ScopeCollection);
+            collection.Remove(new QueryWrapper(new { _id = scopeName}));
+        }
     }
 }
