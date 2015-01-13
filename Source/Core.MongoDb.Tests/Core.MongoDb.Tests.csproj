@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,7 +41,8 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Owin">
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -54,8 +56,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Thinktecture.IdentityServer">
-      <HintPath>..\packages\Thinktecture.IdentityServer.v3.1.0.0-beta4-1\lib\net45\Thinktecture.IdentityServer.dll</HintPath>
+    <Reference Include="Thinktecture.IdentityServer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Thinktecture.IdentityServer.v3.1.0.0-rc\lib\net45\Thinktecture.IdentityServer.dll</HintPath>
     </Reference>
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
@@ -76,9 +79,6 @@
     <Compile Include="AdminModule\DeleteScope.cs" />
     <Compile Include="AdminModule\InstallDatabase.cs" />
     <Compile Include="AdminModule\PowershellAdminModuleFixture.cs" />
-    <Compile Include="AdminModule\UpdateClient.cs" />
-    <Compile Include="AdminModule\UpdateDatabase.cs" />
-    <Compile Include="AdminModule\UpdateScope.cs" />
     <Compile Include="AuthorizationCodeSerializationTests.cs" />
     <Compile Include="AuthorizationCodeStoreTests.cs" />
     <Compile Include="ClientSerializerAllPropertiesNonDefault.cs" />

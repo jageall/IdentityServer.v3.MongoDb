@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Thinktecture.IdentityServer.Core.Models;
+using Thinktecture.IdentityServer.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {
     class AuthorizationCodeSerializer
     {
-        private readonly ClientSerializer _clientSerializer;
-        private readonly ScopeSerializer _scopeSerializer;
+        private readonly IClientStore _clientStore;
+        private readonly IScopeStore _scopeStore;
         private readonly ClaimSetSerializer _claimSetSerializer;
 
-        public AuthorizationCodeSerializer(ClientSerializer clientSerializer)
+        public AuthorizationCodeSerializer(IClientStore clientStore, IScopeStore scopeStore)
         {
-            _clientSerializer = clientSerializer;
-            _scopeSerializer = new ScopeSerializer();
+            _clientStore = clientStore;
+            _scopeStore = scopeStore;
             _claimSetSerializer = new ClaimSetSerializer();
         }
 
@@ -34,11 +37,10 @@ namespace IdentityServer.Core.MongoDb
             doc["wasConsentShown"] = code.WasConsentShown;
             doc["nonce"] = code.Nonce;
             doc["subject"] = SerializeIdentities(code);
-            doc["client"] = _clientSerializer.Serialize(code.Client);
             var requestedScopes = new BsonArray();
-            foreach (Scope scope in code.RequestedScopes)
+            foreach (var scope in code.RequestedScopes.Select(x=>x.Name))
             {
-                requestedScopes.Add(_scopeSerializer.Serialize(scope));
+                requestedScopes.Add(scope);
             }
             doc["requestedScopes"] = requestedScopes;
             return doc;
@@ -62,7 +64,7 @@ namespace IdentityServer.Core.MongoDb
             return subject;
         }
         
-        public AuthorizationCode Deserialize(BsonDocument doc)
+        public async Task<AuthorizationCode> Deserialize(BsonDocument doc)
         {
             var code = new AuthorizationCode();
             code.CreationTime = doc.GetValueOrDefault("creationTime", code.CreationTime);
@@ -83,12 +85,12 @@ namespace IdentityServer.Core.MongoDb
             claimsPrincipal.AddIdentities(identities);
             code.Subject = claimsPrincipal;
 
-            code.Client = _clientSerializer.Deserialize(doc["client"].AsBsonDocument);
+            code.Client = await _clientStore.FindClientByIdAsync(doc["_clientId"].AsString);
             
-            code.RequestedScopes = doc.GetValueOrDefault(
+            var scopes = doc.GetValueOrDefault(
                 "requestedScopes",
-                _scopeSerializer.Deserialize,
-                code.RequestedScopes);
+                (IEnumerable<string>)new string[]{});
+            code.RequestedScopes = await _scopeStore.FindScopesAsync(scopes);
             return code;
         }
     }

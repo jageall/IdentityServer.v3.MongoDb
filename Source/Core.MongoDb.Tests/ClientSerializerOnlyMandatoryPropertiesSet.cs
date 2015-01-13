@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
@@ -69,7 +70,9 @@ namespace Core.MongoDb.Tests
         [Fact]
         public void CheckClientSecret()
         {
-            Assert.Equal(_expected.ClientSecret, _actual.ClientSecret);
+            Assert.Equal(
+                _expected.ClientSecrets.Select(TestData.ToTestableString),
+                _actual.ClientSecrets.Select(TestData.ToTestableString));
         }
 
         [Fact]
@@ -100,12 +103,6 @@ namespace Core.MongoDb.Tests
         public void CheckIdentityTokenLifetime()
         {
             Assert.Equal(_expected.IdentityTokenLifetime, _actual.IdentityTokenLifetime);
-        }
-
-        [Fact]
-        public void CheckIdentityTokenSigningKeyType()
-        {
-            Assert.Equal(_expected.IdentityTokenSigningKeyType, _actual.IdentityTokenSigningKeyType);
         }
 
         [Fact]

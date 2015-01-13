@@ -10,7 +10,13 @@ namespace IdentityServer.Core.MongoDb
         public BsonDocument Serialize(IEnumerable<Claim> claims)
         {
             var result = new BsonDocument();
-            result["_version"] = 1;
+            Serialize(claims, result);
+            return result;
+        }
+
+        public void Serialize(IEnumerable<Claim> claims, BsonDocument doc)
+        {
+            doc["_version"] = 1;
             var array = new BsonArray();
             foreach (Claim claim in claims)
             {
@@ -19,8 +25,7 @@ namespace IdentityServer.Core.MongoDb
                 c["value"] = claim.Value;
                 array.Add(c);
             }
-            result["claims"] = array;
-            return result;
+            doc["claims"] = array;
         }
 
         public IEnumerable<Claim> Deserialize(BsonDocument doc)

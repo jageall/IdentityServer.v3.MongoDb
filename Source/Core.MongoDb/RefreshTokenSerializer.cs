@@ -27,6 +27,7 @@ namespace IdentityServer.Core.MongoDb
             doc["accessToken"] = accessToken;
             doc["creationTime"] = value.CreationTime.ToBsonDateTime();
             doc["lifetime"] = value.LifeTime;
+            doc["version"] = value.Version;
             return doc;
         }
 
@@ -41,6 +42,7 @@ namespace IdentityServer.Core.MongoDb
             }
             token.CreationTime = doc.GetValueOrDefault("creationTime", token.CreationTime);
             token.LifeTime = doc.GetValueOrDefault("lifetime", token.LifeTime);
+            token.Version = doc.GetValueOrDefault("version", token.Version);
             return token;
         }
     }

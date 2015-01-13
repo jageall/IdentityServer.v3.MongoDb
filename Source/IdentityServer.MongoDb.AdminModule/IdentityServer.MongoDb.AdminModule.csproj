@@ -39,7 +39,8 @@
     <Reference Include="MongoDB.Driver">
       <HintPath>..\packages\mongocsharpdriver.1.9.2\lib\net35\MongoDB.Driver.dll</HintPath>
     </Reference>
-    <Reference Include="Owin">
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -56,15 +57,18 @@
     <Reference Include="System.Xml" />
     <Reference Include="Thinktecture.IdentityServer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Thinktecture.IdentityServer.v3.1.0.0-beta4-1\lib\net45\Thinktecture.IdentityServer.dll</HintPath>
+      <HintPath>..\packages\Thinktecture.IdentityServer.v3.1.0.0-rc\lib\net45\Thinktecture.IdentityServer.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CreateClient.cs" />
+    <Compile Include="CreateClientClaim.cs" />
+    <Compile Include="CreateClientSecret.cs" />
     <Compile Include="CreateScope.cs" />
     <Compile Include="CreateScopeClaim.cs" />
     <Compile Include="DeleteExpiredTokens.cs" />
     <Compile Include="Factory.cs" />
+    <Compile Include="HashType.cs" />
     <Compile Include="InstallDatabase.cs" />
     <Compile Include="MongoCmdlet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

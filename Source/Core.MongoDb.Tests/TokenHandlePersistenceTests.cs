@@ -1,4 +1,5 @@
 ﻿using System;
+using IdentityServer.Core.MongoDb;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
@@ -86,6 +87,9 @@ namespace Core.MongoDb.Tests
         protected override void Initialize()
         {
             var store = Factory.Resolve<ITokenHandleStore>();
+            var clients = Factory.Resolve<IAdminService>();
+            clients.Save(TestData.ClientAllProperties());
+            
             var key = GetType().Name;
             _expected = TestData.Token();
             store.StoreAsync(key, TestData.Token());

@@ -38,30 +38,30 @@ namespace IdentityServer.MongoDb.AdminModule
                 var reg = cb.Register(ctx => registration.Instance).SingleInstance();
                 if (name != null)
                 {
-                    reg.Named(name, registration.InterfaceType);
+                    reg.Named(name, registration.DependencyType);
                 } else
                 {
-                    reg.As(registration.InterfaceType);
+                    reg.As(registration.DependencyType);
                 }
             } else if (registration.Type != null)
             {
                 var reg = cb.RegisterType(registration.Type);
                 if (name != null)
                 {
-                    reg.Named(name, registration.InterfaceType);
+                    reg.Named(name, registration.DependencyType);
                 } else
                 {
-                    reg.As(registration.InterfaceType);
+                    reg.As(registration.DependencyType);
                 }
             } else if (registration.Factory != null)
             {
                 var reg = cb.Register(ctx => registration.Factory(new AutofacDependencyResolver(ctx)));
                 if (name != null)
                 {
-                    reg.Named(name, registration.InterfaceType);
+                    reg.Named(name, registration.DependencyType);
                 } else
                 {
-                    reg.As(registration.InterfaceType);
+                    reg.As(registration.DependencyType);
                 }
             } else
             {

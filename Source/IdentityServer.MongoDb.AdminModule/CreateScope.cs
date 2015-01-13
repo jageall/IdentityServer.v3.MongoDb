@@ -1,4 +1,6 @@
-﻿using System.Management.Automation;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Management.Automation;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.MongoDb.AdminModule
@@ -35,7 +37,7 @@ namespace IdentityServer.MongoDb.AdminModule
         {
             var scope = new Scope()
             {
-                Claims = Claims,
+                Claims = (Claims ?? new ScopeClaim[] {}).ToList(),
                 ClaimsRule = ClaimsRule,
                 Description = Description,
                 DisplayName = DisplayName,

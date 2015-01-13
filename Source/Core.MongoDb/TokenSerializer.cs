@@ -39,6 +39,7 @@ namespace IdentityServer.Core.MongoDb
             doc["issuer"] = token.Issuer;
             doc["lifetime"] = token.Lifetime;
             doc["type"] = token.Type;
+            doc["version"] = token.Version;
         }
 
         public async Task<Token> Deserialize(BsonDocument doc)
@@ -53,6 +54,7 @@ namespace IdentityServer.Core.MongoDb
             token.Issuer = doc.GetValueOrDefault("issuer", token.Issuer);
             token.Lifetime = doc.GetValueOrDefault("lifetime", token.Lifetime);
             token.Type = doc.GetValueOrDefault("type", token.Type);
+            token.Version = doc.GetValueOrDefault("version", token.Version);
             return token;
         }
     }

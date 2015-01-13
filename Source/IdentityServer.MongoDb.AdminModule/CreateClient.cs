@@ -2,8 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Management.Automation;
-using System.Security.Cryptography;
-using System.Text;
+using System.Security.Claims;
 using IdentityServer.Core.MongoDb;
 using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Models;
@@ -17,8 +16,9 @@ namespace IdentityServer.MongoDb.AdminModule
         public bool? Enabled { get; set; }
         [Parameter(Mandatory = true)]
         public string ClientId { get; set; }
-        [Parameter(ParameterSetName = "ClientSecret")]
-        public string ClientSecret { get; set; }
+        [Parameter]
+        public ClientSecret[] ClientSecrets { get; set; }
+
         [Parameter(Mandatory = true)]
         public string ClientName { get; set; }
         [Parameter]
@@ -72,13 +72,23 @@ namespace IdentityServer.MongoDb.AdminModule
         [Parameter]
         public string[] ScopeRestrictions { get; set; }
 
-        [Parameter(ParameterSetName = "Password")]
-        public string Password { get; set; }
+        [Parameter]
+        public bool? IncludeJwtId { get; set; }
+        
+        [Parameter]
+        public bool? AlwaysSendClientClaims { get; set; }
+
+        [Parameter]
+        public bool? PrefixClientClaims { get; set; }
+        
+        [Parameter]
+        public string[] CustomGrantTypeRestrictions { get; set; }
+
+        [Parameter]
+        public Claim[] Claims { get; set; }
 
         protected override void ProcessRecord()
         {
-            ValidateClientSecretSettings();
-
             var client = new Client() { ClientId = ClientId, ClientName = ClientName };
             
             client.AbsoluteRefreshTokenLifetime =
@@ -90,14 +100,12 @@ namespace IdentityServer.MongoDb.AdminModule
             client.AuthorizationCodeLifetime =
                 AuthorizationCodeLifetime.GetValueOrDefault(client.AuthorizationCodeLifetime);
 
-            client.ClientSecret = ClientSecret;
+            client.ClientSecrets = (ClientSecrets ?? new ClientSecret[]{}).ToList();
             client.ClientUri = ClientUri;
             client.Enabled = Enabled.GetValueOrDefault(client.Enabled);
             client.Flow = Flow.GetValueOrDefault(client.Flow);
             client.IdentityProviderRestrictions = (IdentityProviderRestrictions ?? client.IdentityProviderRestrictions.ToArray()).ToList();
             client.IdentityTokenLifetime = IdentityTokenLifetime.GetValueOrDefault(client.IdentityTokenLifetime);
-            client.IdentityTokenSigningKeyType =
-                IdentityTokenSigningKeyType.GetValueOrDefault(client.IdentityTokenSigningKeyType);
             client.LogoUri = LogoUri;
             
             client.PostLogoutRedirectUris.AddRange(PostLogoutRedirectUris ?? new string[] { });
@@ -108,28 +116,12 @@ namespace IdentityServer.MongoDb.AdminModule
             client.ScopeRestrictions.AddRange(ScopeRestrictions ?? new string[]{});
             client.SlidingRefreshTokenLifetime =
                 SlidingRefreshTokenLifetime.GetValueOrDefault(client.SlidingRefreshTokenLifetime);
+            client.IncludeJwtId = IncludeJwtId.GetValueOrDefault(client.IncludeJwtId);
+            client.AlwaysSendClientClaims = AlwaysSendClientClaims.GetValueOrDefault(client.AlwaysSendClientClaims);
+            client.PrefixClientClaims = PrefixClientClaims.GetValueOrDefault(client.PrefixClientClaims);
+            client.Claims.AddRange((Claims ?? new Claim[]{}));
+            client.CustomGrantTypeRestrictions.AddRange((CustomGrantTypeRestrictions ?? new string[]{}));
             WriteObject(client);
-        }
-
-        private void ValidateClientSecretSettings()
-        {
-            if (!string.IsNullOrEmpty(Password))
-            {
-                var hash = SHA1.Create();
-                ClientSecret = Convert.ToBase64String(hash.ComputeHash(Encoding.UTF8.GetBytes(Password)));
-            }
-            if(string.IsNullOrWhiteSpace(ClientSecret) && IdentityTokenSigningKeyType == SigningKeyTypes.ClientSecret)
-                throw new InvalidOperationException("No client secret specified but signing key specified as client secret");
-            if (string.IsNullOrWhiteSpace(ClientSecret)) return;
-            try
-            {
-                var result = Convert.FromBase64String(ClientSecret);
-            }
-            catch(FormatException)
-            {
-                throw new ArgumentException("ClientSecret is not a base64 encoded string");
-            }
-
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using MongoDB.Bson;
 using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Models;
@@ -9,7 +11,7 @@ namespace IdentityServer.Core.MongoDb
     class ClientSerializer
     {
         private static readonly Client DefaultValues = new Client();
-
+        private static readonly ClaimSetSerializer ClaimSetSerializer = new ClaimSetSerializer();
         public BsonDocument Serialize(Client client)
         {
             var doc = new BsonDocument();
@@ -22,7 +24,16 @@ namespace IdentityServer.Core.MongoDb
             doc["allowRememberConsent"] = client.AllowRememberConsent;
             doc["authorizationCodeLifetime"] = client.AuthorizationCodeLifetime;
             doc["clientName"] = client.ClientName;
-            doc.SetIfNotNull("clientSecret", client.ClientSecret);
+            var secrets = new BsonArray();
+            foreach (var clientSecret in client.ClientSecrets)
+            {
+                var secret = new BsonDocument();
+                secret.SetIfNotNull("description", clientSecret.Description);
+                secret.SetIfNotNull("value", clientSecret.Value);
+                secret.SetIfNotNull("expiration", clientSecret.Expiration);
+                secrets.Add(secret);
+            }
+            doc["clientSecrets"] = secrets;
             if (client.ClientUri != null)
                 doc.SetIfNotNull("clientUri", client.ClientUri);
             doc["enabled"] = client.Enabled;
@@ -34,7 +45,6 @@ namespace IdentityServer.Core.MongoDb
             }
             doc["identityProviderRestrictions"] = idpr;
             doc["identityTokenLifetime"] = client.IdentityTokenLifetime;
-            doc["identityTokenSigningKeyType"] = client.IdentityTokenSigningKeyType.ToString();
             doc.SetIfNotNull("logoUri", client.LogoUri);
             var postLogoutRedirectUris = new BsonArray();
             foreach (var uri in client.PostLogoutRedirectUris)
@@ -59,6 +69,16 @@ namespace IdentityServer.Core.MongoDb
             }
             doc["scopeRestrictions"] = scopeRestrictions;
             doc["slidingRefreshTokenLifetime"] = client.SlidingRefreshTokenLifetime;
+            doc["includeJwtId"] = client.IncludeJwtId;
+            ClaimSetSerializer.Serialize(client.Claims, doc);
+            doc["alwaysSendClientClaims"] = client.AlwaysSendClientClaims;
+            doc["PrefixClientClaims"] = client.PrefixClientClaims;
+            var grantRestrictions = new BsonArray();
+            foreach (string restriction in client.CustomGrantTypeRestrictions)
+            {
+                grantRestrictions.Add(restriction);
+            }
+            doc["customGrantRestrictions"] = grantRestrictions;
             return doc;
         }
 
@@ -95,14 +115,16 @@ namespace IdentityServer.Core.MongoDb
                 doc.GetValueOrDefault("authorizationCodeLifetime",
                     DefaultValues.AuthorizationCodeLifetime);
 
-            client.ClientSecret = doc.GetValueOrDefault(
-                "clientSecret",
-                DefaultValues.ClientSecret);
-
-            if (!string.Equals(client.ClientSecret, DefaultValues.ClientSecret))
-            {
-                client.ClientSecret = client.ClientSecret;
-            }
+            client.ClientSecrets = doc.GetValueOrDefault(
+                "clientSecrets",
+                d =>
+                {
+                    var value = d.GetValueOrDefault("value", "");
+                    var description = d.GetValueOrDefault("description", (string) null);
+                    var expiration = d.GetValueOrDefault("expiration", (DateTimeOffset?)null);
+                    return new ClientSecret(value, description, expiration);
+                }
+                , new ClientSecret[] {}).ToList();
 
             client.ClientUri = doc.GetValueOrDefault(
                 "clientUri",
@@ -119,10 +141,6 @@ namespace IdentityServer.Core.MongoDb
             client.IdentityTokenLifetime = doc.GetValueOrDefault(
                 "identityTokenLifetime",
                 DefaultValues.IdentityTokenLifetime);
-
-            client.IdentityTokenSigningKeyType = doc.GetValueOrDefault(
-                "identityTokenSigningKeyType",
-                DefaultValues.IdentityTokenSigningKeyType);
 
             client.LogoUri = doc.GetValueOrDefault(
                 "logoUri",
@@ -150,6 +168,16 @@ namespace IdentityServer.Core.MongoDb
             client.SlidingRefreshTokenLifetime = doc.GetValueOrDefault(
                 "slidingRefreshTokenLifetime",
                 DefaultValues.SlidingRefreshTokenLifetime);
+
+            client.IncludeJwtId = doc.GetValueOrDefault("includeJwtId", DefaultValues.IncludeJwtId);
+            var claims = ClaimSetSerializer.Deserialize(doc);
+            client.Claims = (claims ?? new List<Claim> {}).ToList();
+            
+            client.AlwaysSendClientClaims = doc.GetValueOrDefault("alwaysSendClientClaims", DefaultValues.AlwaysSendClientClaims);
+            client.PrefixClientClaims = doc.GetValueOrDefault("PrefixClientClaims", DefaultValues.PrefixClientClaims);
+            
+            client.CustomGrantTypeRestrictions.AddRange(doc["customGrantRestrictions"].AsBsonArray.Select(x => x.AsString));
+            
             return client;
         }
     }

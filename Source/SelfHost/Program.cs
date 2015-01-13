@@ -128,7 +128,6 @@ namespace SelfHost
                     ClientName = "Code Flow Client Demo",
                     Enabled = true,
                     ClientId = "codeclient",
-                    ClientSecret = "secret",
                     Flow = Flows.AuthorizationCode,
                     
                     RequireConsent = true,
@@ -156,9 +155,6 @@ namespace SelfHost
                         "read",
                         "write"
                     },
-
-                    
-                    IdentityTokenSigningKeyType = SigningKeyTypes.Default,
                     AccessTokenType = AccessTokenType.Reference,
                     
                     IdentityTokenLifetime = 360,
@@ -171,7 +167,6 @@ namespace SelfHost
                     ClientName = "Implicit Client Demo",
                     Enabled = true,
                     ClientId = "implicitclient",
-                    ClientSecret = "secret",
                     Flow = Flows.Implicit,
                     
                     ClientUri = "http://www.thinktecture.com",
@@ -211,7 +206,6 @@ namespace SelfHost
                         "idmgr"
                     },
 
-                    IdentityTokenSigningKeyType = SigningKeyTypes.Default,
                     AccessTokenType = AccessTokenType.Jwt,
                     
                     IdentityTokenLifetime = 360,
@@ -223,7 +217,6 @@ namespace SelfHost
                     ClientName = "Hybrid Client Demo",
                     Enabled = true,
                     ClientId = "hybridclient",
-                    ClientSecret = "secret",
                     Flow = Flows.Hybrid,
                     
                     ClientUri = "http://www.thinktecture.com",
@@ -247,7 +240,6 @@ namespace SelfHost
                     ClientName = "Katana Hybrid Client Demo",
                     Enabled = true,
                     ClientId = "katanaclient",
-                    ClientSecret = "secret",
                     Flow = Flows.Hybrid,
                     
                     ClientUri = "http://www.thinktecture.com",
@@ -271,7 +263,6 @@ namespace SelfHost
                     ClientName = "Client Credentials Flow Client",
                     Enabled = true,
                     ClientId = "client",
-                    ClientSecret = "secret",
                     Flow = Flows.ClientCredentials,
                     
                     ScopeRestrictions = new List<string>
@@ -288,7 +279,6 @@ namespace SelfHost
                     ClientName = "Resource Owner Flow Client",
                     Enabled = true,
                     ClientId = "roclient",
-                    ClientSecret = "secret",
                     Flow = Flows.ResourceOwner,
                     
                     ScopeRestrictions = new List<string>
@@ -350,7 +340,7 @@ namespace SelfHost
                         Emphasize = true,
                         ShowInDiscoveryDocument = false,
                         
-                        Claims = new[]
+                        Claims = new List<ScopeClaim>
                         {
                             new ScopeClaim(Constants.ClaimTypes.Name),
                             new ScopeClaim(Constants.ClaimTypes.Role)

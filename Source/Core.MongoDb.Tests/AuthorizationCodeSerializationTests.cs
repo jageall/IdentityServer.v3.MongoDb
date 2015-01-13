@@ -68,7 +68,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public void CheckAll()
         {
-            var serializer = new JsonSerializer(){ReferenceLoopHandling = ReferenceLoopHandling.Ignore};
+            var serializer = new JsonSerializer {ReferenceLoopHandling = ReferenceLoopHandling.Ignore};
             var expected = JObject.FromObject(_expected, serializer).ToString();
             var actual = JObject.FromObject(_actual, serializer).ToString();
             Assert.Equal(expected, actual);

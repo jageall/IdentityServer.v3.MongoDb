@@ -13,10 +13,10 @@ namespace IdentityServer.Core.MongoDb
                 doc[name] = value;
         }
 
-        public static void SetIfNotNull(this BsonDocument doc, string name, Uri value)
+        public static void SetIfNotNull(this BsonDocument doc, string name, DateTimeOffset? value)
         {
             if (value != null)
-                doc[name] = value.ToString();
+                doc[name] = value.Value.ToBsonDateTime();
         }
 
         public static int GetValueOrDefault(this BsonDocument doc, string name, int @default)
@@ -55,17 +55,6 @@ namespace IdentityServer.Core.MongoDb
             return @default;
         }
 
-        public static Uri GetValueOrDefault(this BsonDocument doc, string name, Uri @default)
-        {
-            if (doc.Contains(name) && doc[name].IsString &&
-                Uri.IsWellFormedUriString(doc[name].AsString, UriKind.Absolute))
-            {
-                return new Uri(doc[name].AsString);
-            }
-            return @default;
-        }
-
-
         public static T GetValueOrDefault<T>(this BsonDocument doc, string name, T @default)
             where T : struct
         {
@@ -75,6 +64,15 @@ namespace IdentityServer.Core.MongoDb
                 && Enum.TryParse(doc[name].AsString, out value))
             {
                 return value;
+            }
+            return @default;
+        }
+
+        public static DateTimeOffset? GetValueOrDefault(this BsonDocument doc, string name, DateTimeOffset? @default)
+        {
+            if (doc.Contains(name) && doc[name].IsValidDateTime)
+            {
+                return doc[name].ToUniversalTime();
             }
             return @default;
         }

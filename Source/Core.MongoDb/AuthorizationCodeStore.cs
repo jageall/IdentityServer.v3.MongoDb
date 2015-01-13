@@ -13,10 +13,10 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly AuthorizationCodeSerializer _serializer;
 
-        public AuthorizationCodeStore(MongoDatabase db, StoreSettings settings, ClientSerializer clientSerializer)
+        public AuthorizationCodeStore(MongoDatabase db, StoreSettings settings, IClientStore clientStore, IScopeStore scopeStore)
             : base(db, settings.AuthorizationCodeCollection)
         {
-            _serializer = new AuthorizationCodeSerializer(clientSerializer);
+            _serializer = new AuthorizationCodeSerializer(clientStore, scopeStore);
         }
 
         public Task StoreAsync(string key, AuthorizationCode value)
@@ -30,7 +30,7 @@ namespace IdentityServer.Core.MongoDb
         {
             BsonDocument doc = Collection.FindOneById(key);
             if (doc == null) return Task.FromResult<AuthorizationCode>(null);
-            return Task.FromResult(_serializer.Deserialize(doc));
+            return _serializer.Deserialize(doc);
         }
 
         public Task RemoveAsync(string key)
@@ -41,9 +41,9 @@ namespace IdentityServer.Core.MongoDb
 
         public Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
-            AuthorizationCode[] results = Collection.Find(new QueryWrapper(new {_subjectId = subject}))
-                .Select(_serializer.Deserialize).ToArray();
-            return Task.FromResult<IEnumerable<ITokenMetadata>>(results);
+            var results = Collection.Find(new QueryWrapper(new {_subjectId = subject}))
+                .Select(x=>_serializer.Deserialize(x)).ToArray();
+            return Task.WhenAll(results).ContinueWith(x=>x.Result.OfType<ITokenMetadata>());
         }
 
         public Task RevokeAsync(string subject, string client)

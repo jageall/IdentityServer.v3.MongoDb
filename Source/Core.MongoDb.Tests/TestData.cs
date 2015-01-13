@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using IdentityServer.Core.MongoDb;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
@@ -20,16 +21,25 @@ namespace Core.MongoDb.Tests
                 AccessTokenType = AccessTokenType.Reference,
                 AllowLocalLogin = false,
                 AllowRememberConsent = true,
+                AlwaysSendClientClaims = true,
                 AuthorizationCodeLifetime = 30,
                 ClientId = "123",
                 ClientName = "TEST",
-                ClientSecret = Convert.ToBase64String(Encoding.UTF8.GetBytes("secret")),
+                ClientSecrets = new List<ClientSecret>()
+                {
+                    new ClientSecret("secret","secret", WellKnownTime),
+                    new ClientSecret("newsecret"),
+                },
                 ClientUri = "clientUri",
+                CustomGrantTypeRestrictions = new List<string>()
+                {
+                    "Restriction1",
+                    "Restriction2"
+                },
                 Enabled = true,
                 Flow = Flows.AuthorizationCode,
                 IdentityProviderRestrictions = new[] { "idpr" }.ToList(),
                 IdentityTokenLifetime = 40,
-                IdentityTokenSigningKeyType = SigningKeyTypes.ClientSecret,
                 LogoUri = "uri:logo",
                 PostLogoutRedirectUris = { "uri:logout" },
                 RedirectUris = { "uri:redirect" },
@@ -37,7 +47,15 @@ namespace Core.MongoDb.Tests
                 RefreshTokenUsage = TokenUsage.ReUse,
                 RequireConsent = true,
                 ScopeRestrictions = { "restriction1", "restriction2", "restriction3" },
-                SlidingRefreshTokenLifetime = 50
+                SlidingRefreshTokenLifetime = 50,
+                IncludeJwtId = true,
+                PrefixClientClaims = true,
+                Claims = new List<Claim>()
+                {
+                    new Claim("client1", "value1"),
+                    new Claim("client2", "value2"),
+                    new Claim("client3", "value3"),
+                }
             };
         }
 
@@ -87,7 +105,7 @@ namespace Core.MongoDb.Tests
             return new AuthorizationCode
             {
                 IsOpenId = true,
-                CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
+                CreationTime = WellKnownTime,
                 Client = Client(),
                 RedirectUri = "uri:redirect",
                 RequestedScopes = Scopes(),
@@ -95,6 +113,11 @@ namespace Core.MongoDb.Tests
                 WasConsentShown = true,
                 Nonce = "test"
             };
+        }
+
+        private static DateTimeOffset WellKnownTime
+        {
+            get { return new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero); }
         }
 
         private static Client Client()
@@ -135,6 +158,7 @@ namespace Core.MongoDb.Tests
                 AccessToken = Token(subject),
                 CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 LifeTime = 100,
+                Version = 10
             };
         }
 
@@ -148,7 +172,8 @@ namespace Core.MongoDb.Tests
                 CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 Issuer = "issuer",
                 Lifetime = 200,
-                Type = "tokenType"
+                Type = "tokenType",
+                Version = 10
             };
         }
 
