@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using IdentityServer.Core.MongoDb;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
@@ -79,6 +80,12 @@ namespace Core.MongoDb.Tests
         {
             var key = "AuthorizationCodeTests";
             _expected = TestData.AuthorizationCode();
+            var admin = Factory.Resolve<IAdminService>();
+            admin.Save(_expected.Client);
+            foreach (var scope in _expected.RequestedScopes)
+            {
+                admin.Save(scope);
+            }
             var store = Factory.Resolve<IAuthorizationCodeStore>();
             store.StoreAsync(key, TestData.AuthorizationCode()).Wait();
             _actual = store.GetAsync(key).Result;
