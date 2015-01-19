@@ -5,6 +5,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Text;
 using Autofac;
+using IdentityServer.Admin.MongoDb;
 using IdentityServer.Core.MongoDb;
 using IdentityServer.MongoDb.AdminModule;
 using MongoDB.Driver;
@@ -27,7 +28,7 @@ namespace Core.MongoDb.Tests.AdminModule
             _server = client.GetServer();
             var settings = ServiceFactory.DefaultStoreSettings();
             settings.Database = _database;
-            _factory = new Factory(new ServiceFactory(null, settings));            
+            _factory = new Factory(new ServiceFactory(null, settings), new AdminServiceRegistry());            
         }
 
         public PowerShell PowerShell

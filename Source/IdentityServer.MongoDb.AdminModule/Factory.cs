@@ -1,5 +1,6 @@
 using System;
 using Autofac;
+using IdentityServer.Admin.MongoDb;
 using IdentityServer.Core.MongoDb;
 using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Services;
@@ -10,7 +11,7 @@ namespace IdentityServer.MongoDb.AdminModule
     {
         private readonly IContainer _container;
 
-        public Factory(ServiceFactory config)
+        public Factory(ServiceFactory config, AdminServiceRegistry admin)
         {
             var cb = new ContainerBuilder();
             Register(cb, config.AuthorizationCodeStore);
@@ -20,10 +21,8 @@ namespace IdentityServer.MongoDb.AdminModule
             Register(cb, config.ScopeStore);
 
             Register(cb, config.TokenHandleStore);
-            Register(cb, config.AdminService);
-
-            Register(cb, config.TokenCleanupService);
-
+            Register(cb, admin.AdminService);
+            Register(cb, admin.TokenCleanupService);
             foreach (var registration in config.Registrations)
             {
                 Register(cb, registration);

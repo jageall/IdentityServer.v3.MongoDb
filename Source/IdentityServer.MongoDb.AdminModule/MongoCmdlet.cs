@@ -1,5 +1,6 @@
 using System;
 using System.Management.Automation;
+using IdentityServer.Admin.MongoDb;
 using IdentityServer.Core.MongoDb;
 using MongoDB.Driver;
 using Thinktecture.IdentityServer.Core.Configuration;
@@ -67,7 +68,7 @@ namespace IdentityServer.MongoDb.AdminModule
             CanCreateDatabase(storeSettings);
             
             var serviceFactory = new ServiceFactory(null, storeSettings);
-            var factory = new Factory(serviceFactory);
+            var factory = new Factory(serviceFactory, new AdminServiceRegistry());
             _adminService = factory.Resolve<IAdminService>();
             _tokenCleanupService = factory.Resolve<ICleanupExpiredTokens>();
             _scopeStore = factory.Resolve<IScopeStore>();

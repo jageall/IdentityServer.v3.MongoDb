@@ -1,8 +1,7 @@
-﻿using System.Linq;
+﻿
+using IdentityServer.Admin.MongoDb;
 using IdentityServer.Core.MongoDb;
 using IdentityServer.MongoDb.AdminModule;
-using Thinktecture.IdentityServer.Core.Configuration;
-using Thinktecture.IdentityServer.Core.Services;
 
 namespace Core.MongoDb.Tests
 {
@@ -18,7 +17,7 @@ namespace Core.MongoDb.Tests
             var config = new ServiceFactory(
                 null,
                 storeSettings);
-            _factory = new Factory(config);
+            _factory = new Factory(config, new AdminServiceRegistry());
             _adminService = _factory.Resolve<IAdminService>();
             _adminService.CreateDatabase(expireUsingIndex:false);
         }

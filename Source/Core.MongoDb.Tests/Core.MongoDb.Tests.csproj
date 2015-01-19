@@ -113,6 +113,10 @@
     <EmbeddedResource Include="AdminModule\Scripts\InstallDatabase.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Admin.MongoDb\Admin.MongoDb.csproj">
+      <Project>{69D6413B-E338-479E-82FC-4FAF69895B8C}</Project>
+      <Name>Admin.MongoDb</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core.MongoDb\Core.MongoDb.csproj">
       <Project>{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}</Project>
       <Name>Core.MongoDb</Name>

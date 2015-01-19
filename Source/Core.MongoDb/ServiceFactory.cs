@@ -33,15 +33,9 @@ namespace IdentityServer.Core.MongoDb
 
             RefreshTokenStore = new Registration<IRefreshTokenStore>(typeof (RefreshTokenStore));
             TokenHandleStore = new Registration<ITokenHandleStore>(typeof (TokenHandleStore));
-            AdminService = new Registration<IAdminService>(typeof(AdminService));
-            TokenCleanupService =
-                new Registration<ICleanupExpiredTokens>(typeof (CleanupExpiredTokens));
             Register(new Registration<ClientSerializer>(typeof(ClientSerializer)));
         }
 
-        public Registration<IAdminService> AdminService { get; set; }
-
-        public Registration<ICleanupExpiredTokens> TokenCleanupService { get; set; }
 
         private static MongoClientSettings MongoClientSettings(string mongoUrl)
         {

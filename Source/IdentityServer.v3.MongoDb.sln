@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.MongoDb", "Core.MongoDb\Core.MongoDb.csproj", "{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}"
 EndProject
@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{A41D
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfHost", "SelfHost\SelfHost.csproj", "{D2447108-E448-4B2B-8577-06D6DD5C52E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Admin.MongoDb", "Admin.MongoDb\Admin.MongoDb.csproj", "{69D6413B-E338-479E-82FC-4FAF69895B8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{D2447108-E448-4B2B-8577-06D6DD5C52E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2447108-E448-4B2B-8577-06D6DD5C52E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2447108-E448-4B2B-8577-06D6DD5C52E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69D6413B-E338-479E-82FC-4FAF69895B8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69D6413B-E338-479E-82FC-4FAF69895B8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69D6413B-E338-479E-82FC-4FAF69895B8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69D6413B-E338-479E-82FC-4FAF69895B8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

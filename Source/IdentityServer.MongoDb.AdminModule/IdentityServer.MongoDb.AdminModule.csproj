@@ -85,6 +85,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Admin.MongoDb\Admin.MongoDb.csproj">
+      <Project>{69D6413B-E338-479E-82FC-4FAF69895B8C}</Project>
+      <Name>Admin.MongoDb</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core.MongoDb\Core.MongoDb.csproj">
       <Project>{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}</Project>
       <Name>Core.MongoDb</Name>
@@ -97,7 +101,7 @@
   </Target>-->
   <Target Name="AfterBuild">
     <MakeDir Directories="$(SolutionDir)..\out" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
-    <Exec Command="$(SolutionDir)\packages\ilmerge.2.14.1208\tools\ILMerge.exe /internalize /out:$(SolutionDir)..\out\$(TargetName)$(TargetExt) $(TargetDir)$(TargetName)$(TargetExt) $(TargetDir)MongoDB.Bson.dll $(TargetDir)MongoDB.Driver.dll $(TargetDir)IdentityServer.Core.MongoDb.dll $(TargetDir)Owin.dll $(TargetDir)AutoFac.dll" ContinueOnError="false" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
+    <Exec Command="$(SolutionDir)\packages\ilmerge.2.14.1208\tools\ILMerge.exe /internalize /out:$(SolutionDir)..\out\$(TargetName)$(TargetExt) $(TargetDir)$(TargetName)$(TargetExt) $(TargetDir)MongoDB.Bson.dll $(TargetDir)MongoDB.Driver.dll $(TargetDir)IdentityServer.Core.MongoDb.dll $(TargetDir)IdentityServer.Admin.MongoDb.dll $(TargetDir)Owin.dll $(TargetDir)AutoFac.dll" ContinueOnError="false" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
     <Copy SourceFiles="$(TargetDir)Thinktecture.IdentityServer.dll" DestinationFolder="$(SolutionDir)..\out" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
   </Target>
 </Project>

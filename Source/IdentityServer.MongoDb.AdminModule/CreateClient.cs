@@ -3,8 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Management.Automation;
 using System.Security.Claims;
-using IdentityServer.Core.MongoDb;
-using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.MongoDb.AdminModule
