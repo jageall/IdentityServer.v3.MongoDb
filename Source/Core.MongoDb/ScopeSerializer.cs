@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MongoDB.Bson;
 using Thinktecture.IdentityServer.Core.Models;
 
@@ -7,6 +8,11 @@ namespace IdentityServer.Core.MongoDb
     class ScopeSerializer
     {
         static readonly Scope Default = new Scope();
+        static readonly IReadOnlyDictionary<int, Func<BsonDocument, Scope>> Deserializers =
+            new Dictionary<int, Func<BsonDocument, Scope>>()
+            {
+                {1, Version1}
+            };
         public BsonDocument Serialize(Scope scope)
         {
             var doc = new BsonDocument();
@@ -36,6 +42,17 @@ namespace IdentityServer.Core.MongoDb
 
         public Scope Deserialize(BsonDocument doc)
         {
+            int version = doc["_version"].AsInt32;
+            Func<BsonDocument, Scope> deserializer;
+            if (Deserializers.TryGetValue(version, out deserializer))
+            {
+                return deserializer(doc);
+            }
+            throw new InvalidOperationException("No deserializers available for scope version " + version);
+        }
+
+        private static Scope Version1(BsonDocument doc)
+        {
             var scope = new Scope
             {
                 Name = doc["_id"].AsString,
@@ -52,7 +69,7 @@ namespace IdentityServer.Core.MongoDb
                             claim.Description = claimDoc.GetValueOrDefault("description", claim.Description);
                             return claim;
                         },
-                        new ScopeClaim[] {}
+                        new ScopeClaim[] { }
                         )),
             };
             scope.ClaimsRule = doc.GetValueOrDefault("claimsRule", scope.ClaimsRule);

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 
@@ -14,13 +13,16 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly IClientStore _clientStore;
         private readonly IScopeStore _scopeStore;
-        private readonly ClaimSetSerializer _claimSetSerializer;
-
+        private readonly static ClaimSetSerializer ClaimSetSerializer = new ClaimSetSerializer() ;
+        private static readonly IReadOnlyDictionary<int, Func<BsonDocument, IClientStore, IScopeStore, Task<AuthorizationCode>>> Deserializers =
+            new Dictionary<int, Func<BsonDocument, IClientStore, IScopeStore, Task<AuthorizationCode>>>
+            {
+                {1, Version1}
+            };
         public AuthorizationCodeSerializer(IClientStore clientStore, IScopeStore scopeStore)
         {
             _clientStore = clientStore;
             _scopeStore = scopeStore;
-            _claimSetSerializer = new ClaimSetSerializer();
         }
 
         public BsonDocument Serialize(string key, AuthorizationCode code)
@@ -55,7 +57,7 @@ namespace IdentityServer.Core.MongoDb
 
                 identity["authenticationType"] = claimsIdentity.AuthenticationType;
                 var enumerable = claimsIdentity.Claims;
-                var claims = _claimSetSerializer.Serialize(enumerable);
+                var claims = ClaimSetSerializer.Serialize(enumerable);
 
                 identity["claimSet"] = claims;
                 subject.Add(identity);
@@ -64,7 +66,19 @@ namespace IdentityServer.Core.MongoDb
             return subject;
         }
         
-        public async Task<AuthorizationCode> Deserialize(BsonDocument doc)
+        public Task<AuthorizationCode> Deserialize(BsonDocument doc)
+        {
+            int version = doc["_version"].AsInt32;
+            Func<BsonDocument, IClientStore, IScopeStore, Task<AuthorizationCode>> deserializer;
+            if (Deserializers.TryGetValue(version, out deserializer))
+            {
+                return deserializer(doc, _clientStore, _scopeStore);
+            }
+            throw new InvalidOperationException("No deserializers available for authorization code version " + version);
+        }
+
+        private static async Task<AuthorizationCode> Version1(BsonDocument doc, IClientStore clientStore,
+            IScopeStore scopeStore)
         {
             var code = new AuthorizationCode();
             code.CreationTime = doc.GetValueOrDefault("creationTime", code.CreationTime);
@@ -75,22 +89,22 @@ namespace IdentityServer.Core.MongoDb
             var claimsPrincipal = new ClaimsPrincipal();
             IEnumerable<ClaimsIdentity> identities = doc.GetValueOrDefault("subject", sub =>
             {
-                string authenticationType = sub.GetValueOrDefault("authenticationType", (string) null);
-                var claims = sub.GetNestedValueOrDefault("claimSet", _claimSetSerializer.Deserialize, new Claim[]{});
+                string authenticationType = sub.GetValueOrDefault("authenticationType", (string)null);
+                var claims = sub.GetNestedValueOrDefault("claimSet", ClaimSetSerializer.Deserialize, new Claim[] { });
                 ClaimsIdentity identity = authenticationType == null
                     ? new ClaimsIdentity(claims)
                     : new ClaimsIdentity(claims, authenticationType);
                 return identity;
-            }, new ClaimsIdentity[] {});
+            }, new ClaimsIdentity[] { });
             claimsPrincipal.AddIdentities(identities);
             code.Subject = claimsPrincipal;
 
-            code.Client = await _clientStore.FindClientByIdAsync(doc["_clientId"].AsString);
-            
+            code.Client = await clientStore.FindClientByIdAsync(doc["_clientId"].AsString);
+
             var scopes = doc.GetValueOrDefault(
                 "requestedScopes",
-                (IEnumerable<string>)new string[]{});
-            code.RequestedScopes = await _scopeStore.FindScopesAsync(scopes);
+                (IEnumerable<string>)new string[] { });
+            code.RequestedScopes = await scopeStore.FindScopesAsync(scopes);
             return code;
         }
     }

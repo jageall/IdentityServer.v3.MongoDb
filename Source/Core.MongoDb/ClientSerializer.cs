@@ -12,6 +12,11 @@ namespace IdentityServer.Core.MongoDb
     {
         private static readonly Client DefaultValues = new Client();
         private static readonly ClaimSetSerializer ClaimSetSerializer = new ClaimSetSerializer();
+        private static readonly Dictionary<int, Func<BsonDocument, Client>> Deserializers = new Dictionary<int, Func<BsonDocument, Client>>()
+        {
+            {1, Version1}
+        };
+
         public BsonDocument Serialize(Client client)
         {
             var doc = new BsonDocument();
@@ -84,11 +89,21 @@ namespace IdentityServer.Core.MongoDb
 
         public Client Deserialize(BsonDocument doc)
         {
-            var client = new Client();
-            //TODO: check document version
+            int version = doc["_version"].AsInt32;
+            Func<BsonDocument, Client> deserializer;
+            if (Deserializers.TryGetValue(version, out deserializer))
+            {
+                return deserializer(doc);
+            }
+            throw new InvalidOperationException("No deserializers available for client version " + version);
+        }
 
-            //Required
+        private static Client Version1(BsonDocument doc)
+        {
+            var client = new Client();
+
             client.ClientId = doc["_id"].AsString;
+            
             client.ClientName = doc["clientName"].AsString;
 
             client.AbsoluteRefreshTokenLifetime = doc.GetValueOrDefault(
@@ -120,11 +135,11 @@ namespace IdentityServer.Core.MongoDb
                 d =>
                 {
                     var value = d.GetValueOrDefault("value", "");
-                    var description = d.GetValueOrDefault("description", (string) null);
+                    var description = d.GetValueOrDefault("description", (string)null);
                     var expiration = d.GetValueOrDefault("expiration", (DateTimeOffset?)null);
                     return new ClientSecret(value, description, expiration);
                 }
-                , new ClientSecret[] {}).ToList();
+                , new ClientSecret[] { }).ToList();
 
             client.ClientUri = doc.GetValueOrDefault(
                 "clientUri",
@@ -171,13 +186,13 @@ namespace IdentityServer.Core.MongoDb
 
             client.IncludeJwtId = doc.GetValueOrDefault("includeJwtId", DefaultValues.IncludeJwtId);
             var claims = ClaimSetSerializer.Deserialize(doc);
-            client.Claims = (claims ?? new List<Claim> {}).ToList();
-            
+            client.Claims = (claims ?? new List<Claim> { }).ToList();
+
             client.AlwaysSendClientClaims = doc.GetValueOrDefault("alwaysSendClientClaims", DefaultValues.AlwaysSendClientClaims);
             client.PrefixClientClaims = doc.GetValueOrDefault("PrefixClientClaims", DefaultValues.PrefixClientClaims);
-            
+
             client.CustomGrantTypeRestrictions.AddRange(doc["customGrantRestrictions"].AsBsonArray.Select(x => x.AsString));
-            
+
             return client;
         }
     }

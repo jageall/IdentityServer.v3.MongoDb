@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -7,6 +8,11 @@ namespace IdentityServer.Core.MongoDb
 {
     internal class ClaimSetSerializer
     {
+        static readonly IReadOnlyDictionary<int, Func<BsonDocument, IEnumerable<Claim>>> Deserializers
+            = new Dictionary<int, Func<BsonDocument, IEnumerable<Claim>>>()
+            {
+                {1, Version1}
+            };
         public BsonDocument Serialize(IEnumerable<Claim> claims)
         {
             var result = new BsonDocument();
@@ -29,6 +35,17 @@ namespace IdentityServer.Core.MongoDb
         }
 
         public IEnumerable<Claim> Deserialize(BsonDocument doc)
+        {
+            int version = doc["_version"].AsInt32;
+            Func<BsonDocument, IEnumerable<Claim>> deserializer;
+            if (Deserializers.TryGetValue(version, out deserializer))
+            {
+                return deserializer(doc);
+            }
+            throw new InvalidOperationException("No deserializers available for claimset version " + version);
+        }
+
+        private static IEnumerable<Claim> Version1(BsonDocument doc)
         {
             return doc.GetValueOrDefault(
                     "claims",
