@@ -40,7 +40,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public void CheckAllowLocalLogin()
         {
-            Assert.Equal(_expected.AllowLocalLogin, _actual.AllowLocalLogin);
+            Assert.Equal(_expected.EnableLocalLogin, _actual.EnableLocalLogin);
         }
 
         [Fact]

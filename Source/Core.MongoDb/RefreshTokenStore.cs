@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
+using Thinktecture.IdentityServer.Core.Logging;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 
@@ -28,7 +27,10 @@ namespace IdentityServer.Core.MongoDb
         public Task<RefreshToken> GetAsync(string key)
         {
             var result = Collection.FindOneById(key);
-            if (result == null) return Task.FromResult<RefreshToken>(null);
+            if (result == null)
+            {
+                return Task.FromResult<RefreshToken>(null);
+            }
             return _serializer.Deserialize(result);
         }
 

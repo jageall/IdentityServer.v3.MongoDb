@@ -25,7 +25,7 @@ namespace IdentityServer.Core.MongoDb
             doc["absoluteRefreshTokenLifetime"] = client.AbsoluteRefreshTokenLifetime;
             doc["accessTokenLifetime"] = client.AccessTokenLifetime;
             doc["accessTokenType"] = client.AccessTokenType.ToString();
-            doc["allowLocalLogin"] = client.AllowLocalLogin;
+            doc["enableLocalLogin"] = client.EnableLocalLogin;
             doc["allowRememberConsent"] = client.AllowRememberConsent;
             doc["authorizationCodeLifetime"] = client.AuthorizationCodeLifetime;
             doc["clientName"] = client.ClientName;
@@ -120,9 +120,9 @@ namespace IdentityServer.Core.MongoDb
                 "accessTokenType",
                 DefaultValues.AccessTokenType);
 
-            client.AllowLocalLogin = doc.GetValueOrDefault(
-                "allowLocalLogin",
-                DefaultValues.AllowLocalLogin);
+            client.EnableLocalLogin = doc.GetValueOrDefault(
+                "enableLocalLogin",
+                DefaultValues.EnableLocalLogin);
 
             client.AllowRememberConsent = doc.GetValueOrDefault(
                 "allowRememberConsent", DefaultValues.AllowRememberConsent);

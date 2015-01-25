@@ -29,7 +29,7 @@ namespace IdentityServer.MongoDb.AdminModule
         [Parameter]
         public bool? AllowRememberConsent { get; set; }
         [Parameter]
-        public bool? AllowLocalLogin { get; set; }
+        public bool? EnableLocalLogin { get; set; }
 
         [Parameter]
         public Flows? Flow { get; set; }
@@ -56,8 +56,6 @@ namespace IdentityServer.MongoDb.AdminModule
         [Parameter]
         public TokenExpiration? RefreshTokenExpiration { get; set; }
 
-        [Parameter]
-        public SigningKeyTypes? IdentityTokenSigningKeyType { get; set; }
         [Parameter]
         public AccessTokenType? AccessTokenType { get; set; }
 
@@ -93,7 +91,7 @@ namespace IdentityServer.MongoDb.AdminModule
                 AbsoluteRefreshTokenLifetime.GetValueOrDefault(client.AbsoluteRefreshTokenLifetime);
             client.AccessTokenLifetime = AccessTokenLifetime.GetValueOrDefault(client.AccessTokenLifetime);
             client.AccessTokenType = AccessTokenType.GetValueOrDefault(client.AccessTokenType);
-            client.AllowLocalLogin = AllowLocalLogin.GetValueOrDefault(client.AllowLocalLogin);
+            client.EnableLocalLogin = EnableLocalLogin.GetValueOrDefault(client.EnableLocalLogin);
             client.AllowRememberConsent = AllowRememberConsent.GetValueOrDefault(client.AllowRememberConsent);
             client.AuthorizationCodeLifetime =
                 AuthorizationCodeLifetime.GetValueOrDefault(client.AuthorizationCodeLifetime);

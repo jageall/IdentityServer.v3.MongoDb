@@ -14,6 +14,6 @@
   </metadata>
   <files>
     <file src="Out\Identityserver.MongoDb.AdminModule.dll" target="tools"/>
-    <file src="Out\ThinkTecture.Identityserver.dll" target="tools"/>
+    <file src="Out\ThinkTecture.Identityserver3.dll" target="tools"/>
   </files>
 </package>

@@ -19,7 +19,7 @@ namespace Core.MongoDb.Tests
                 AbsoluteRefreshTokenLifetime = 10,
                 AccessTokenLifetime = 20,
                 AccessTokenType = AccessTokenType.Reference,
-                AllowLocalLogin = false,
+                EnableLocalLogin = false,
                 AllowRememberConsent = true,
                 AlwaysSendClientClaims = true,
                 AuthorizationCodeLifetime = 30,

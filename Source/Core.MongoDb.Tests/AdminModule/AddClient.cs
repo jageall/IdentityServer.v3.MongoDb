@@ -30,7 +30,7 @@ namespace Core.MongoDb.Tests.AdminModule
             Assert.Equal(10, client.AbsoluteRefreshTokenLifetime);
             Assert.Equal(20, client.AccessTokenLifetime);
             Assert.Equal(AccessTokenType.Reference, client.AccessTokenType);
-            Assert.Equal(false, client.AllowLocalLogin);
+            Assert.Equal(false, client.EnableLocalLogin);
             Assert.Equal(true, client.AllowRememberConsent);
             Assert.Equal(30, client.AuthorizationCodeLifetime);
             Assert.Equal("unittest", client.ClientName);

@@ -46,9 +46,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Thinktecture.IdentityServer">
-      <HintPath>..\packages\Thinktecture.IdentityServer.v3.1.0.0-rc\lib\net45\Thinktecture.IdentityServer.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Thinktecture.IdentityServer3">
+      <HintPath>..\packages\Thinktecture.IdentityServer3.1.0.0\lib\net45\Thinktecture.IdentityServer3.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

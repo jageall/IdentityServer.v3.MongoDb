@@ -13,8 +13,8 @@
     <tags>IdentityServer MongoDb</tags>
     <dependencies>
       <dependency id="Owin" version="1.0" />
-      <dependency id="Thinktecture.IdentityServer.v3"
-                  version="1.0.0-rc" />
+      <dependency id="Thinktecture.IdentityServer3"
+                  version="1.0.0" />
     </dependencies>
   </metadata>
   <files>
