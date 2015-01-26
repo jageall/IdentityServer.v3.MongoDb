@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Driver.Wrappers;
+using Thinktecture.IdentityServer.Core.Logging;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 
@@ -11,7 +12,7 @@ namespace IdentityServer.Core.MongoDb
     class RefreshTokenStore : MongoDbStore, IRefreshTokenStore
     {
         private readonly RefreshTokenSerializer _serializer;
-
+        private static readonly ILog Log = LogProvider.For<RefreshTokenStore>();
         public RefreshTokenStore(MongoDatabase db, StoreSettings settings, IClientStore clientStore) : base(db, settings.RefreshTokenCollection)
         {
             _serializer = new RefreshTokenSerializer(clientStore);
@@ -19,7 +20,8 @@ namespace IdentityServer.Core.MongoDb
 
         public Task StoreAsync(string key, RefreshToken value)
         {
-            Collection.Save(_serializer.Serialize(key, value));
+            var result = Collection.Save(_serializer.Serialize(key, value));
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
 
@@ -35,7 +37,8 @@ namespace IdentityServer.Core.MongoDb
 
         public Task RemoveAsync(string key)
         {
-            Collection.Remove(new QueryWrapper(new {_id = key}));
+            var result = Collection.Remove(new QueryWrapper(new {_id = key}));
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
 
@@ -60,7 +63,8 @@ namespace IdentityServer.Core.MongoDb
                     _subjectId = subject, 
                     _clientId = client
                 });
-            Collection.Remove(filter);
+            var result = Collection.Remove(filter);
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
     }

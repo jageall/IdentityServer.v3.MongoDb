@@ -28,7 +28,6 @@ namespace IdentityServer.Core.MongoDb
 
         public Task<IEnumerable<Scope>> GetScopesAsync(bool publicOnly = true)
         {
-
             if (publicOnly)
             {
                 var results = Collection.Find(Query.EQ("showInDiscoveryDocument", new BsonBoolean(true)));

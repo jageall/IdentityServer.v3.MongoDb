@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Wrappers;
+using Thinktecture.IdentityServer.Core.Logging;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 
@@ -12,7 +13,7 @@ namespace IdentityServer.Core.MongoDb
     class ConsentStore : MongoDbStore, IConsentStore
     {
         private readonly ConsentSerializer _serializer;
-
+        private static readonly ILog Log = LogProvider.For<ConsentStore>();
         public ConsentStore(MongoDatabase db, StoreSettings settings) :
             base(db, settings.ConsentCollection)
         {
@@ -28,7 +29,9 @@ namespace IdentityServer.Core.MongoDb
 
         public Task RevokeAsync(string subject, string client)
         {
-            Collection.Remove(QueryByClientAndSubject(subject, client));
+            var result = Collection.Remove(QueryByClientAndSubject(subject, client));
+
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
 
@@ -44,7 +47,8 @@ namespace IdentityServer.Core.MongoDb
 
         public Task UpdateAsync(Consent consent)
         {
-            Collection.Save(_serializer.Serialize(consent));
+            var result = Collection.Save(_serializer.Serialize(consent));
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
 

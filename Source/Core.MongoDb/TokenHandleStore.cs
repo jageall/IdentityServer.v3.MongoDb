@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Driver.Wrappers;
+using Thinktecture.IdentityServer.Core.Logging;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 
@@ -10,7 +11,7 @@ namespace IdentityServer.Core.MongoDb
 {
     class TokenHandleStore : MongoDbStore, ITokenHandleStore{
         private readonly TokenSerializer _serializer;
-
+        private static readonly ILog Log = LogProvider.For<TokenHandleStore>();
         public TokenHandleStore(MongoDatabase db, 
             StoreSettings settings, 
             IClientStore clientStore) 
@@ -21,7 +22,8 @@ namespace IdentityServer.Core.MongoDb
 
         public Task StoreAsync(string key, Token value)
         {
-            Collection.Save(_serializer.Serialize(key, value));
+            var result = Collection.Save(_serializer.Serialize(key, value));
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
 
@@ -34,7 +36,8 @@ namespace IdentityServer.Core.MongoDb
 
         public Task RemoveAsync(string key)
         {
-            Collection.Remove(new QueryWrapper(new {_id = key}));
+            var result = Collection.Remove(new QueryWrapper(new {_id = key}));
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
 
@@ -48,12 +51,13 @@ namespace IdentityServer.Core.MongoDb
 
         public Task RevokeAsync(string subject, string client)
         {
-            Collection.Remove(new QueryWrapper(
+            var result = Collection.Remove(new QueryWrapper(
                 new
                 {
                     _subjectId = subject, 
                     _clientId = client
                 }));
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
     }
