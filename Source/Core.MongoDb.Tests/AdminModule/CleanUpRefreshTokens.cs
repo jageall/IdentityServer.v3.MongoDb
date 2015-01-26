@@ -42,7 +42,10 @@ namespace Core.MongoDb.Tests.AdminModule
         private void AddExpiredTokens(Factory factory)
         {
             _rtStore = factory.Resolve<IRefreshTokenStore>();
-            _rtStore.StoreAsync("ac", TestData.RefreshToken(Subject)).Wait();
+            var admin = factory.Resolve<IAdminService>();
+            var token = TestData.RefreshToken(Subject);
+            admin.Save(token.AccessToken.Client);
+            _rtStore.StoreAsync("ac", token).Wait();
         }
     }
 }

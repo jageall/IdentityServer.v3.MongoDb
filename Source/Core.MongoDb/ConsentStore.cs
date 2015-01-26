@@ -50,7 +50,7 @@ namespace IdentityServer.Core.MongoDb
 
         private QueryWrapper QueryByClientAndSubject(string subject, string client)
         {
-            return new QueryWrapper(new {_id = _serializer.GetId(client, subject)});
+            return new QueryWrapper(new {_id = ConsentSerializer.GetId(client, subject)});
         }
     }
 }

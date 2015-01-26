@@ -27,7 +27,7 @@ namespace Core.MongoDb.Tests
                 ClientName = "TEST",
                 ClientSecrets = new List<ClientSecret>()
                 {
-                    new ClientSecret("secret","secret", WellKnownTime),
+                    new ClientSecret("secret","secret", WellKnownTime){ClientSecretType = "secret type"},
                     new ClientSecret("newsecret"),
                 },
                 ClientUri = "clientUri",

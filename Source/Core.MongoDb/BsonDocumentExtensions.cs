@@ -110,21 +110,6 @@ namespace IdentityServer.Core.MongoDb
             return @default;
         }
 
-        public static T GetNestedValueOrDefault<T>(
-            this BsonDocument doc,
-            string name,
-            Func<BsonDocument, T> reader,
-            T @default)
-            where T : class
-        {
-            if (doc.Contains(name) && doc[name].IsBsonDocument)
-            {
-                var value = doc[name].AsBsonDocument;
-                return reader(value);
-            }
-            return @default;
-        }
-
         public static IEnumerable<string> GetValueOrDefault(
             this BsonDocument doc,
             string name,

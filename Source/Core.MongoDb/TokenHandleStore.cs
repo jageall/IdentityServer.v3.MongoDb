@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +11,9 @@ namespace IdentityServer.Core.MongoDb
     class TokenHandleStore : MongoDbStore, ITokenHandleStore{
         private readonly TokenSerializer _serializer;
 
-        public TokenHandleStore(MongoDatabase db, StoreSettings settings, IClientStore clientStore) 
+        public TokenHandleStore(MongoDatabase db, 
+            StoreSettings settings, 
+            IClientStore clientStore) 
             : base(db, settings.TokenHandleCollection)
         {
             _serializer = new TokenSerializer(clientStore);

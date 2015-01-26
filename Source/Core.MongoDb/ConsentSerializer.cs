@@ -9,7 +9,7 @@ namespace IdentityServer.Core.MongoDb
     {
         private static readonly Guid Namespace = new Guid("344A5569-E318-4A69-9207-C2EBC501D722");
         private static readonly IReadOnlyDictionary<int, Func<BsonDocument, Consent>> Deserializers =
-            new Dictionary<int, Func<BsonDocument, Consent>>()
+            new Dictionary<int, Func<BsonDocument, Consent>>
             {
                 {1, Version1}
             };
@@ -37,19 +37,21 @@ namespace IdentityServer.Core.MongoDb
 
         private static Consent Version1(BsonDocument doc)
         {
-            var consent = new Consent();
-            consent.ClientId = doc["clientId"].AsString;
-            consent.Subject = doc["subject"].AsString;
+            var consent = new Consent
+            {
+                ClientId = doc["clientId"].AsString, 
+                Subject = doc["subject"].AsString
+            };
             consent.Scopes = doc.GetValueOrDefault("scopes", consent.Scopes);
             return consent;
         }
 
-        public Guid GetId(Consent consent)
+        private static Guid GetId(Consent consent)
         {
             return GetId(consent.ClientId, consent.Subject);
         }
 
-        public Guid GetId(string clientId, string subject)
+        public static Guid GetId(string clientId, string subject)
         {
             return GuidGenerator.CreateGuidFromName(Namespace, clientId + subject);
         }

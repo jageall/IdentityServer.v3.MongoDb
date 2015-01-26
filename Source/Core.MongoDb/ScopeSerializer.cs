@@ -9,7 +9,7 @@ namespace IdentityServer.Core.MongoDb
     {
         static readonly Scope Default = new Scope();
         static readonly IReadOnlyDictionary<int, Func<BsonDocument, Scope>> Deserializers =
-            new Dictionary<int, Func<BsonDocument, Scope>>()
+            new Dictionary<int, Func<BsonDocument, Scope>>
             {
                 {1, Version1}
             };

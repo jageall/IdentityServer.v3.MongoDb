@@ -77,7 +77,9 @@ namespace IdentityServer.Core.MongoDb
             throw new InvalidOperationException("No deserializers available for authorization code version " + version);
         }
 
-        private static async Task<AuthorizationCode> Version1(BsonDocument doc, IClientStore clientStore,
+        private static async Task<AuthorizationCode> Version1(
+            BsonDocument doc, 
+            IClientStore clientStore,
             IScopeStore scopeStore)
         {
             var code = new AuthorizationCode();
@@ -99,12 +101,21 @@ namespace IdentityServer.Core.MongoDb
             claimsPrincipal.AddIdentities(identities);
             code.Subject = claimsPrincipal;
 
-            code.Client = await clientStore.FindClientByIdAsync(doc["_clientId"].AsString);
+            var clientId = doc["_clientId"].AsString;
+            code.Client = await clientStore.FindClientByIdAsync(clientId);
+            if (code.Client == null)
+            {
+                throw new InvalidOperationException("Client not found when deserializing authorization code. Client id: " + clientId); 
+            }
 
             var scopes = doc.GetValueOrDefault(
                 "requestedScopes",
-                (IEnumerable<string>)new string[] { });
+                (IEnumerable<string>)new string[] { }).ToArray();
             code.RequestedScopes = await scopeStore.FindScopesAsync(scopes);
+            if (scopes.Count() > code.RequestedScopes.Count())
+            {
+                throw new InvalidOperationException("Scopes not found when deserializing authorization code. Scopes: " + string.Join(", ",scopes.Except(code.RequestedScopes.Select(x=>x.Name)))); 
+            }
             return code;
         }
     }

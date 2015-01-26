@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using MongoDB.Bson;
-using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Models;
 
 namespace IdentityServer.Core.MongoDb
@@ -12,7 +10,7 @@ namespace IdentityServer.Core.MongoDb
     {
         private static readonly Client DefaultValues = new Client();
         private static readonly ClaimSetSerializer ClaimSetSerializer = new ClaimSetSerializer();
-        private static readonly Dictionary<int, Func<BsonDocument, Client>> Deserializers = new Dictionary<int, Func<BsonDocument, Client>>()
+        private static readonly Dictionary<int, Func<BsonDocument, Client>> Deserializers = new Dictionary<int, Func<BsonDocument, Client>>
         {
             {1, Version1}
         };
@@ -36,6 +34,7 @@ namespace IdentityServer.Core.MongoDb
                 secret.SetIfNotNull("description", clientSecret.Description);
                 secret.SetIfNotNull("value", clientSecret.Value);
                 secret.SetIfNotNull("expiration", clientSecret.Expiration);
+                secret.SetIfNotNull("type", clientSecret.ClientSecretType);
                 secrets.Add(secret);
             }
             doc["clientSecrets"] = secrets;
@@ -100,98 +99,84 @@ namespace IdentityServer.Core.MongoDb
 
         private static Client Version1(BsonDocument doc)
         {
-            var client = new Client();
+            var client = new Client
+            {
+                ClientId = doc["_id"].AsString,
+                ClientName = doc["clientName"].AsString,
+                AbsoluteRefreshTokenLifetime = doc.GetValueOrDefault(
+                    "absoluteRefreshTokenLifetime",
+                    DefaultValues.AbsoluteRefreshTokenLifetime),
+                AccessTokenLifetime = doc.GetValueOrDefault(
+                    "accessTokenLifetime",
+                    DefaultValues.AccessTokenLifetime),
+                AccessTokenType = doc.GetValueOrDefault(
+                    "accessTokenType",
+                    DefaultValues.AccessTokenType),
+                EnableLocalLogin = doc.GetValueOrDefault(
+                    "enableLocalLogin",
+                    DefaultValues.EnableLocalLogin),
+                AllowRememberConsent = doc.GetValueOrDefault(
+                    "allowRememberConsent", DefaultValues.AllowRememberConsent),
+                AuthorizationCodeLifetime = doc.GetValueOrDefault("authorizationCodeLifetime",
+                    DefaultValues.AuthorizationCodeLifetime),
+                ClientSecrets = doc.GetValueOrDefault(
+                    "clientSecrets",
+                    d =>
+                    {
+                        var value = d.GetValueOrDefault("value", "");
+                        var description = d.GetValueOrDefault("description", (string) null);
+                        var expiration = d.GetValueOrDefault("expiration", (DateTimeOffset?) null);
+                        var type = d.GetValueOrDefault("type", (string) null);
+                        return new ClientSecret(value, description, expiration) {ClientSecretType = type};
+                    }
+                    , new ClientSecret[] {}).ToList(),
+                ClientUri = doc.GetValueOrDefault(
+                    "clientUri",
+                    DefaultValues.ClientUri),
+                Enabled = doc.GetValueOrDefault(
+                    "enabled",
+                    DefaultValues.Enabled),
+                Flow = doc.GetValueOrDefault(
+                    "flow",
+                    DefaultValues.Flow),
+                IdentityProviderRestrictions =
+                    doc["identityProviderRestrictions"].AsBsonArray.Select(x => x.AsString).ToList(),
+                IdentityTokenLifetime = doc.GetValueOrDefault(
+                    "identityTokenLifetime",
+                    DefaultValues.IdentityTokenLifetime),
+                LogoUri = doc.GetValueOrDefault(
+                    "logoUri",
+                    DefaultValues.LogoUri),
+                RefreshTokenExpiration = doc.GetValueOrDefault(
+                    "refreshTokenExpiration",
+                    DefaultValues.RefreshTokenExpiration),
+                RefreshTokenUsage = doc.GetValueOrDefault(
+                    "refreshTokenUsage",
+                    DefaultValues.RefreshTokenUsage),
+                RequireConsent = doc.GetValueOrDefault(
+                    "requireConsent",
+                    DefaultValues.RequireConsent),
+                SlidingRefreshTokenLifetime = doc.GetValueOrDefault(
+                    "slidingRefreshTokenLifetime",
+                    DefaultValues.SlidingRefreshTokenLifetime),
+                IncludeJwtId = doc.GetValueOrDefault("includeJwtId", DefaultValues.IncludeJwtId),
+                AlwaysSendClientClaims =
+                    doc.GetValueOrDefault("alwaysSendClientClaims", DefaultValues.AlwaysSendClientClaims),
+                PrefixClientClaims = doc.GetValueOrDefault("PrefixClientClaims", DefaultValues.PrefixClientClaims)
+            };
 
-            client.ClientId = doc["_id"].AsString;
-            
-            client.ClientName = doc["clientName"].AsString;
 
-            client.AbsoluteRefreshTokenLifetime = doc.GetValueOrDefault(
-                "absoluteRefreshTokenLifetime",
-                DefaultValues.AbsoluteRefreshTokenLifetime);
-            client.AbsoluteRefreshTokenLifetime = doc.GetValueOrDefault(
-                "absoluteRefreshTokenLifetime",
-                DefaultValues.AbsoluteRefreshTokenLifetime);
-            client.AccessTokenLifetime = doc.GetValueOrDefault(
-                "accessTokenLifetime",
-                DefaultValues.AccessTokenLifetime);
+            client.ScopeRestrictions.AddRange(doc["scopeRestrictions"].AsBsonArray.Select(x => x.AsString));
 
-            client.AccessTokenType = doc.GetValueOrDefault(
-                "accessTokenType",
-                DefaultValues.AccessTokenType);
+            client.CustomGrantTypeRestrictions.AddRange(doc["customGrantRestrictions"].AsBsonArray.Select(x => x.AsString));
 
-            client.EnableLocalLogin = doc.GetValueOrDefault(
-                "enableLocalLogin",
-                DefaultValues.EnableLocalLogin);
-
-            client.AllowRememberConsent = doc.GetValueOrDefault(
-                "allowRememberConsent", DefaultValues.AllowRememberConsent);
-            client.AuthorizationCodeLifetime =
-                doc.GetValueOrDefault("authorizationCodeLifetime",
-                    DefaultValues.AuthorizationCodeLifetime);
-
-            client.ClientSecrets = doc.GetValueOrDefault(
-                "clientSecrets",
-                d =>
-                {
-                    var value = d.GetValueOrDefault("value", "");
-                    var description = d.GetValueOrDefault("description", (string)null);
-                    var expiration = d.GetValueOrDefault("expiration", (DateTimeOffset?)null);
-                    return new ClientSecret(value, description, expiration);
-                }
-                , new ClientSecret[] { }).ToList();
-
-            client.ClientUri = doc.GetValueOrDefault(
-                "clientUri",
-                DefaultValues.ClientUri);
-            client.Enabled = doc.GetValueOrDefault(
-                "enabled",
-                DefaultValues.Enabled);
-
-            client.Flow = doc.GetValueOrDefault(
-                "flow",
-                DefaultValues.Flow);
-            client.IdentityProviderRestrictions =
-                doc["identityProviderRestrictions"].AsBsonArray.Select(x => x.AsString).ToList();
-            client.IdentityTokenLifetime = doc.GetValueOrDefault(
-                "identityTokenLifetime",
-                DefaultValues.IdentityTokenLifetime);
-
-            client.LogoUri = doc.GetValueOrDefault(
-                "logoUri",
-                DefaultValues.LogoUri);
+            client.Claims.AddRange(ClaimSetSerializer.Deserialize(doc));
 
             client.PostLogoutRedirectUris.AddRange(
                 doc["postLogoutRedirectUris"].AsBsonArray.Select(x => x.AsString));
 
             client.RedirectUris.AddRange(
                 doc["redirectUris"].AsBsonArray.Select(x => x.AsString));
-
-
-            client.RefreshTokenExpiration = doc.GetValueOrDefault(
-                "refreshTokenExpiration",
-                DefaultValues.RefreshTokenExpiration);
-
-            client.RefreshTokenUsage = doc.GetValueOrDefault(
-                "refreshTokenUsage",
-                DefaultValues.RefreshTokenUsage);
-
-            client.RequireConsent = doc.GetValueOrDefault(
-                "requireConsent",
-                DefaultValues.RequireConsent);
-            client.ScopeRestrictions.AddRange(doc["scopeRestrictions"].AsBsonArray.Select(x => x.AsString));
-            client.SlidingRefreshTokenLifetime = doc.GetValueOrDefault(
-                "slidingRefreshTokenLifetime",
-                DefaultValues.SlidingRefreshTokenLifetime);
-
-            client.IncludeJwtId = doc.GetValueOrDefault("includeJwtId", DefaultValues.IncludeJwtId);
-            var claims = ClaimSetSerializer.Deserialize(doc);
-            client.Claims = (claims ?? new List<Claim> { }).ToList();
-
-            client.AlwaysSendClientClaims = doc.GetValueOrDefault("alwaysSendClientClaims", DefaultValues.AlwaysSendClientClaims);
-            client.PrefixClientClaims = doc.GetValueOrDefault("PrefixClientClaims", DefaultValues.PrefixClientClaims);
-
-            client.CustomGrantTypeRestrictions.AddRange(doc["customGrantRestrictions"].AsBsonArray.Select(x => x.AsString));
 
             return client;
         }

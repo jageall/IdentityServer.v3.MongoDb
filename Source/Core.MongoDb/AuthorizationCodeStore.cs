@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Wrappers;
+using Thinktecture.IdentityServer.Core.Logging;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 
@@ -11,6 +12,7 @@ namespace IdentityServer.Core.MongoDb
 {
     class AuthorizationCodeStore : MongoDbStore, IAuthorizationCodeStore
     {
+        private static readonly ILog Log = LogProvider.For<AuthorizationCodeStore>();
         private readonly AuthorizationCodeSerializer _serializer;
 
         public AuthorizationCodeStore(MongoDatabase db, StoreSettings settings, IClientStore clientStore, IScopeStore scopeStore)
@@ -21,21 +23,29 @@ namespace IdentityServer.Core.MongoDb
 
         public Task StoreAsync(string key, AuthorizationCode value)
         {
+            Log.Debug("Storing authorization code with key" + key);
             BsonDocument doc = _serializer.Serialize(key, value);
-            Collection.Save(doc);
+            var result = Collection.Save(doc);
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
 
         public Task<AuthorizationCode> GetAsync(string key)
         {
             BsonDocument doc = Collection.FindOneById(key);
-            if (doc == null) return Task.FromResult<AuthorizationCode>(null);
+            if (doc == null)
+            {
+                Log.Debug("No authorization code found for key" + key);
+                return Task.FromResult<AuthorizationCode>(null);
+            }
+            Log.Debug("Authorization code found for key " + key +". Deserializing...");
             return _serializer.Deserialize(doc);
         }
 
         public Task RemoveAsync(string key)
         {
-            Collection.Remove(new QueryWrapper(new {_id = key}));
+            var result = Collection.Remove(new QueryWrapper(new {_id = key}));
+            Log.Debug(result.Response.ToString);
             return Task.FromResult(0);
         }
 
@@ -43,12 +53,14 @@ namespace IdentityServer.Core.MongoDb
         {
             var results = Collection.Find(new QueryWrapper(new {_subjectId = subject}))
                 .Select(x=>_serializer.Deserialize(x)).ToArray();
+            Log.Debug(()=> string.Format("Found {0} authorization codes for subject {1}", results.Length, subject));
             return Task.WhenAll(results).ContinueWith(x=>x.Result.OfType<ITokenMetadata>());
         }
 
         public Task RevokeAsync(string subject, string client)
         {
-            Collection.Remove(new QueryWrapper(new {_clientId = client, _subjectId = subject}));
+            var result = Collection.Remove(new QueryWrapper(new {_clientId = client, _subjectId = subject}));
+            Log.Debug(result.Response.ToString);            
             return Task.FromResult(0);
         }
     }

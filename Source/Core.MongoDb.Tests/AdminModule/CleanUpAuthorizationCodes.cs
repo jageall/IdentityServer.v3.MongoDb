@@ -43,7 +43,14 @@ namespace Core.MongoDb.Tests.AdminModule
         private void AddExpiredTokens(Factory factory)
         {
             _acStore = factory.Resolve<IAuthorizationCodeStore>();
-            _acStore.StoreAsync("ac", TestData.AuthorizationCode(Subject)).Wait();
+            var admin = factory.Resolve<IAdminService>();
+            var code = TestData.AuthorizationCode(Subject);
+            admin.Save(code.Client);
+            foreach (var scope in code.RequestedScopes)
+            {
+                admin.Save(scope);
+            }
+            _acStore.StoreAsync("ac", code).Wait();
 
 
         }

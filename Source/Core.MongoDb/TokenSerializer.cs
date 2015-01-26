@@ -57,13 +57,15 @@ namespace IdentityServer.Core.MongoDb
             throw new InvalidOperationException("No deserializers available for token version " + version);
         }
 
-        public static async Task<Token> Version1(BsonDocument doc, IClientStore clientStore)
+        private static async Task<Token> Version1(BsonDocument doc, IClientStore clientStore)
         {
             var token = new Token();
             token.Audience = doc.GetValueOrDefault("audience", token.Audience);
             token.Claims = new List<Claim>(doc.GetNestedValueOrDefault("claims", ClaimsSetSerializer.Deserialize, new List<Claim>()));
             var clientId = doc.GetValueOrDefault("client", (string)null);
             var client = await clientStore.FindClientByIdAsync(clientId);
+            if (client == null)
+                throw new InvalidOperationException("Client not found when deserializing token. Client id: " + clientId);
             token.Client = client;
             token.CreationTime = doc.GetValueOrDefault("creationTime", token.CreationTime);
             token.Issuer = doc.GetValueOrDefault("issuer", token.Issuer);

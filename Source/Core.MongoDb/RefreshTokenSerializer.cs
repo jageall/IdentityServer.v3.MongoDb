@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 

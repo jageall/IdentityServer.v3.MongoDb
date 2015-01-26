@@ -1,11 +1,7 @@
-﻿using System;
-using Microsoft.Owin.Security.DataProtection;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using Owin;
 using Thinktecture.IdentityServer.Core.Configuration;
 using Thinktecture.IdentityServer.Core.Services;
-using IDataProtector = Thinktecture.IdentityServer.Core.Configuration.IDataProtector;
 
 namespace IdentityServer.Core.MongoDb
 {

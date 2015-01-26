@@ -9,7 +9,7 @@ namespace IdentityServer.Core.MongoDb
     internal class ClaimSetSerializer
     {
         static readonly IReadOnlyDictionary<int, Func<BsonDocument, IEnumerable<Claim>>> Deserializers
-            = new Dictionary<int, Func<BsonDocument, IEnumerable<Claim>>>()
+            = new Dictionary<int, Func<BsonDocument, IEnumerable<Claim>>>
             {
                 {1, Version1}
             };
