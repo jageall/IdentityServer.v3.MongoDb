@@ -15,6 +15,8 @@ namespace IdentityServer.Core.MongoDb
             {1, Version1}
         };
 
+        private static readonly IEnumerable<string> EmptyStringSet = new string[] {};
+
         public BsonDocument Serialize(Client client)
         {
             var doc = new BsonDocument();
@@ -166,17 +168,16 @@ namespace IdentityServer.Core.MongoDb
             };
 
 
-            client.ScopeRestrictions.AddRange(doc["scopeRestrictions"].AsBsonArray.Select(x => x.AsString));
+            client.ScopeRestrictions.AddRange(doc.GetValueOrDefault("scopeRestrictions",EmptyStringSet));
 
-            client.CustomGrantTypeRestrictions.AddRange(doc["customGrantRestrictions"].AsBsonArray.Select(x => x.AsString));
+            client.CustomGrantTypeRestrictions.AddRange(doc.GetValueOrDefault("customGrantRestrictions", EmptyStringSet));
 
             client.Claims.AddRange(ClaimSetSerializer.Deserialize(doc));
 
             client.PostLogoutRedirectUris.AddRange(
-                doc["postLogoutRedirectUris"].AsBsonArray.Select(x => x.AsString));
+                doc.GetValueOrDefault("postLogoutRedirectUris",EmptyStringSet));
 
-            client.RedirectUris.AddRange(
-                doc["redirectUris"].AsBsonArray.Select(x => x.AsString));
+            client.RedirectUris.AddRange(doc.GetValueOrDefault("redirectUris", EmptyStringSet));
 
             return client;
         }
