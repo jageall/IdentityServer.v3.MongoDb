@@ -101,7 +101,6 @@ namespace Core.MongoDb.Tests
         }
         protected override void Initialize()
         {
-            var admin = Factory.Resolve<IAdminService>();
             _authorizationStore = Factory.Resolve<IAuthorizationCodeStore>();
             _authorizationStore.StoreAsync(_removeKey, TestData.AuthorizationCode());
             _authorizationStore.StoreAsync(_notRemovedKey, TestData.AuthorizationCode());
@@ -116,7 +115,7 @@ namespace Core.MongoDb.Tests
                 code.Nonce = "anr" + i;
                 _authorizationStore.StoreAsync("notRevokedA" + i, code);
                 subjectACodes.Add(code);
-                admin.Save(code.Client);
+                Save(code.Client);
             }
 
             for (int i = 0; i < 10; i++)
@@ -128,7 +127,7 @@ namespace Core.MongoDb.Tests
                 _authorizationStore.StoreAsync("notRevokedB" + i, code);
                 subjectBCodes.Add(code);
 
-                admin.Save(code.Client);
+                Save(code.Client);
             }
 
             for (int i = 0; i < 10; i++)
@@ -140,7 +139,7 @@ namespace Core.MongoDb.Tests
                 _authorizationStore.StoreAsync("revokedB" + i, code);
                 subjectBCodes.Add(code);
 
-                admin.Save(code.Client);
+                Save(code.Client);
             }
             for (int i = 0; i < 10; i++)
             {
@@ -151,7 +150,7 @@ namespace Core.MongoDb.Tests
                 _authorizationStore.StoreAsync("notRevokedC" + i, code);
                 subjectCCodes.Add(code);
 
-                admin.Save(code.Client);
+                Save(code.Client);
             }
 
             for (int i = 0; i < 10; i++)

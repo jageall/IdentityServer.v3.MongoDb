@@ -1,4 +1,4 @@
-version: 1.0.0.{build}
+version: 1.1.0.{build}
 
 assembly_info:
   patch: true
@@ -22,10 +22,6 @@ after_test:
   - ps: .\scripts\packagenuget.ps1
 
 artifacts: 
-  - path: Source\Core.MongoDb\bin\Release\IdentityServer.Core.MongoDb.dll
-    name: IdentityServer.Core.MongoDb.dll
-  - path: Source\IdentityServer.MongoDb.AdminModule\bin\Release\IdentityServer.MongoDb.AdminModule.dll
-    name: IdentityServer.MongoDb.AdminModule.dll
   - path: '*.nupkg'
 
 deploy:

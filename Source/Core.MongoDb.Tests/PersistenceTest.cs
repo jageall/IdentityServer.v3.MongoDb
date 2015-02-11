@@ -1,8 +1,8 @@
-using System.Linq;
+
 using IdentityServer.Core.MongoDb;
-using IdentityServer.MongoDb.AdminModule;
-using Thinktecture.IdentityServer.Core.Configuration;
-using Thinktecture.IdentityServer.Core.Services;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using Thinktecture.IdentityServer.Core.Models;
 
 namespace Core.MongoDb.Tests
 {
@@ -10,24 +10,34 @@ namespace Core.MongoDb.Tests
     {
         private PersistenceTestFixture _data;
 
-        protected Factory Factory
+        public StoreSettings Settings
         {
-            get { return _data.Factory; }
+            get { return _data.Settings; }
         }
 
-        protected IAdminService AdminService
-        {
-            get { return _data.AdminService; }
-        }
+        public Factory Factory { get { return _data.Factory; }}
 
         public void SetFixture(PersistenceTestFixture data)
         {
             _data = data;
 
-
             Initialize();
         }
 
         protected abstract void Initialize();
+
+        public void Save(Scope scope)
+        {
+            BsonDocument doc = new ScopeSerializer().Serialize(scope);
+            MongoCollection<BsonDocument> collection = _data.Database.GetCollection(Settings.ScopeCollection);
+            var result = collection.Save(doc);
+        }
+
+        public void Save(Client client)
+        {
+            BsonDocument doc = new ClientSerializer().Serialize(client);
+            MongoCollection<BsonDocument> collection = _data.Database.GetCollection(Settings.ClientCollection);
+            var result = collection.Save(doc);
+        }
     }
 }

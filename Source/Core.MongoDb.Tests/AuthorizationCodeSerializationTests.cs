@@ -80,11 +80,11 @@ namespace Core.MongoDb.Tests
         {
             var key = "AuthorizationCodeTests";
             _expected = TestData.AuthorizationCode();
-            var admin = Factory.Resolve<IAdminService>();
-            admin.Save(_expected.Client);
+            
+            Save(_expected.Client);
             foreach (var scope in _expected.RequestedScopes)
             {
-                admin.Save(scope);
+                Save(scope);
             }
             var store = Factory.Resolve<IAuthorizationCodeStore>();
             store.StoreAsync(key, TestData.AuthorizationCode()).Wait();

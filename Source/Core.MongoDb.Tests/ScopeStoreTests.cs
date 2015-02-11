@@ -87,7 +87,7 @@ namespace Core.MongoDb.Tests
 
             foreach (var scope in scopes)
             {
-                AdminService.Save(scope);                
+                Save(scope);                
             }
         }
     }

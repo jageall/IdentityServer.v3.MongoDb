@@ -97,16 +97,15 @@ namespace Core.MongoDb.Tests
         protected override void Initialize()
         {
             _store = Factory.Resolve<ITokenHandleStore>();
-            var admin = Factory.Resolve<IAdminService>();
 
             var removed = TestData.Token(SubjectA);
             removed.Client.ClientId = removed.ClientId + 0;
-            admin.Save(removed.Client);
+            Save(removed.Client);
             
             _store.StoreAsync(RemovedKey, removed).Wait();
             var notRemoved = TestData.Token(SubjectA);
             notRemoved.Client.ClientId = notRemoved.ClientId + 1;
-            admin.Save(notRemoved.Client);
+            Save(notRemoved.Client);
             _store.StoreAsync(NotRemovedKey, notRemoved).Wait();
             _subjectATokens = new List<Token> {removed, notRemoved};
             
@@ -130,7 +129,7 @@ namespace Core.MongoDb.Tests
                 {
                     token.Client.ClientId = NotRevokedClient;
                 }
-                admin.Save(token.Client);
+                Save(token.Client);
                 _store.StoreAsync(subjectConfig.subject + i, token).Wait();
                 subjectConfig.tokens.Add(token);
             }

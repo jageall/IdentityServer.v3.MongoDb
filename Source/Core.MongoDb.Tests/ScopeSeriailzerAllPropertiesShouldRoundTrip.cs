@@ -105,7 +105,7 @@ namespace Core.MongoDb.Tests
         protected override void Initialize()
         {
             _expected = TestData.ScopeAllProperties();
-            AdminService.Save(_expected);
+            Save(_expected);
             _actual =
                 Factory.Resolve<IScopeStore>().GetScopesAsync(publicOnly:false).Result.SingleOrDefault(x => x.Name == _expected.Name);
 

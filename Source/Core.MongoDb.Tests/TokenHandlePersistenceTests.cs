@@ -87,8 +87,7 @@ namespace Core.MongoDb.Tests
         protected override void Initialize()
         {
             var store = Factory.Resolve<ITokenHandleStore>();
-            var clients = Factory.Resolve<IAdminService>();
-            clients.Save(TestData.ClientAllProperties());
+            Save(TestData.ClientAllProperties());
             
             var key = GetType().Name;
             _expected = TestData.Token();

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -11,7 +12,7 @@
     <AssemblyName>Core.MongoDb.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>fb6fccfa</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>437abf91</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson, Version=1.10.0.62, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\mongocsharpdriver.1.10.0\lib\net35\MongoDB.Bson.dll</HintPath>
@@ -50,18 +55,14 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Management.Automation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\System.Management.Automation.6.1.7601.17515\lib\net45\System.Management.Automation.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Thinktecture.IdentityServer3, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Thinktecture.IdentityServer3, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Thinktecture.IdentityServer3.1.0.2\lib\net45\Thinktecture.IdentityServer3.dll</HintPath>
+      <HintPath>..\packages\Thinktecture.IdentityServer3.1.1.1\lib\net45\Thinktecture.IdentityServer3.dll</HintPath>
     </Reference>
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
@@ -71,17 +72,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdminModule\AddBuiltInScopes.cs" />
-    <Compile Include="AdminModule\AddClient.cs" />
-    <Compile Include="AdminModule\AddScope.cs" />
-    <Compile Include="AdminModule\CleanUpRefreshTokens.cs" />
-    <Compile Include="AdminModule\CleanUpAuthorizationCodes.cs" />
-    <Compile Include="AdminModule\CleanUpTokenHandles.cs" />
-    <Compile Include="AdminModule\DeleteClient.cs" />
-    <Compile Include="AdminModule\DeleteDatabase.cs" />
-    <Compile Include="AdminModule\DeleteScope.cs" />
-    <Compile Include="AdminModule\InstallDatabase.cs" />
-    <Compile Include="AdminModule\PowershellAdminModuleFixture.cs" />
     <Compile Include="AuthorizationCodeSerializationTests.cs" />
     <Compile Include="AuthorizationCodeStoreTests.cs" />
     <Compile Include="ClientSerializerAllPropertiesNonDefault.cs" />
@@ -104,38 +94,25 @@
     <Compile Include="TokenHandleStoreTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="AdminModule\Scripts\AddScope.ps1" />
-    <EmbeddedResource Include="AdminModule\Scripts\AddBuiltInScopes.ps1" />
-    <EmbeddedResource Include="AdminModule\Scripts\AddClient.ps1" />
-    <EmbeddedResource Include="AdminModule\Scripts\CleanUpAuthorizationCodes.ps1" />
-    <EmbeddedResource Include="AdminModule\Scripts\CleanUpRefreshTokens.ps1" />
-    <EmbeddedResource Include="AdminModule\Scripts\CleanUpTokenHandles.ps1" />
-    <EmbeddedResource Include="AdminModule\Scripts\DeleteClient.ps1" />
-    <EmbeddedResource Include="AdminModule\Scripts\DeleteDatabase.ps1" />
     <None Include="packages.config" />
-    <EmbeddedResource Include="AdminModule\Scripts\InstallDatabase.ps1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Admin.MongoDb\Admin.MongoDb.csproj">
-      <Project>{69D6413B-E338-479E-82FC-4FAF69895B8C}</Project>
-      <Name>Admin.MongoDb</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Core.MongoDb\Core.MongoDb.csproj">
       <Project>{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}</Project>
       <Name>Core.MongoDb</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IdentityServer.MongoDb.AdminModule\IdentityServer.MongoDb.AdminModule.csproj">
-      <Project>{D91D98A2-E90D-4695-AFB2-377788EE0757}</Project>
-      <Name>IdentityServer.MongoDb.AdminModule</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="AdminModule\Scripts\DeleteScope.ps1" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1030\build\net20\xunit.runner.visualstudio.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

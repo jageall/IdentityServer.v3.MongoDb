@@ -68,8 +68,7 @@ namespace Core.MongoDb.Tests
         protected override void Initialize()
         {
             var store = Factory.Resolve<IRefreshTokenStore>();
-            var clients = Factory.Resolve<IAdminService>();
-            clients.Save(TestData.ClientAllProperties());
+            Save(TestData.ClientAllProperties());
             var key = GetType().Name;
             _expected = TestData.RefreshToken();
             store.StoreAsync(key, TestData.RefreshToken());
