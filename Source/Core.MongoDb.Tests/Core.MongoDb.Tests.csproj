@@ -94,6 +94,9 @@
     <Compile Include="TokenHandleStoreTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\default.licenseheader">
+      <Link>default.licenseheader</Link>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
