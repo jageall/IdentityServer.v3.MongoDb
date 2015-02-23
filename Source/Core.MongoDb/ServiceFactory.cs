@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Thinktecture.IdentityServer.Core.Configuration;
@@ -55,19 +57,10 @@ namespace IdentityServer.Core.MongoDb
             return settings;
         }
 
+        [Obsolete("Moved to static method of StoreSettings")]
         public static StoreSettings DefaultStoreSettings()
         {
-            return new StoreSettings
-            {
-                ConnectionString = "mongodb://localhost",
-                Database = "identityserver",
-                ClientCollection = "clients",
-                ScopeCollection = "scopes",
-                ConsentCollection = "consents",
-                AuthorizationCodeCollection = "authorizationCodes",
-                RefreshTokenCollection = "refreshtokens",
-                TokenHandleCollection = "tokenhandles"
-            };
+            return StoreSettings.DefaultSettings();
         }
     }
 }

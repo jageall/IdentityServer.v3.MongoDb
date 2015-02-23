@@ -31,7 +31,7 @@ namespace Core.MongoDb.Tests
 
         public PersistenceTestFixture()
         {
-            _settings = ServiceFactory.DefaultStoreSettings();
+            _settings = StoreSettings.DefaultSettings();
             _settings.Database = "testidentityserver";
             var registrations = new ServiceFactory(null, _settings);
             var client = new MongoClient(_settings.ConnectionString);

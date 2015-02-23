@@ -25,5 +25,20 @@ namespace IdentityServer.Core.MongoDb
         public string ConnectionString { get; set; }
         public string RefreshTokenCollection { get; set; }
         public string TokenHandleCollection { get; set; }
+
+        public static StoreSettings DefaultSettings()
+        {
+            return new StoreSettings
+            {
+                ConnectionString = "mongodb://localhost",
+                Database = "identityserver",
+                ClientCollection = "clients",
+                ScopeCollection = "scopes",
+                ConsentCollection = "consents",
+                AuthorizationCodeCollection = "authorizationCodes",
+                RefreshTokenCollection = "refreshtokens",
+                TokenHandleCollection = "tokenhandles"
+            };
+        }
     }
 }
