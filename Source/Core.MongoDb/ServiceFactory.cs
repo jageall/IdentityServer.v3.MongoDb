@@ -25,7 +25,7 @@ namespace IdentityServer.Core.MongoDb
     public class ServiceFactory : IdentityServerServiceFactory
     {
         public ServiceFactory(Registration<IUserService> userService)
-            : this(userService, DefaultStoreSettings())
+            : this(userService, StoreSettings.DefaultSettings())
         {
         }
 
@@ -55,12 +55,6 @@ namespace IdentityServer.Core.MongoDb
             MongoClientSettings settings = MongoDB.Driver.MongoClientSettings.FromUrl(MongoUrl.Create(mongoUrl));
             settings.GuidRepresentation = GuidRepresentation.Standard;
             return settings;
-        }
-
-        [Obsolete("Moved to static method of StoreSettings")]
-        public static StoreSettings DefaultStoreSettings()
-        {
-            return StoreSettings.DefaultSettings();
         }
     }
 }
