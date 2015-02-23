@@ -1,4 +1,4 @@
-version: 1.1.0.{build}
+version: 1.2.0.{build}
 
 assembly_info:
   patch: true
@@ -25,9 +25,15 @@ artifacts:
   - path: '*.nupkg'
 
 deploy:
-  provider: NuGet
-  on:
-    appveyor_repo_tag: true
-  api_key: 
-    secure: k1FLU1hRZEYRxDnZ8wS99CqjVgzr2nVFLnwhpYZ0ChTSDEJ5L5yJT7DgErg7vlG/
-  artifact: /.*\.nupkg/
+  - provider: NuGet
+    on:
+      appveyor_repo_tag: true
+    skip_symbols: false
+    api_key: 
+      secure: k1FLU1hRZEYRxDnZ8wS99CqjVgzr2nVFLnwhpYZ0ChTSDEJ5L5yJT7DgErg7vlG/
+    artifact: /.*\.nupkg/
+  - provider : NuGet
+    api_key:
+      secure: kPfnyTAEpqId0UP9ts7fA0E9xNRf+VNJgMLmdTtBws4=
+    server: https://ci.appveyor.com/nuget/jageall-ov5eq8c5uqh8
+    artifact: /.*\.nupkg/
