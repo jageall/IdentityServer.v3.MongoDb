@@ -42,7 +42,7 @@ namespace IdentityServer.Core.MongoDb
             }
             else
             {
-                Log.Debug("Client not found with id" + clientId);
+                Log.Debug("Client not found with id " + clientId);
             }
 
             return Task.FromResult(result);
