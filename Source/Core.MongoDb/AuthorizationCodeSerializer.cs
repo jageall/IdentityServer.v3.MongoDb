@@ -52,7 +52,7 @@ namespace IdentityServer.Core.MongoDb
             doc["isOpenId"] = code.IsOpenId;
             doc["redirectUri"] = code.RedirectUri;
             doc["wasConsentShown"] = code.WasConsentShown;
-            doc["nonce"] = code.Nonce;
+            doc.SetIfNotNull("nonce", code.Nonce);
             doc["subject"] = SerializeIdentities(code);
             var requestedScopes = new BsonArray();
             foreach (var scope in code.RequestedScopes.Select(x=>x.Name))

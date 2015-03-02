@@ -28,6 +28,7 @@ namespace Core.MongoDb.Tests
     {
         private AuthorizationCode _expected;
         private AuthorizationCode _actual;
+        private AuthorizationCode _actualNoNonce;
 
         [Fact]
         public void CheckCreationTime()
@@ -76,6 +77,13 @@ namespace Core.MongoDb.Tests
 
 
         [Fact]
+        public void CheckNonce()
+        {
+           Assert.Null(_actualNoNonce.Nonce);
+            Assert.Equal(_expected.Nonce ,_actual.Nonce);
+        }
+
+        [Fact]
         public void CheckClient()
         {
             Assert.Equal(_expected.ClientId, _actual.ClientId);
@@ -103,7 +111,9 @@ namespace Core.MongoDb.Tests
             }
             var store = Factory.Resolve<IAuthorizationCodeStore>();
             store.StoreAsync(key, TestData.AuthorizationCode()).Wait();
+            store.StoreAsync(key + "NoNonce", TestData.AuthorizationCodeWithoutNonce()).Wait();
             _actual = store.GetAsync(key).Result;
+            _actualNoNonce = store.GetAsync(key + "NoNonce").Result;
         }
     }
 }

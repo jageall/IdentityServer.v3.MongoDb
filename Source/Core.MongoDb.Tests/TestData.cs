@@ -117,6 +117,13 @@ namespace Core.MongoDb.Tests
 
         public static AuthorizationCode AuthorizationCode(string subjectId = null)
         {
+            var ac = AuthorizationCodeWithoutNonce(subjectId);
+            ac.Nonce = "test";
+            return ac;
+        }
+
+        public static AuthorizationCode AuthorizationCodeWithoutNonce(string subjectId = null)
+        {
             return new AuthorizationCode
             {
                 IsOpenId = true,
@@ -126,7 +133,6 @@ namespace Core.MongoDb.Tests
                 RequestedScopes = Scopes(),
                 Subject = Subject(subjectId),
                 WasConsentShown = true,
-                Nonce = "test"
             };
         }
 
