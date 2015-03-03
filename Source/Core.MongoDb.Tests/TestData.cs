@@ -70,7 +70,10 @@ namespace Core.MongoDb.Tests
                     new Claim("client1", "value1"),
                     new Claim("client2", "value2"),
                     new Claim("client3", "value3"),
-                }
+                },
+                AllowClientCredentialsOnly = true,
+                UpdateAccessTokenClaimsOnRefresh = true,
+                AllowedCorsOrigins = new List<string> { "CorsOrigin1", "CorsOrigin2", "CorsOrigin3", }
             };
         }
 
@@ -179,7 +182,7 @@ namespace Core.MongoDb.Tests
                 AccessToken = Token(subject),
                 CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 LifeTime = 100,
-                Version = 10
+                Version = 10,
             };
         }
 

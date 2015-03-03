@@ -170,6 +170,24 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
+        public void AllowClientCredentialsOnly()
+        {
+            Assert.Equal(_expected.AllowClientCredentialsOnly, _actual.AllowClientCredentialsOnly);
+        }
+
+        [Fact]
+        public void UpdateAccessTokenClaimsOnRefresh()
+        {
+            Assert.Equal(_expected.UpdateAccessTokenClaimsOnRefresh, _actual.UpdateAccessTokenClaimsOnRefresh);
+        }
+
+        [Fact]
+        public void AllowedCorsOrigins()
+        {
+            Assert.Equal(_expected.AllowedCorsOrigins, _actual.AllowedCorsOrigins);
+        }
+
+        [Fact]
         public void CheckAll()
         {
             var serializer = new JsonSerializer() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };

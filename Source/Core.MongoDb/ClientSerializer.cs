@@ -100,6 +100,16 @@ namespace IdentityServer.Core.MongoDb
                 grantRestrictions.Add(restriction);
             }
             doc["customGrantRestrictions"] = grantRestrictions;
+            doc["allowClientCredentialsOnly"] = client.AllowClientCredentialsOnly;
+            doc["updateAccessTokenClaimsOnRefresh"] = client.UpdateAccessTokenClaimsOnRefresh;
+            doc["updateAccessTokenClaimsOnRefresh"] = client.UpdateAccessTokenClaimsOnRefresh;
+            var allowedCorsOrigins = new BsonArray();
+            foreach (var origin in client.AllowedCorsOrigins)
+            {
+                if(!string.IsNullOrEmpty(origin))
+                    allowedCorsOrigins.Add(origin);
+            }
+            doc["allowedCorsOrigins"] = allowedCorsOrigins;
             return doc;
         }
 
@@ -193,6 +203,12 @@ namespace IdentityServer.Core.MongoDb
                 doc.GetValueOrDefault("postLogoutRedirectUris",EmptyStringSet));
 
             client.RedirectUris.AddRange(doc.GetValueOrDefault("redirectUris", EmptyStringSet));
+
+            client.AllowClientCredentialsOnly = doc.GetValueOrDefault("allowClientCredentialsOnly",
+                DefaultValues.AllowClientCredentialsOnly);
+            client.UpdateAccessTokenClaimsOnRefresh = doc.GetValueOrDefault("updateAccessTokenClaimsOnRefresh",
+                DefaultValues.UpdateAccessTokenClaimsOnRefresh);
+            client.AllowedCorsOrigins.AddRange(doc.GetValueOrDefault("allowedCorsOrigins", EmptyStringSet));
 
             return client;
         }
