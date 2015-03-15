@@ -7,14 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.MongoDb", "Core.MongoD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.MongoDb.Tests", "Core.MongoDb.Tests\Core.MongoDb.Tests.csproj", "{09DBCF43-8007-4C3A-BC20-DF3B25DD0F3B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{A41DB835-DBC1-41C7-A62C-BE244D9A647E}"
-	ProjectSection(SolutionItems) = preProject
-		..\Samples\AddOrUpdateClient.ps1 = ..\Samples\AddOrUpdateClient.ps1
-		..\Samples\AddOrUpdateScope.ps1 = ..\Samples\AddOrUpdateScope.ps1
-		..\Samples\AddStandardScopes.ps1 = ..\Samples\AddStandardScopes.ps1
-		..\Samples\InstallDatabase.ps1 = ..\Samples\InstallDatabase.ps1
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CEA8D3FF-D342-4784-A63A-CB7E3AA27E47}"
 	ProjectSection(SolutionItems) = preProject
 		default.licenseheader = default.licenseheader
