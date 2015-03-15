@@ -172,6 +172,7 @@ namespace Core.MongoDb.Tests
                 new Claim("email", "baz@qux.com"),
                 new Claim("scope", "scope1"),
                 new Claim("scope", "scope2"),
+                new Claim("guid", "561E12FE7BC24F5E8CAC029B91E8ADE8"),
             };
         }
 
