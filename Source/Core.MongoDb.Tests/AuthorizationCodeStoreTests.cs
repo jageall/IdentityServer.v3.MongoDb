@@ -15,7 +15,6 @@
  */
 using System.Collections.Generic;
 using System.Linq;
-using IdentityServer.Core.MongoDb;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Thinktecture.IdentityServer.Core.Models;
@@ -24,42 +23,37 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class AuthorizationCodeStoreTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class AuthorizationCodeStoreTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
-        private IAuthorizationCodeStore _authorizationStore;
-        private string _removeKey = "remove";
-        private string _notRemovedKey = "notRemoved";
-        private string _subjectA = "subjectA";
-        private string _subjectB = "subjectB";
-        private string _subjectC = "subjectC";
-        private IReadOnlyList<AuthorizationCode> _subjectACodes;
-        private IReadOnlyList<AuthorizationCode> _subjectBCodes;
-        private IReadOnlyList<AuthorizationCode> _subjectCCodes;
+        private readonly IAuthorizationCodeStore _authorizationStore;
+        private const string RemoveKey = "remove";
+        private const string NotRemovedKey = "notRemoved";
+        private const string SubjectA = "subjectA";
+        private const string SubjectB = "subjectB";
+        private const string SubjectC = "subjectC";
+        private readonly IReadOnlyList<AuthorizationCode> _subjectACodes;
+        private readonly IReadOnlyList<AuthorizationCode> _subjectBCodes;
+        private readonly IReadOnlyList<AuthorizationCode> _subjectCCodes;
         private readonly JsonSerializer _serializer;
-
-        public AuthorizationCodeStoreTests()
-        {
-            _serializer = new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
-        }
 
         [Fact]
         public void RemovedKeyIsNotFound()
         {
-            _authorizationStore.RemoveAsync(_removeKey).Wait();
-            Assert.Null(_authorizationStore.GetAsync(_removeKey).Result);
+            _authorizationStore.RemoveAsync(RemoveKey).Wait();
+            Assert.Null(_authorizationStore.GetAsync(RemoveKey).Result);
         }
 
         [Fact]
         public void NotRemovedKeyIsFound()
         {
-            _authorizationStore.RemoveAsync(_removeKey).Wait();
-            Assert.NotNull(_authorizationStore.GetAsync(_notRemovedKey).Result);
+            _authorizationStore.RemoveAsync(RemoveKey).Wait();
+            Assert.NotNull(_authorizationStore.GetAsync(NotRemovedKey).Result);
         }
 
         [Fact]
         public void GetAllShouldReturnAllCodes()
         {
-            var result = _authorizationStore.GetAllAsync(_subjectA).Result.ToArray();
+            var result = _authorizationStore.GetAllAsync(SubjectA).Result.ToArray();
 
             var actual = result.OfType<AuthorizationCode>()
                 .OrderBy(x => x.Nonce)
@@ -75,16 +69,16 @@ namespace Core.MongoDb.Tests
         [Fact]
         public void RevokedClientsCodesShouldNotBeReturned()
         {
-            _authorizationStore.RevokeAsync(_subjectB, "revoked").Wait();
-            var result = _authorizationStore.GetAllAsync(_subjectB).Result.ToArray();
+            _authorizationStore.RevokeAsync(SubjectB, "revoked").Wait();
+            var result = _authorizationStore.GetAllAsync(SubjectB).Result.ToArray();
             Assert.False(result.Any(x=>x.ClientId == "revoked"));
         }
 
         [Fact]
         public void NonRevokedClientsCodesShouldNotBeReturned()
         {
-            _authorizationStore.RevokeAsync(_subjectB, "revoked").Wait();
-            var result = _authorizationStore.GetAllAsync(_subjectB).Result.ToArray();
+            _authorizationStore.RevokeAsync(SubjectB, "revoked").Wait();
+            var result = _authorizationStore.GetAllAsync(SubjectB).Result.ToArray();
 
             Assert.Equal(
                 _subjectBCodes
@@ -101,8 +95,8 @@ namespace Core.MongoDb.Tests
         [Fact]
         public void RevokingOneSubjectShouldNotEffectTheOther()
         {
-            _authorizationStore.RevokeAsync(_subjectB, "revoked").Wait();
-            var result = _authorizationStore.GetAllAsync(_subjectC).Result.ToArray();
+            _authorizationStore.RevokeAsync(SubjectB, "revoked").Wait();
+            var result = _authorizationStore.GetAllAsync(SubjectC).Result.ToArray();
 
             Assert.Equal(
                 _subjectCCodes
@@ -114,18 +108,20 @@ namespace Core.MongoDb.Tests
                     .Select(x => JObject.FromObject(x, _serializer).ToString())
                     );
         }
-        protected override void Initialize()
+        public AuthorizationCodeStoreTests(PersistenceTestFixture data)
+            : base(data)
         {
+            _serializer = new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
             _authorizationStore = Factory.Resolve<IAuthorizationCodeStore>();
-            _authorizationStore.StoreAsync(_removeKey, TestData.AuthorizationCode());
-            _authorizationStore.StoreAsync(_notRemovedKey, TestData.AuthorizationCode());
+            _authorizationStore.StoreAsync(RemoveKey, TestData.AuthorizationCode());
+            _authorizationStore.StoreAsync(NotRemovedKey, TestData.AuthorizationCode());
             var subjectACodes = new List<AuthorizationCode>();
             var subjectBCodes = new List<AuthorizationCode>();
             var subjectCCodes = new List<AuthorizationCode>();
             for (int i = 0; i < 10; i++)
             {
 
-                var code = TestData.AuthorizationCode(_subjectA);
+                var code = TestData.AuthorizationCode(SubjectA);
                 code.Client.ClientId = "notRevoked";
                 code.Nonce = "anr" + i;
                 _authorizationStore.StoreAsync("notRevokedA" + i, code);
@@ -136,7 +132,7 @@ namespace Core.MongoDb.Tests
             for (int i = 0; i < 10; i++)
             {
 
-                var code = TestData.AuthorizationCode(_subjectB);
+                var code = TestData.AuthorizationCode(SubjectB);
                 code.Client.ClientId = "notRevoked";
                 code.Nonce = "anr" + i;
                 _authorizationStore.StoreAsync("notRevokedB" + i, code);
@@ -148,7 +144,7 @@ namespace Core.MongoDb.Tests
             for (int i = 0; i < 10; i++)
             {
 
-                var code = TestData.AuthorizationCode(_subjectB);
+                var code = TestData.AuthorizationCode(SubjectB);
                 code.Client.ClientId = "revoked";
                 code.Nonce = "ar" + i;
                 _authorizationStore.StoreAsync("revokedB" + i, code);
@@ -159,7 +155,7 @@ namespace Core.MongoDb.Tests
             for (int i = 0; i < 10; i++)
             {
 
-                var code = TestData.AuthorizationCode(_subjectC);
+                var code = TestData.AuthorizationCode(SubjectC);
                 code.Client.ClientId = "notRevoked";
                 code.Nonce = "anr" + i;
                 _authorizationStore.StoreAsync("notRevokedC" + i, code);
@@ -171,7 +167,7 @@ namespace Core.MongoDb.Tests
             for (int i = 0; i < 10; i++)
             {
 
-                var code = TestData.AuthorizationCode(_subjectC);
+                var code = TestData.AuthorizationCode(SubjectC);
                 code.Client.ClientId = "revoked";
                 code.Nonce = "ar" + i;
                 _authorizationStore.StoreAsync("revokedC" + i, code);

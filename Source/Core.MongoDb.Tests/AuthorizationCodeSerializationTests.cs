@@ -24,7 +24,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class AuthorizationCodeSerializationTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class AuthorizationCodeSerializationTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private AuthorizationCode _expected;
         private AuthorizationCode _actual;
@@ -99,7 +99,7 @@ namespace Core.MongoDb.Tests
             Console.WriteLine(actual);
         }
 
-        protected override void Initialize()
+        public AuthorizationCodeSerializationTests(PersistenceTestFixture data) : base(data)
         {
             var key = "AuthorizationCodeTests";
             _expected = TestData.AuthorizationCode();

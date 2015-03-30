@@ -22,7 +22,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ConsentSerializerTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class ConsentSerializerTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private Consent _expected;
         private Consent _actual;
@@ -61,7 +61,8 @@ namespace Core.MongoDb.Tests
             Console.WriteLine(actual);
         }
 
-        protected override void Initialize()
+        public ConsentSerializerTests(PersistenceTestFixture data)
+            : base(data)
         {
             var store = Factory.Resolve<IConsentStore>();
             _expected = new Consent

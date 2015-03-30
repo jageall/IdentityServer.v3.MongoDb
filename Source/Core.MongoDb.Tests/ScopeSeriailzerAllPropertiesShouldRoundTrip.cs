@@ -22,7 +22,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ScopeSeriailzerAllPropertiesShouldRoundTrip : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class ScopeSeriailzerAllPropertiesShouldRoundTrip : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private Scope _expected;
         private Scope _actual;
@@ -117,7 +117,8 @@ namespace Core.MongoDb.Tests
             Assert.Equal(_expected.Type, _actual.Type);
         }
 
-        protected override void Initialize()
+        public ScopeSeriailzerAllPropertiesShouldRoundTrip(PersistenceTestFixture data)
+            : base(data)
         {
             _expected = TestData.ScopeAllProperties();
             Save(_expected);

@@ -20,7 +20,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ScopeStoreTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class ScopeStoreTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private List<string> _evenScopeNames;
         private List<string> _oddScopeNames;
@@ -77,7 +77,8 @@ namespace Core.MongoDb.Tests
             }
         }
 
-        protected override void Initialize()
+        public ScopeStoreTests(PersistenceTestFixture data)
+            : base(data)
         {
             _scopeStore = Factory.Resolve<IScopeStore>();
             _evenScopeNames = new List<string>();

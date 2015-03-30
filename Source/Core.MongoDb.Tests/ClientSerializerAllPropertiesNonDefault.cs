@@ -23,7 +23,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ClientSerializerAllPropertiesNonDefault : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class ClientSerializerAllPropertiesNonDefault : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private Client _expected;
         private Client _actual;
@@ -190,13 +190,15 @@ namespace Core.MongoDb.Tests
         [Fact]
         public void CheckAll()
         {
-            var serializer = new JsonSerializer() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+            var serializer = new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
             var expected = JObject.FromObject(_expected, serializer).ToString();
             var actual = JObject.FromObject(_actual, serializer).ToString();
             Assert.Equal(expected, actual);
             Console.WriteLine(actual);
         }
-        protected override void Initialize()
+
+        public ClientSerializerAllPropertiesNonDefault(PersistenceTestFixture data)
+            : base(data)
         {
 
             _expected = TestData.ClientAllProperties();

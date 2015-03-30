@@ -25,7 +25,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ConsentStoreTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class ConsentStoreTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private IConsentStore _store;
         private const string SubjectA = "SubjectA";
@@ -105,7 +105,8 @@ namespace Core.MongoDb.Tests
             return consent.ClientId;
         }
 
-        protected override void Initialize()
+        public ConsentStoreTests(PersistenceTestFixture data)
+            : base(data)
         {
             _store = Factory.Resolve<IConsentStore>();
             _subjectAConsents = new List<Consent>();

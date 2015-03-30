@@ -23,7 +23,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class ClientSerializerOnlyMandatoryPropertiesSet : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class ClientSerializerOnlyMandatoryPropertiesSet : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private Client _expected;
         private Client _actual;
@@ -178,7 +178,7 @@ namespace Core.MongoDb.Tests
             Console.WriteLine(actual);
         }
 
-        protected override void Initialize()
+        public ClientSerializerOnlyMandatoryPropertiesSet(PersistenceTestFixture data) : base(data)
         {
             var store = Factory.Resolve<IClientStore>();
             _expected = TestData.ClientAllProperties();

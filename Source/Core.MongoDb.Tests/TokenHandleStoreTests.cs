@@ -25,7 +25,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class TokenHandleStoreTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class TokenHandleStoreTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private ITokenHandleStore _store;
         private IReadOnlyList<Token> _subjectATokens;
@@ -109,7 +109,9 @@ namespace Core.MongoDb.Tests
         {
             return token.CreationTime;
         }
-        protected override void Initialize()
+
+        public TokenHandleStoreTests(PersistenceTestFixture data)
+            : base(data)
         {
             _store = Factory.Resolve<ITokenHandleStore>();
 

@@ -23,7 +23,12 @@ namespace Core.MongoDb.Tests
 {
     public abstract class PersistenceTest
     {
-        private PersistenceTestFixture _data;
+        private readonly PersistenceTestFixture _data;
+
+        public PersistenceTest(PersistenceTestFixture data)
+        {
+            _data = data;
+        }
 
         public StoreSettings Settings
         {
@@ -31,15 +36,6 @@ namespace Core.MongoDb.Tests
         }
 
         public Factory Factory { get { return _data.Factory; }}
-
-        public void SetFixture(PersistenceTestFixture data)
-        {
-            _data = data;
-
-            Initialize();
-        }
-
-        protected abstract void Initialize();
 
         public void Save(Scope scope)
         {

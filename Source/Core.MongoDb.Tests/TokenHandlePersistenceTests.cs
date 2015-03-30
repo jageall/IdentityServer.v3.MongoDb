@@ -23,7 +23,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class TokenHandlePersistenceTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class TokenHandlePersistenceTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private Token _actual;
         private Token _expected;
@@ -99,7 +99,8 @@ namespace Core.MongoDb.Tests
             Console.WriteLine(actual);
         }
 
-        protected override void Initialize()
+        public TokenHandlePersistenceTests(PersistenceTestFixture data)
+            : base(data)
         {
             var store = Factory.Resolve<ITokenHandleStore>();
             Save(TestData.ClientAllProperties());

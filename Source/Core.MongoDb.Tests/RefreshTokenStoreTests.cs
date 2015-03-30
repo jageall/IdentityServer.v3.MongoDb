@@ -26,7 +26,7 @@ using Xunit;
 
 namespace Core.MongoDb.Tests
 {
-    public class RefreshTokenStoreTests : PersistenceTest, IUseFixture<PersistenceTestFixture>
+    public class RefreshTokenStoreTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
         private const string NotRemovedKey = "notremoved";
         private const string RemovedKey = "removed";
@@ -106,7 +106,8 @@ namespace Core.MongoDb.Tests
             return token.LifeTime;
         }
 
-        protected override void Initialize()
+        public RefreshTokenStoreTests(PersistenceTestFixture data)
+            : base(data)
         {
             _store = Factory.Resolve<IRefreshTokenStore>();
             _store.StoreAsync(NotRemovedKey, TestData.RefreshToken());
