@@ -18,7 +18,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 using Thinktecture.IdentityServer.Core.Logging;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
@@ -30,53 +29,53 @@ namespace IdentityServer.Core.MongoDb
         private static readonly ILog Log = LogProvider.For<AuthorizationCodeStore>();
         private readonly AuthorizationCodeSerializer _serializer;
 
-        public AuthorizationCodeStore(MongoDatabase db, StoreSettings settings, IClientStore clientStore, IScopeStore scopeStore)
+        public AuthorizationCodeStore(IMongoDatabase db, StoreSettings settings, IClientStore clientStore, IScopeStore scopeStore)
             : base(db, settings.AuthorizationCodeCollection)
         {
             _serializer = new AuthorizationCodeSerializer(clientStore, scopeStore);
         }
 
-        public Task StoreAsync(string key, AuthorizationCode value)
+        public async Task StoreAsync(string key, AuthorizationCode value)
         {
             Log.Debug("Storing authorization code with key" + key);
             BsonDocument doc = _serializer.Serialize(key, value);
-            var result = Collection.Save(doc);
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
+            var result = await Collection.ReplaceOneAsync(
+                Filter.ById(key),
+                doc,
+                PerformUpsert);
+            Log.Debug(result.ToString);
         }
 
-        public Task<AuthorizationCode> GetAsync(string key)
+        public async Task<AuthorizationCode> GetAsync(string key)
         {
-            BsonDocument doc = Collection.FindOneById(key);
+            BsonDocument doc = await Collection.FindOneByIdAsync(key);
             if (doc == null)
             {
                 Log.Debug("No authorization code found for key" + key);
-                return Task.FromResult<AuthorizationCode>(null);
+                return null;
             }
             Log.Debug("Authorization code found for key " + key +". Deserializing...");
-            return _serializer.Deserialize(doc);
+            return await _serializer.Deserialize(doc);
         }
 
-        public Task RemoveAsync(string key)
+        public async Task RemoveAsync(string key)
         {
-            var result = Collection.Remove(new QueryWrapper(new {_id = key}));
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
+            var result = await Collection.DeleteOneByIdAsync(key);
+            Log.Debug(result.ToString);
         }
 
-        public Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
+        public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
-            var results = Collection.Find(new QueryWrapper(new {_subjectId = subject}))
-                .Select(x=>_serializer.Deserialize(x)).ToArray();
+            var docs = await Collection.Find(new ObjectFilterDefinition<BsonDocument>(new {_subjectId = subject})).ToListAsync();
+            var results = docs.Select(x=>_serializer.Deserialize(x)).ToArray();
             Log.Debug(()=> string.Format("Found {0} authorization codes for subject {1}", results.Length, subject));
-            return Task.WhenAll(results).ContinueWith(x=>x.Result.OfType<ITokenMetadata>());
+            return await Task.WhenAll(results).ContinueWith(x=>x.Result.OfType<ITokenMetadata>());
         }
 
-        public Task RevokeAsync(string subject, string client)
+        public async Task RevokeAsync(string subject, string client)
         {
-            var result = Collection.Remove(new QueryWrapper(new {_clientId = client, _subjectId = subject}));
-            Log.Debug(result.Response.ToString);            
-            return Task.FromResult(0);
+            var result = await Collection.DeleteManyAsync(new ObjectFilterDefinition<BsonDocument>(new { _clientId = client, _subjectId = subject }));
+            Log.Debug(result.ToString); 
         }
     }
 }

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2014, 2015 James Geall
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace IdentityServer.Core.MongoDb
 {
-    abstract class MongoDbStore
+    static class MongoCollectionExtensions
     {
-        private readonly string _collectionName;
-        private readonly IMongoDatabase _db;
-        protected static readonly UpdateOptions PerformUpsert = new UpdateOptions() {IsUpsert = true};
-
-        protected MongoDbStore(IMongoDatabase db, string collectionName)
+        public static Task<BsonDocument> FindOneByIdAsync(this IMongoCollection<BsonDocument> collection, object id)
         {
-            _db = db;
-            _collectionName = collectionName;
+            return collection.Find(Filter.ById(id)).FirstOrDefaultAsync();
         }
 
-        protected IMongoCollection<BsonDocument> Collection
+        public static Task<DeleteResult> DeleteOneByIdAsync(this IMongoCollection<BsonDocument> collection, object id)
         {
-            get { return _db.GetCollection<BsonDocument>(_collectionName); }
+            return collection.DeleteOneAsync(Filter.ById(id));
         }
     }
 }

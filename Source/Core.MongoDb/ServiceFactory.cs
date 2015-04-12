@@ -33,9 +33,8 @@ namespace IdentityServer.Core.MongoDb
             StoreSettings storeSettings)
         {
             var client = new MongoClient(MongoClientSettings(storeSettings.ConnectionString));
-            MongoServer server = client.GetServer();
-            MongoDatabase db = server.GetDatabase(storeSettings.Database);
-            Register(new Registration<MongoDatabase>(db));
+            IMongoDatabase db = client.GetDatabase(storeSettings.Database);
+            Register(new Registration<IMongoDatabase>(db));
             Register(new Registration<StoreSettings>(storeSettings));
             UserService = userService;
             ClientStore = new Registration<IClientStore>(typeof(ClientStore));

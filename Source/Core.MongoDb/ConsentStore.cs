@@ -18,7 +18,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 using Thinktecture.IdentityServer.Core.Logging;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
@@ -29,47 +28,45 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly ConsentSerializer _serializer;
         private static readonly ILog Log = LogProvider.For<ConsentStore>();
-        public ConsentStore(MongoDatabase db, StoreSettings settings) :
+
+        public ConsentStore(IMongoDatabase db, StoreSettings settings) :
             base(db, settings.ConsentCollection)
         {
             _serializer = new ConsentSerializer();
         }
 
-        public Task<IEnumerable<Consent>> LoadAllAsync(string subject)
+        public async Task<IEnumerable<Consent>> LoadAllAsync(string subject)
         {
-            Consent[] result = Collection.Find(new QueryWrapper(
-                new {subject})).Select(_serializer.Deserialize).ToArray();
-            return Task.FromResult<IEnumerable<Consent>>(result);
+            var docs = await Collection.Find(new ObjectFilterDefinition<BsonDocument>(
+                new {subject})).ToListAsync();
+            
+            return docs.Select(_serializer.Deserialize).ToArray();
         }
 
-        public Task RevokeAsync(string subject, string client)
+        public async Task RevokeAsync(string subject, string client)
         {
-            var result = Collection.Remove(QueryByClientAndSubject(subject, client));
+            var result = await Collection.DeleteOneByIdAsync(ConsentSerializer.GetId(client, subject));
 
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
+            Log.Debug(result.ToString);
         }
 
-        public Task<Consent> LoadAsync(string subject, string client)
+        public async Task<Consent> LoadAsync(string subject, string client)
         {
-            BsonDocument found = Collection.FindOne(QueryByClientAndSubject(subject, client));
+            BsonDocument found = await Collection.FindOneByIdAsync(ConsentSerializer.GetId(client,subject));
 
-            if (found == null) return Task.FromResult<Consent>(null);
+            if (found == null) return null;
             Consent result = _serializer.Deserialize(found);
 
-            return Task.FromResult(result);
+            return result;
         }
 
-        public Task UpdateAsync(Consent consent)
+        public async Task UpdateAsync(Consent consent)
         {
-            var result = Collection.Save(_serializer.Serialize(consent));
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
-        }
-
-        private QueryWrapper QueryByClientAndSubject(string subject, string client)
-        {
-            return new QueryWrapper(new {_id = ConsentSerializer.GetId(client, subject)});
+            var result = await Collection.ReplaceOneAsync(
+                Filter.ById(ConsentSerializer.GetId(consent.ClientId, consent.Subject)),
+                _serializer.Serialize(consent),
+                PerformUpsert);
+            Log.Debug(result.ToString);
         }
     }
 }

@@ -16,8 +16,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 using Thinktecture.IdentityServer.Core.Logging;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
@@ -27,7 +27,7 @@ namespace IdentityServer.Core.MongoDb
     class TokenHandleStore : MongoDbStore, ITokenHandleStore{
         private readonly TokenSerializer _serializer;
         private static readonly ILog Log = LogProvider.For<TokenHandleStore>();
-        public TokenHandleStore(MongoDatabase db, 
+        public TokenHandleStore(IMongoDatabase db, 
             StoreSettings settings, 
             IClientStore clientStore) 
             : base(db, settings.TokenHandleCollection)
@@ -35,45 +35,47 @@ namespace IdentityServer.Core.MongoDb
             _serializer = new TokenSerializer(clientStore);
         }
 
-        public Task StoreAsync(string key, Token value)
+        public async Task StoreAsync(string key, Token value)
         {
-            var result = Collection.Save(_serializer.Serialize(key, value));
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
+            var result = await Collection.ReplaceOneAsync(
+                Filter.ById(key),
+                _serializer.Serialize(key, value),
+                PerformUpsert);
+            Log.Debug(result.ToString);
         }
 
-        public Task<Token> GetAsync(string key)
+        public async Task<Token> GetAsync(string key)
         {
-            var result = Collection.FindOneById(key);
-            if (result == null) return Task.FromResult<Token>(null);
-            return _serializer.Deserialize(result);
+            var result =await Collection.FindOneByIdAsync(key);
+            if (result == null) return null;
+            return await _serializer.Deserialize(result);
         }
 
-        public Task RemoveAsync(string key)
+        public async Task RemoveAsync(string key)
         {
-            var result = Collection.Remove(new QueryWrapper(new {_id = key}));
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
+            var result = await Collection.DeleteOneAsync(Filter.ById(key));
+            Log.Debug(result.ToString);
         }
 
         public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
-            var results = Collection.Find(new QueryWrapper(new {_subjectId = subject})).Select(_serializer.Deserialize).ToArray();
-
+            var docs =
+                await
+                    Collection.Find(new ObjectFilterDefinition<BsonDocument>(new {_subjectId = subject})).ToListAsync();
+            var results = docs.Select(_serializer.Deserialize).ToArray();
             var result = await Task.WhenAll(results);
             return result;
         }
 
-        public Task RevokeAsync(string subject, string client)
+        public async Task RevokeAsync(string subject, string client)
         {
-            var result = Collection.Remove(new QueryWrapper(
+            var result = await Collection.DeleteManyAsync(new ObjectFilterDefinition<BsonDocument>(
                 new
                 {
                     _subjectId = subject, 
                     _clientId = client
                 }));
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
+            Log.Debug(result.ToString);
         }
     }
 }

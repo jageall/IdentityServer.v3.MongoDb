@@ -24,7 +24,7 @@ namespace Core.MongoDb.Tests
     public abstract class PersistenceTest
     {
         private readonly PersistenceTestFixture _data;
-
+        protected static readonly UpdateOptions PerformUpsert = new UpdateOptions() { IsUpsert = true };
         public PersistenceTest(PersistenceTestFixture data)
         {
             _data = data;
@@ -40,15 +40,23 @@ namespace Core.MongoDb.Tests
         public void Save(Scope scope)
         {
             BsonDocument doc = new ScopeSerializer().Serialize(scope);
-            MongoCollection<BsonDocument> collection = _data.Database.GetCollection(Settings.ScopeCollection);
-            var result = collection.Save(doc);
+            IMongoCollection<BsonDocument> collection = _data.Database.GetCollection<BsonDocument>(Settings.ScopeCollection);
+            var result = collection.ReplaceOneAsync(
+                Filter.ById(scope.Name),
+                doc,
+                PerformUpsert
+                ).Result;
         }
 
         public void Save(Client client)
         {
             BsonDocument doc = new ClientSerializer().Serialize(client);
-            MongoCollection<BsonDocument> collection = _data.Database.GetCollection(Settings.ClientCollection);
-            var result = collection.Save(doc);
+            IMongoCollection<BsonDocument> collection = _data.Database.GetCollection<BsonDocument>(Settings.ClientCollection);
+            var result = collection.ReplaceOneAsync(
+                Filter.ById(client.ClientId),
+                doc,
+                PerformUpsert
+                ).Result;
         }
     }
 }

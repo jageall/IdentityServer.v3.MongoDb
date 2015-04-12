@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2014, 2015 James Geall
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,21 +18,11 @@ using MongoDB.Driver;
 
 namespace IdentityServer.Core.MongoDb
 {
-    abstract class MongoDbStore
+    static class Filter
     {
-        private readonly string _collectionName;
-        private readonly IMongoDatabase _db;
-        protected static readonly UpdateOptions PerformUpsert = new UpdateOptions() {IsUpsert = true};
-
-        protected MongoDbStore(IMongoDatabase db, string collectionName)
+        public static ObjectFilterDefinition<BsonDocument> ById(object id)
         {
-            _db = db;
-            _collectionName = collectionName;
-        }
-
-        protected IMongoCollection<BsonDocument> Collection
-        {
-            get { return _db.GetCollection<BsonDocument>(_collectionName); }
+            return new ObjectFilterDefinition<BsonDocument>(new {_id = id});
         }
     }
 }

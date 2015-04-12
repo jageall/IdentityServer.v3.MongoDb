@@ -26,16 +26,16 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly ClientSerializer _serializer;
         private static readonly ILog Log = LogProvider.For<ClientStore>();
-        public ClientStore(MongoDatabase db, StoreSettings settings, ClientSerializer serializer) :
+        public ClientStore(IMongoDatabase db, StoreSettings settings, ClientSerializer serializer) :
             base(db, settings.ClientCollection)
         {
             _serializer = serializer;
         }
 
-        public Task<Client> FindClientByIdAsync(string clientId)
+        public async Task<Client> FindClientByIdAsync(string clientId)
         {
             Client result = null;
-            BsonDocument loaded = Collection.FindOneById(clientId);
+            BsonDocument loaded = await Collection.FindOneByIdAsync(clientId);
             if (loaded != null)
             {
                 result = _serializer.Deserialize(loaded);
@@ -45,7 +45,7 @@ namespace IdentityServer.Core.MongoDb
                 Log.Debug("Client not found with id " + clientId);
             }
 
-            return Task.FromResult(result);
+            return result;
         }
     }
 }

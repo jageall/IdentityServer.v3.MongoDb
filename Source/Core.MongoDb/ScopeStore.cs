@@ -18,7 +18,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 
@@ -28,30 +27,37 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly ScopeSerializer _serializer;
 
-        public ScopeStore(MongoDatabase db, StoreSettings settings) :
+        public ScopeStore(IMongoDatabase db, StoreSettings settings) :
             base(db, settings.ScopeCollection)
         {
             _serializer = new ScopeSerializer();
         }
 
-        public Task<IEnumerable<Scope>> FindScopesAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<Scope>> FindScopesAsync(IEnumerable<string> scopeNames)
         {
-            var results = Collection.Find(Query.In("_id", new BsonArray(scopeNames)));
-            return Task.FromResult(
-                results.Select(x => _serializer.Deserialize(x)));
+
+            var results = await Collection.Find(
+                Builders<BsonDocument>.Filter.In("_id", new BsonArray(scopeNames))).ToListAsync();
+                
+                
+            return results.Select(x => _serializer.Deserialize(x)).ToArray();
         }
 
-        public Task<IEnumerable<Scope>> GetScopesAsync(bool publicOnly = true)
+        public async Task<IEnumerable<Scope>> GetScopesAsync(bool publicOnly = true)
         {
+            List<BsonDocument> results;
             if (publicOnly)
             {
-                var results = Collection.Find(Query.EQ("showInDiscoveryDocument", new BsonBoolean(true)));
-                return Task.FromResult(
-                    results.Select(x => _serializer.Deserialize(x)));
+                results =
+                    await
+                        Collection.Find(new ObjectFilterDefinition<BsonDocument>(new {showInDiscoveryDocument = true}))
+                            .ToListAsync();
             }
-
-            return Task.FromResult(Collection.FindAll()
-                .Select(x => _serializer.Deserialize(x)));
+            else
+            {
+                results = await Collection.Find(new BsonDocument()).ToListAsync();
+            }
+            return results.Select(x => _serializer.Deserialize(x)).ToArray();
         }
     }
 }

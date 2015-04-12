@@ -16,8 +16,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 using Thinktecture.IdentityServer.Core.Logging;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
@@ -28,59 +28,61 @@ namespace IdentityServer.Core.MongoDb
     {
         private readonly RefreshTokenSerializer _serializer;
         private static readonly ILog Log = LogProvider.For<RefreshTokenStore>();
-        public RefreshTokenStore(MongoDatabase db, StoreSettings settings, IClientStore clientStore) : base(db, settings.RefreshTokenCollection)
+        public RefreshTokenStore(IMongoDatabase db, StoreSettings settings, IClientStore clientStore) : base(db, settings.RefreshTokenCollection)
         {
             _serializer = new RefreshTokenSerializer(clientStore);
         }
 
-        public Task StoreAsync(string key, RefreshToken value)
+        public async Task StoreAsync(string key, RefreshToken value)
         {
-            var result = Collection.Save(_serializer.Serialize(key, value));
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
+            var result = await Collection.ReplaceOneAsync(
+                Filter.ById(key),
+                _serializer.Serialize(key, value),
+                PerformUpsert
+                );
+
+            Log.Debug(result.ToString);
         }
 
-        public Task<RefreshToken> GetAsync(string key)
+        public async Task<RefreshToken> GetAsync(string key)
         {
-            var result = Collection.FindOneById(key);
+            var result = await Collection.FindOneByIdAsync(key);
             if (result == null)
             {
-                return Task.FromResult<RefreshToken>(null);
+                return null;
             }
-            return _serializer.Deserialize(result);
+            return await _serializer.Deserialize(result);
         }
 
-        public Task RemoveAsync(string key)
+        public async Task RemoveAsync(string key)
         {
-            var result = Collection.Remove(new QueryWrapper(new {_id = key}));
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
+            var result = await Collection.DeleteOneAsync(Filter.ById(key));
+            Log.Debug(result.ToString);
         }
 
         public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
-            var filter = new QueryWrapper(
+            var filter = new ObjectFilterDefinition<BsonDocument>(
                 new
                 {
                     _subjectId = subject
                 });
-            var results = Collection.Find(filter)
-                .Select(_serializer.Deserialize);
-            var result = await Task.WhenAll(results);
-            return result;
+            var results = await Collection.Find(filter).ToListAsync();
+
+            var deserializers = results.Select(_serializer.Deserialize);
+            return await Task.WhenAll(deserializers);
         }
 
-        public Task RevokeAsync(string subject, string client)
+        public async Task RevokeAsync(string subject, string client)
         {
-            var filter = new QueryWrapper(
+            var filter = new ObjectFilterDefinition<BsonDocument>(
                 new
                 {
                     _subjectId = subject, 
                     _clientId = client
                 });
-            var result = Collection.Remove(filter);
-            Log.Debug(result.Response.ToString);
-            return Task.FromResult(0);
+            var result = await Collection.DeleteManyAsync(filter);
+            Log.Debug(result.ToString);
         }
     }
 }
