@@ -42,13 +42,13 @@ namespace IdentityServer.Core.MongoDb
             var result = await Collection.ReplaceOneAsync(
                 Filter.ById(key),
                 doc,
-                PerformUpsert);
+                PerformUpsert).ConfigureAwait(false);
             Log.Debug(result.ToString);
         }
 
         public async Task<AuthorizationCode> GetAsync(string key)
         {
-            BsonDocument doc = await Collection.FindOneByIdAsync(key);
+            BsonDocument doc = await Collection.FindOneByIdAsync(key).ConfigureAwait(false);
             if (doc == null)
             {
                 Log.Debug("No authorization code found for key" + key);
@@ -60,13 +60,13 @@ namespace IdentityServer.Core.MongoDb
 
         public async Task RemoveAsync(string key)
         {
-            var result = await Collection.DeleteOneByIdAsync(key);
+            var result = await Collection.DeleteOneByIdAsync(key).ConfigureAwait(false);
             Log.Debug(result.ToString);
         }
 
         public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
-            var docs = await Collection.Find(new ObjectFilterDefinition<BsonDocument>(new {_subjectId = subject})).ToListAsync();
+            var docs = await Collection.Find(new ObjectFilterDefinition<BsonDocument>(new { _subjectId = subject })).ToListAsync().ConfigureAwait(false);
             var results = docs.Select(x=>_serializer.Deserialize(x)).ToArray();
             Log.Debug(()=> string.Format("Found {0} authorization codes for subject {1}", results.Length, subject));
             return await Task.WhenAll(results).ContinueWith(x=>x.Result.OfType<ITokenMetadata>());
@@ -74,7 +74,7 @@ namespace IdentityServer.Core.MongoDb
 
         public async Task RevokeAsync(string subject, string client)
         {
-            var result = await Collection.DeleteManyAsync(new ObjectFilterDefinition<BsonDocument>(new { _clientId = client, _subjectId = subject }));
+            var result = await Collection.DeleteManyAsync(new ObjectFilterDefinition<BsonDocument>(new { _clientId = client, _subjectId = subject })).ConfigureAwait(false);
             Log.Debug(result.ToString); 
         }
     }

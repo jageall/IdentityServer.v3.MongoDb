@@ -38,21 +38,21 @@ namespace IdentityServer.Core.MongoDb
         public async Task<IEnumerable<Consent>> LoadAllAsync(string subject)
         {
             var docs = await Collection.Find(new ObjectFilterDefinition<BsonDocument>(
-                new {subject})).ToListAsync();
+                new { subject })).ToListAsync().ConfigureAwait(false);
             
             return docs.Select(_serializer.Deserialize).ToArray();
         }
 
         public async Task RevokeAsync(string subject, string client)
         {
-            var result = await Collection.DeleteOneByIdAsync(ConsentSerializer.GetId(client, subject));
+            var result = await Collection.DeleteOneByIdAsync(ConsentSerializer.GetId(client, subject)).ConfigureAwait(false);
 
             Log.Debug(result.ToString);
         }
 
         public async Task<Consent> LoadAsync(string subject, string client)
         {
-            BsonDocument found = await Collection.FindOneByIdAsync(ConsentSerializer.GetId(client,subject));
+            BsonDocument found = await Collection.FindOneByIdAsync(ConsentSerializer.GetId(client, subject)).ConfigureAwait(false);
 
             if (found == null) return null;
             Consent result = _serializer.Deserialize(found);
@@ -65,7 +65,7 @@ namespace IdentityServer.Core.MongoDb
             var result = await Collection.ReplaceOneAsync(
                 Filter.ById(ConsentSerializer.GetId(consent.ClientId, consent.Subject)),
                 _serializer.Serialize(consent),
-                PerformUpsert);
+                PerformUpsert).ConfigureAwait(false);
             Log.Debug(result.ToString);
         }
     }

@@ -39,19 +39,19 @@ namespace IdentityServer.Core.MongoDb
                 Filter.ById(key),
                 _serializer.Serialize(key, value),
                 PerformUpsert
-                );
+                ).ConfigureAwait(false);
 
             Log.Debug(result.ToString);
         }
 
         public async Task<RefreshToken> GetAsync(string key)
         {
-            var result = await Collection.FindOneByIdAsync(key);
+            var result = await Collection.FindOneByIdAsync(key).ConfigureAwait(false);
             if (result == null)
             {
                 return null;
             }
-            return await _serializer.Deserialize(result);
+            return await _serializer.Deserialize(result).ConfigureAwait(false);
         }
 
         public async Task RemoveAsync(string key)
@@ -67,10 +67,10 @@ namespace IdentityServer.Core.MongoDb
                 {
                     _subjectId = subject
                 });
-            var results = await Collection.Find(filter).ToListAsync();
+            var results = await Collection.Find(filter).ToListAsync().ConfigureAwait(false);
 
             var deserializers = results.Select(_serializer.Deserialize);
-            return await Task.WhenAll(deserializers);
+            return await Task.WhenAll(deserializers).ConfigureAwait(false);
         }
 
         public async Task RevokeAsync(string subject, string client)
@@ -81,7 +81,7 @@ namespace IdentityServer.Core.MongoDb
                     _subjectId = subject, 
                     _clientId = client
                 });
-            var result = await Collection.DeleteManyAsync(filter);
+            var result = await Collection.DeleteManyAsync(filter).ConfigureAwait(false);
             Log.Debug(result.ToString);
         }
     }

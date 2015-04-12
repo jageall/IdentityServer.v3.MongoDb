@@ -37,7 +37,7 @@ namespace IdentityServer.Core.MongoDb
         {
 
             var results = await Collection.Find(
-                Builders<BsonDocument>.Filter.In("_id", new BsonArray(scopeNames))).ToListAsync();
+                Builders<BsonDocument>.Filter.In("_id", new BsonArray(scopeNames))).ToListAsync().ConfigureAwait(false);
                 
                 
             return results.Select(x => _serializer.Deserialize(x)).ToArray();
@@ -51,7 +51,7 @@ namespace IdentityServer.Core.MongoDb
                 results =
                     await
                         Collection.Find(new ObjectFilterDefinition<BsonDocument>(new {showInDiscoveryDocument = true}))
-                            .ToListAsync();
+                            .ToListAsync().ConfigureAwait(false);
             }
             else
             {

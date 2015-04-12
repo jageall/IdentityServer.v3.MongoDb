@@ -40,20 +40,20 @@ namespace IdentityServer.Core.MongoDb
             var result = await Collection.ReplaceOneAsync(
                 Filter.ById(key),
                 _serializer.Serialize(key, value),
-                PerformUpsert);
+                PerformUpsert).ConfigureAwait(false);
             Log.Debug(result.ToString);
         }
 
         public async Task<Token> GetAsync(string key)
         {
-            var result =await Collection.FindOneByIdAsync(key);
+            var result = await Collection.FindOneByIdAsync(key).ConfigureAwait(false);
             if (result == null) return null;
             return await _serializer.Deserialize(result);
         }
 
         public async Task RemoveAsync(string key)
         {
-            var result = await Collection.DeleteOneAsync(Filter.ById(key));
+            var result = await Collection.DeleteOneAsync(Filter.ById(key)).ConfigureAwait(false);
             Log.Debug(result.ToString);
         }
 
@@ -61,9 +61,9 @@ namespace IdentityServer.Core.MongoDb
         {
             var docs =
                 await
-                    Collection.Find(new ObjectFilterDefinition<BsonDocument>(new {_subjectId = subject})).ToListAsync();
+                    Collection.Find(new ObjectFilterDefinition<BsonDocument>(new { _subjectId = subject })).ToListAsync().ConfigureAwait(false);
             var results = docs.Select(_serializer.Deserialize).ToArray();
-            var result = await Task.WhenAll(results);
+            var result = await Task.WhenAll(results).ConfigureAwait(false);
             return result;
         }
 
@@ -74,7 +74,7 @@ namespace IdentityServer.Core.MongoDb
                 {
                     _subjectId = subject, 
                     _clientId = client
-                }));
+                })).ConfigureAwait(false);
             Log.Debug(result.ToString);
         }
     }

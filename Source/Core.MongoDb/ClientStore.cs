@@ -35,7 +35,7 @@ namespace IdentityServer.Core.MongoDb
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
             Client result = null;
-            BsonDocument loaded = await Collection.FindOneByIdAsync(clientId);
+            BsonDocument loaded = await Collection.FindOneByIdAsync(clientId).ConfigureAwait(false);
             if (loaded != null)
             {
                 result = _serializer.Deserialize(loaded);
