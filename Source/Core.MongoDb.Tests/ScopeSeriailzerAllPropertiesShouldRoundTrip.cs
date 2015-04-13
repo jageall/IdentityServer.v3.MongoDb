@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
@@ -26,28 +27,32 @@ namespace Core.MongoDb.Tests
     {
         private Scope _expected;
         private Scope _actual;
-
+        private Task _setup;
         [Fact]
-        public void ShouldNotBeNull()
+        public async Task ShouldNotBeNull()
         {
+            await _setup;
             Assert.NotNull(_actual);
         }
 
         [Fact]
-        public void CheckName()
+        public async Task CheckName()
         {
+            await _setup;
             Assert.Equal(_expected.Name, _actual.Name);
         }
 
         [Fact]
-        public void CheckClaimsRule()
+        public async Task CheckClaimsRule()
         {
+            await _setup;
             Assert.Equal(_expected.ClaimsRule, _actual.ClaimsRule);
         }
 
         [Fact]
-        public void CheckClaims()
+        public async Task CheckClaims()
         {
+            await _setup;
             Assert.Equal(_expected.Claims, _actual.Claims, new TestScopeComparer());
         }
 
@@ -70,50 +75,58 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void CheckDescription()
+        public async Task CheckDescription()
         {
+            await _setup;
             Assert.Equal(_expected.Description, _actual.Description);
         }
 
         [Fact]
-        public void CheckDisplayName()
+        public async Task CheckDisplayName()
         {
+            await _setup;
             Assert.Equal(_expected.DisplayName, _actual.DisplayName);
         }
 
         [Fact]
-        public void CheckEmphasize()
+        public async Task CheckEmphasize()
         {
+            await _setup;
             Assert.Equal(_expected.Emphasize, _actual.Emphasize);
         }
 
         [Fact]
-        public void CheckEnabled()
+        public async Task CheckEnabled()
         {
+            await _setup;
             Assert.Equal(_expected.Enabled, _actual.Enabled);
         }
 
         [Fact]
-        public void CheckIncludeAllClaimsForUser()
+        public async Task CheckIncludeAllClaimsForUser()
         {
+            await _setup;
             Assert.Equal(_expected.IncludeAllClaimsForUser, _actual.IncludeAllClaimsForUser);
         }
 
         [Fact]
-        public void CheckRequired()
+        public async Task CheckRequired()
         {
+            await _setup;
             Assert.Equal(_expected.Required, _actual.Required);
         }
 
         [Fact]
-        public void CheckShowInDiscoveryDocument()
+        public async Task CheckShowInDiscoveryDocument()
         {
+            await _setup;
             Assert.Equal(_expected.ShowInDiscoveryDocument, _actual.ShowInDiscoveryDocument);
         }
 
         [Fact]
-        public void CheckType()
+        public async Task CheckType()
         {
+            await _setup;
             Assert.Equal(_expected.Type, _actual.Type);
         }
 
@@ -121,10 +134,15 @@ namespace Core.MongoDb.Tests
             : base(data)
         {
             _expected = TestData.ScopeAllProperties();
-            Save(_expected);
-            _actual =
-                Factory.Resolve<IScopeStore>().GetScopesAsync(publicOnly:false).Result.SingleOrDefault(x => x.Name == _expected.Name);
+            _setup = Setup();
+        }
 
+        private async Task Setup()
+        {
+            await SaveAsync(_expected);
+            _actual =
+                (await Factory.Resolve<IScopeStore>().GetScopesAsync(publicOnly: false)).SingleOrDefault(
+                        x => x.Name == _expected.Name);
         }
     }
 }

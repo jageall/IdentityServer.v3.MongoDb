@@ -15,23 +15,9 @@
  */
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-/*
- * Copyright 2014, 2015 James Geall
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
@@ -50,68 +36,75 @@ namespace Core.MongoDb.Tests
         private readonly IReadOnlyList<AuthorizationCode> _subjectBCodes;
         private readonly IReadOnlyList<AuthorizationCode> _subjectCCodes;
         private readonly JsonSerializer _serializer;
+        private readonly Task _setup;
 
         [Fact]
-        public void RemovedKeyIsNotFound()
+        public async Task RemovedKeyIsNotFound()
         {
-            _authorizationStore.RemoveAsync(RemoveKey).Wait();
-            Assert.Null(_authorizationStore.GetAsync(RemoveKey).Result);
+            await _setup;
+            await _authorizationStore.RemoveAsync(RemoveKey);
+            Assert.Null(await _authorizationStore.GetAsync(RemoveKey));
         }
 
         [Fact]
-        public void NotRemovedKeyIsFound()
+        public async Task NotRemovedKeyIsFound()
         {
-            _authorizationStore.RemoveAsync(RemoveKey).Wait();
-            Assert.NotNull(_authorizationStore.GetAsync(NotRemovedKey).Result);
+            await _setup;
+            await _authorizationStore.RemoveAsync(RemoveKey);
+            Assert.NotNull(await _authorizationStore.GetAsync(NotRemovedKey));
         }
 
         [Fact]
-        public void GetAllShouldReturnAllCodes()
+        public async Task GetAllShouldReturnAllCodes()
         {
-            var result = _authorizationStore.GetAllAsync(SubjectA).Result.ToArray();
+            await _setup;
+            var result = await _authorizationStore.GetAllAsync(SubjectA);
 
             var actual = result.OfType<AuthorizationCode>()
                 .OrderBy(x => x.Nonce)
                 .Select(x => JObject.FromObject(x, _serializer).ToString()).ToArray();
             var expected = _subjectACodes.OrderBy(x => x.Nonce)
                 .Select(x => JObject.FromObject(x, _serializer).ToString()).ToArray();
-            
-                Assert.Equal(
-                    expected,
-                    actual);
+
+            Assert.Equal(
+                expected,
+                actual);
         }
 
         [Fact]
-        public void RevokedClientsCodesShouldNotBeReturned()
+        public async Task RevokedClientsCodesShouldNotBeReturned()
         {
-            _authorizationStore.RevokeAsync(SubjectB, "revoked").Wait();
-            var result = _authorizationStore.GetAllAsync(SubjectB).Result.ToArray();
-            Assert.False(result.Any(x=>x.ClientId == "revoked"));
+            await _setup;
+            await _authorizationStore.RevokeAsync(SubjectB, "revoked");
+            var result = await _authorizationStore.GetAllAsync(SubjectB);
+            Assert.False(result.Any(x => x.ClientId == "revoked"));
         }
 
         [Fact]
-        public void NonRevokedClientsCodesShouldBeReturned()
+        public async Task NonRevokedClientsCodesShouldBeReturned()
         {
-            _authorizationStore.RevokeAsync(SubjectB, "revoked").Wait();
-            var result = _authorizationStore.GetAllAsync(SubjectB).Result.ToArray();
+            await _setup;
+            await _authorizationStore.RevokeAsync(SubjectB, "revoked");
+            var result = await _authorizationStore.GetAllAsync(SubjectB);
 
             Assert.Equal(
                 _subjectBCodes
-                    .Where(x=>x.ClientId != "revoked")
-                    .OrderBy(x=>x.Nonce)
+                    .Where(x => x.ClientId != "revoked")
+                    .OrderBy(x => x.Nonce)
                     .Select(x => JObject.FromObject(x, _serializer).ToString()),
                 result
                     .OfType<AuthorizationCode>()
                     .OrderBy(x => x.Nonce)
                     .Select(x => JObject.FromObject(x, _serializer).ToString())
-                    );
+                );
         }
 
         [Fact]
-        public void RevokingOneSubjectShouldNotEffectTheOther()
+        public async Task RevokingOneSubjectShouldNotEffectTheOther()
         {
-            _authorizationStore.RevokeAsync(SubjectB, "revoked").Wait();
-            var result = _authorizationStore.GetAllAsync(SubjectC).Result.ToArray();
+            await _setup;
+            await _authorizationStore.RevokeAsync(SubjectB, "revoked");
+            var result = await _authorizationStore.GetAllAsync(SubjectC);
 
             Assert.Equal(
                 _subjectCCodes
@@ -121,31 +114,46 @@ namespace Core.MongoDb.Tests
                     .OfType<AuthorizationCode>()
                     .OrderBy(x => x.Nonce)
                     .Select(x => JObject.FromObject(x, _serializer).ToString())
-                    );
+                );
         }
+
         public AuthorizationCodeStoreTests(PersistenceTestFixture data)
             : base(data)
         {
-            _serializer = new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+            _serializer = new JsonSerializer {ReferenceLoopHandling = ReferenceLoopHandling.Ignore};
             _authorizationStore = Factory.Resolve<IAuthorizationCodeStore>();
-            _authorizationStore.StoreAsync(RemoveKey, TestData.AuthorizationCode());
-            _authorizationStore.StoreAsync(NotRemovedKey, TestData.AuthorizationCode());
-            foreach (var scope in TestData.Scopes())
-            {
-                Save(scope);
-            }
+
+
             var subjectACodes = new List<AuthorizationCode>();
             var subjectBCodes = new List<AuthorizationCode>();
             var subjectCCodes = new List<AuthorizationCode>();
+
+
+            _subjectACodes = subjectACodes;
+            _subjectBCodes = subjectBCodes;
+            _subjectCCodes = subjectCCodes;
+
+            _setup = Setup(subjectACodes, subjectBCodes, subjectCCodes);
+        }
+
+        private async Task Setup(List<AuthorizationCode> subjectACodes, List<AuthorizationCode> subjectBCodes, List<AuthorizationCode> subjectCCodes)
+        {
+            List<Task> tasks = new List<Task>(); 
+            tasks.Add(_authorizationStore.StoreAsync(RemoveKey, TestData.AuthorizationCode()));
+            tasks.Add(_authorizationStore.StoreAsync(NotRemovedKey, TestData.AuthorizationCode()));
+            foreach (var scope in TestData.Scopes())
+            {
+                tasks.Add(SaveAsync(scope));
+            }
             for (int i = 0; i < 10; i++)
             {
 
                 var code = TestData.AuthorizationCode(SubjectA);
                 code.Client.ClientId = "notRevoked";
                 code.Nonce = "anr" + i;
-                _authorizationStore.StoreAsync("notRevokedA" + i, code).Wait();
+                tasks.Add(_authorizationStore.StoreAsync("notRevokedA" + i, code));
                 subjectACodes.Add(code);
-                Save(code.Client);
+                tasks.Add(SaveAsync(code.Client));
             }
 
             for (int i = 0; i < 10; i++)
@@ -154,10 +162,10 @@ namespace Core.MongoDb.Tests
                 var code = TestData.AuthorizationCode(SubjectB);
                 code.Client.ClientId = "notRevoked";
                 code.Nonce = "anr" + i;
-                _authorizationStore.StoreAsync("notRevokedB" + i, code).Wait();
+                tasks.Add(_authorizationStore.StoreAsync("notRevokedB" + i, code));
                 subjectBCodes.Add(code);
 
-                Save(code.Client);
+                tasks.Add(SaveAsync(code.Client));
             }
 
             for (int i = 0; i < 10; i++)
@@ -166,10 +174,10 @@ namespace Core.MongoDb.Tests
                 var code = TestData.AuthorizationCode(SubjectB);
                 code.Client.ClientId = "revoked";
                 code.Nonce = "ar" + i;
-                _authorizationStore.StoreAsync("revokedB" + i, code).Wait();
+                tasks.Add(_authorizationStore.StoreAsync("revokedB" + i, code));
                 subjectBCodes.Add(code);
 
-                Save(code.Client);
+                tasks.Add(SaveAsync(code.Client));
             }
             for (int i = 0; i < 10; i++)
             {
@@ -177,10 +185,10 @@ namespace Core.MongoDb.Tests
                 var code = TestData.AuthorizationCode(SubjectC);
                 code.Client.ClientId = "notRevoked";
                 code.Nonce = "anr" + i;
-                _authorizationStore.StoreAsync("notRevokedC" + i, code).Wait();
+                tasks.Add(_authorizationStore.StoreAsync("notRevokedC" + i, code));
                 subjectCCodes.Add(code);
 
-                Save(code.Client);
+                tasks.Add(SaveAsync(code.Client));
             }
 
             for (int i = 0; i < 10; i++)
@@ -189,12 +197,12 @@ namespace Core.MongoDb.Tests
                 var code = TestData.AuthorizationCode(SubjectC);
                 code.Client.ClientId = "revoked";
                 code.Nonce = "ar" + i;
-                _authorizationStore.StoreAsync("revokedC" + i, code).Wait();
+                tasks.Add(_authorizationStore.StoreAsync("revokedC" + i, code));
                 subjectCCodes.Add(code);
+                tasks.Add(SaveAsync(code.Client));
             }
-            _subjectACodes = subjectACodes;
-            _subjectBCodes = subjectBCodes;
-            _subjectCCodes = subjectCCodes;
+
+            await Task.WhenAll(tasks);
         }
-    }
+}
 }

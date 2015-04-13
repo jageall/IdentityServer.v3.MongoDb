@@ -29,6 +29,7 @@ namespace Core.MongoDb.Tests
         private IReadOnlyList<Token> _subjectATokens;
         private IReadOnlyList<Token> _subjectBTokens;
         private IReadOnlyList<Token> _subjectCTokens;
+        private Task _setup;
         private const string RemovedKey = "remove";
         private const string NotRemovedKey = "donotremove";
         private const string SubjectA = "SubjectA";
@@ -40,6 +41,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task NotRemovedTokenIsReturned()
         {
+            await _setup;
             await _store.RemoveAsync(RemovedKey);
             var result = (await _store.GetAllAsync(SubjectA)).ToArray();
             Assert.Equal(1, result.Length);
@@ -51,6 +53,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task RemovedTokenIsNotReturned()
         {
+            await _setup;
             await _store.RemoveAsync(RemovedKey);
             var result = await _store.GetAllAsync(SubjectA);
             Assert.False(result.Any(r => r.ClientId == _subjectATokens[0].ClientId));      
@@ -59,6 +62,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task NonRevokedTokensAreReturned()
         {
+            await _setup;
             await _store.RevokeAsync(SubjectB, RevokedClient);
             var results = await _store.GetAllAsync(SubjectB);
             Assert.Equal(
@@ -76,6 +80,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task RevokedTokensAreNotReturned()
         {
+            await _setup;
             await _store.RevokeAsync(SubjectB, RevokedClient);
             var results = await _store.GetAllAsync(SubjectB);
             Assert.False(results.Any(x=>x.ClientId == RevokedClient));
@@ -84,6 +89,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task RevokingShouldNotEffectOtherSubjects()
         {
+            await _setup;
             await _store.RevokeAsync(SubjectB, RevokedClient);
             var results = await _store.GetAllAsync(SubjectC);
             Assert.Equal(
@@ -98,9 +104,10 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void LoadingNonExistingKeyShouldResultInNull()
+        public async Task LoadingNonExistingKeyShouldResultInNull()
         {
-            Assert.Null(_store.GetAsync("DoesNotExist").Result);
+            await _setup;
+            Assert.Null(await _store.GetAsync("DoesNotExist"));
         }
 
         static DateTimeOffset CreationTime (Token token)
@@ -113,44 +120,56 @@ namespace Core.MongoDb.Tests
         {
             _store = Factory.Resolve<ITokenHandleStore>();
 
-            var removed = TestData.Token(SubjectA);
-            removed.Client.ClientId = removed.ClientId + 0;
-            Save(removed.Client);
-            
-            _store.StoreAsync(RemovedKey, removed).Wait();
-            var notRemoved = TestData.Token(SubjectA);
-            notRemoved.Client.ClientId = notRemoved.ClientId + 1;
-            Save(notRemoved.Client);
-            _store.StoreAsync(NotRemovedKey, notRemoved).Wait();
-            _subjectATokens = new List<Token> {removed, notRemoved};
-            
-            
+
+            var subjectATokens = new List<Token>();
             var subjectBTokens = new List<Token>();
             var subjectCTokens = new List<Token>();
-            foreach(var subjectConfig in new[]
+
+            _setup = Setup(subjectATokens, subjectBTokens, subjectCTokens);
+            _subjectATokens = subjectATokens;
+            _subjectBTokens = subjectBTokens;
+            _subjectCTokens = subjectCTokens;
+        }
+
+        private Task Setup(List<Token> subjectATokens, List<Token> subjectBTokens, List<Token> subjectCTokens)
+        {
+            List<Task> tasks = new List<Task>();
+            var removed = TestData.Token(SubjectA);
+            removed.Client.ClientId = removed.ClientId + 0;
+            tasks.Add(SaveAsync(removed.Client));
+
+            tasks.Add(_store.StoreAsync(RemovedKey, removed));
+            var notRemoved = TestData.Token(SubjectA);
+            notRemoved.Client.ClientId = notRemoved.ClientId + 1;
+            tasks.Add(SaveAsync(notRemoved.Client));
+            tasks.Add(_store.StoreAsync(NotRemovedKey, notRemoved));
+
+            subjectATokens.Add(removed);
+            subjectATokens.Add(notRemoved);
+
+            foreach (var subjectConfig in new[]
             {
                 new {subject = SubjectB, tokens = subjectBTokens},
                 new {subject = SubjectC, tokens = subjectCTokens}
             })
-            for (int i = 0; i < 10; i++)
-            {
-                var token = TestData.Token(subjectConfig.subject);
-                token.CreationTime = token.CreationTime.AddDays(i);
-                if (i%2 == 0)
+                for (int i = 0; i < 10; i++)
                 {
-                    token.Client.ClientId = RevokedClient;
+                    var token = TestData.Token(subjectConfig.subject);
+                    token.CreationTime = token.CreationTime.AddDays(i);
+                    if (i%2 == 0)
+                    {
+                        token.Client.ClientId = RevokedClient;
+                    }
+                    else
+                    {
+                        token.Client.ClientId = NotRevokedClient;
+                    }
+                    tasks.Add(SaveAsync(token.Client));
+                    tasks.Add(_store.StoreAsync(subjectConfig.subject + i, token));
+                    subjectConfig.tokens.Add(token);
                 }
-                else
-                {
-                    token.Client.ClientId = NotRevokedClient;
-                }
-                Save(token.Client);
-                _store.StoreAsync(subjectConfig.subject + i, token).Wait();
-                subjectConfig.tokens.Add(token);
-            }
 
-            _subjectBTokens = subjectBTokens;
-            _subjectCTokens = subjectCTokens;
+            return Task.WhenAll(tasks);
         }
     }
 }

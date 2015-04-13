@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
 
@@ -23,13 +24,15 @@ namespace Core.MongoDb.Tests
 {
     public class ScopeStoreTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
     {
-        private List<string> _evenScopeNames;
-        private List<string> _oddScopeNames;
-        private IScopeStore _scopeStore;
+        private readonly List<string> _evenScopeNames;
+        private readonly List<string> _oddScopeNames;
+        private readonly IScopeStore _scopeStore;
+        private readonly Task _setup;
 
         [Fact]
         public async Task ShouldContainRequestedScopeNames()
         {
+            await _setup;
             var result = (await _scopeStore.FindScopesAsync(_evenScopeNames)).ToArray();
             foreach (var evenScopeName in _evenScopeNames)
             {
@@ -40,6 +43,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task ShouldNotContainScopeNamesThatWereNotRequested()
         {
+            await _setup;
             var result = (await _scopeStore.FindScopesAsync(_evenScopeNames)).ToArray();
             foreach (var oddScopeName in _oddScopeNames)
             {
@@ -51,6 +55,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task ShouldOnlyGetPublicScopes()
         {
+            await _setup;
             var result = (await _scopeStore.GetScopesAsync(publicOnly: true)).ToArray();
             foreach (var evenScopeName in _evenScopeNames)
             {
@@ -65,7 +70,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task ShouldGetAllScopes()
         {
-
+            await _setup;
             var result = (await _scopeStore.GetScopesAsync(publicOnly: false)).ToArray();
             foreach (var evenScopeName in _evenScopeNames)
             {
@@ -102,10 +107,17 @@ namespace Core.MongoDb.Tests
                 return scope;
             });
 
+            _setup = Setup(scopes);
+        }
+
+        private Task Setup(IEnumerable<Scope> scopes)
+        {
+            List<Task> tasks = new List<Task>();
             foreach (var scope in scopes)
             {
-                Save(scope);                
+            tasks.Add(SaveAsync(scope));
             }
+            return Task.WhenAll(tasks);
         }
     }
 }

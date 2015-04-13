@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,12 +30,14 @@ namespace Core.MongoDb.Tests
         private const string SubjectB = "subjectB";
         private const string SubjectA = "subjectA";
         private IRefreshTokenStore _store;
-        private IReadOnlyList<RefreshToken> _subjectATokens;
-        private IReadOnlyList<RefreshToken> _subjectBTokens;
-        
+        private readonly IReadOnlyList<RefreshToken> _subjectATokens;
+        private readonly IReadOnlyList<RefreshToken> _subjectBTokens;
+        private readonly Task _setup;
+
         [Fact]
         public async Task RemovedTokenShouldNotBePresent()
         {
+            await _setup;
             await _store.RemoveAsync(RemovedKey);
             Assert.Null(await _store.GetAsync(RemovedKey));
         }
@@ -42,6 +45,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task NotRemovedKeyShouldBePresent()
         {
+            await _setup;
             await _store.RemoveAsync(RemovedKey);
             Assert.NotNull(await _store.GetAsync(NotRemovedKey));
         }
@@ -49,6 +53,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task GetAllBySubjectShouldReturnExpectedTokens()
         {
+            await _setup;
             var result = await _store.GetAllAsync(SubjectB);
             Assert.Equal(
                 _subjectBTokens
@@ -65,6 +70,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task RevokedTokensShouldNotBeReturned()
         {
+            await _setup;
             await _store.RevokeAsync(SubjectA, "Client0");
             var result = await _store.GetAllAsync(SubjectA);
             Assert.Equal(
@@ -83,6 +89,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task NonRevokedTokensShouldBeReturned()
         {
+            await _setup;
             await _store.RevokeAsync(SubjectA, "Client0");
             var result = (await _store.GetAllAsync(SubjectA)).ToArray();
             Assert.Equal(
@@ -105,31 +112,41 @@ namespace Core.MongoDb.Tests
         public RefreshTokenStoreTests(PersistenceTestFixture data)
             : base(data)
         {
-            _store = Factory.Resolve<IRefreshTokenStore>();
-            _store.StoreAsync(NotRemovedKey, TestData.RefreshToken()).Wait();
-            _store.StoreAsync(RemovedKey, TestData.RefreshToken()).Wait();
             var subjectATokens = new List<RefreshToken>();
             var subjectBTokens = new List<RefreshToken>();
+            _setup = Setup(subjectATokens, subjectBTokens);
+            _subjectATokens = subjectATokens;
+            _subjectBTokens = subjectBTokens;
+        }
+
+        private Task Setup(List<RefreshToken> subjectATokens, List<RefreshToken> subjectBTokens)
+        {
+            _store = Factory.Resolve<IRefreshTokenStore>();
+            var tasks = new List<Task>();
+            tasks.Add(_store.StoreAsync(NotRemovedKey, TestData.RefreshToken()));
+            tasks.Add(_store.StoreAsync(RemovedKey, TestData.RefreshToken()));
+
             for (int i = 0; i < 10; i++)
             {
                 var token = TestData.RefreshToken(SubjectA);
-                token.LifeTime += (100 + 100 * i);
-                token.AccessToken.Client.ClientId = "Client" + i % 2;
-                Save(token.AccessToken.Client);
-                _store.StoreAsync(SubjectA + i, token).Wait();
+                token.LifeTime += (100 + 100*i);
+                token.AccessToken.Client.ClientId = "Client" + i%2;
+                tasks.Add(SaveAsync(token.AccessToken.Client));
+                tasks.Add(_store.StoreAsync(SubjectA + i, token));
                 subjectATokens.Add(token);
             }
-            
+
             for (int i = 0; i < 10; i++)
             {
-                var token =  TestData.RefreshToken(SubjectB);
+                var token = TestData.RefreshToken(SubjectB);
                 token.LifeTime += (100 + 100*i);
-                token.AccessToken.Client.ClientId = "Client" + i % 2;
-                _store.StoreAsync(SubjectB + i, token).Wait();
+                token.AccessToken.Client.ClientId = "Client" + i%2;
+                tasks.Add(SaveAsync(token.AccessToken.Client));
+                tasks.Add(_store.StoreAsync(SubjectB + i, token));
                 subjectBTokens.Add(token);
             }
-            _subjectATokens = subjectATokens;
-            _subjectBTokens = subjectBTokens;
+
+            return Task.WhenAll(tasks);
         }
     }
 }

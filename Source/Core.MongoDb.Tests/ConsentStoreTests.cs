@@ -32,10 +32,12 @@ namespace Core.MongoDb.Tests
         private IReadOnlyList<Consent> _subjectAConsents;
         private IReadOnlyList<Consent> _subjectBConsents;
         private IReadOnlyList<Consent> _subjectCConsents;
-        
+        private Task _setup;
+
         [Fact]
         public async Task CanLoadAllConsents()
         {
+            await _setup;
             var results = await _store.LoadAllAsync(SubjectA);
             Assert.Equal(
                 _subjectAConsents
@@ -50,6 +52,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task InvalidSubjectShouldBeEmptySet()
         {
+            await _setup;
             var results = await _store.LoadAllAsync("Invalid");
             Assert.Empty(results);
         }
@@ -57,6 +60,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task InvalidSubjectAndClientShouldBeNull()
         {
+            await _setup;
             var results = await _store.LoadAsync("Invalid", "Invalid");
             Assert.Null(results);
         }
@@ -64,6 +68,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task UpdatingConsentShouldResultInNewConsentBeingReturned()
         {
+            await _setup;
             var consentToUpdate = _subjectCConsents.OrderBy(ClientIdOrdering).Skip(2).First();
             consentToUpdate.Scopes = new[] {"scope3", "scope4"};
             await _store.UpdateAsync(consentToUpdate);
@@ -76,6 +81,7 @@ namespace Core.MongoDb.Tests
         [Fact]
         public async Task RevokedConsentsShouldNotBeReturned()
         {
+            await _setup;
             var indexedConsents = _subjectBConsents.OrderBy(ClientIdOrdering)
                 .Select((x, i) => new {Index = i, Consent = x}).ToArray();
             foreach (var indexedConsent in indexedConsents)
@@ -109,6 +115,7 @@ namespace Core.MongoDb.Tests
             _subjectAConsents = new List<Consent>();
             _subjectBConsents = new List<Consent>();
             _subjectCConsents = new List<Consent>();
+            List<Task> tasks = new List<Task>();
             foreach(var subject in new []
             {
                 new
@@ -127,13 +134,15 @@ namespace Core.MongoDb.Tests
                     Consents = (List<Consent>)_subjectCConsents
                 }
             })
+            
             for (int i = 0; i < 10; i++)
             {
                 var consent = new Consent() {ClientId = "ClientId" + i, Scopes = new[] {"scope1", "scope2"}, Subject = subject.Subject};
                 subject.Consents.Add(consent);
-                _store.UpdateAsync(consent).Wait();
+                tasks.Add(_store.UpdateAsync(consent));
             }
-            
+
+            _setup = Task.WhenAll(tasks);
         }
     }
 }
