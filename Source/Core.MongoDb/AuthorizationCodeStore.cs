@@ -67,9 +67,12 @@ namespace IdentityServer.Core.MongoDb
         public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
             var docs = await Collection.Find(new ObjectFilterDefinition<BsonDocument>(new { _subjectId = subject })).ToListAsync().ConfigureAwait(false);
-            var results = docs.Select(x=>_serializer.Deserialize(x)).ToArray();
-            Log.Debug(()=> string.Format("Found {0} authorization codes for subject {1}", results.Length, subject));
-            return await Task.WhenAll(results).ContinueWith(x=>x.Result.OfType<ITokenMetadata>());
+            var tokens = docs
+                .Select(doc => _serializer.Deserialize(doc)
+                    .ContinueWith(ac=>(ITokenMetadata)ac.Result));
+            var results = (await Task.WhenAll(tokens)).ToArray();
+            Log.Debug(() => string.Format("Found {0} authorization codes for subject {1}", results.Length, subject));
+            return results;
         }
 
         public async Task RevokeAsync(string subject, string client)

@@ -110,7 +110,6 @@ namespace Core.MongoDb.Tests
             var expected = JObject.FromObject(_expected, serializer).ToString();
             var actual = JObject.FromObject(_actual, serializer).ToString();
             Assert.Equal(expected, actual);
-            Console.WriteLine(actual);
         }
 
         public TokenHandlePersistenceTests(PersistenceTestFixture data)
