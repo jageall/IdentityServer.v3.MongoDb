@@ -90,7 +90,7 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void NonRevokedClientsCodesShouldNotBeReturned()
+        public void NonRevokedClientsCodesShouldBeReturned()
         {
             _authorizationStore.RevokeAsync(SubjectB, "revoked").Wait();
             var result = _authorizationStore.GetAllAsync(SubjectB).Result.ToArray();
@@ -130,6 +130,10 @@ namespace Core.MongoDb.Tests
             _authorizationStore = Factory.Resolve<IAuthorizationCodeStore>();
             _authorizationStore.StoreAsync(RemoveKey, TestData.AuthorizationCode());
             _authorizationStore.StoreAsync(NotRemovedKey, TestData.AuthorizationCode());
+            foreach (var scope in TestData.Scopes())
+            {
+                Save(scope);
+            }
             var subjectACodes = new List<AuthorizationCode>();
             var subjectBCodes = new List<AuthorizationCode>();
             var subjectCCodes = new List<AuthorizationCode>();
@@ -139,7 +143,7 @@ namespace Core.MongoDb.Tests
                 var code = TestData.AuthorizationCode(SubjectA);
                 code.Client.ClientId = "notRevoked";
                 code.Nonce = "anr" + i;
-                _authorizationStore.StoreAsync("notRevokedA" + i, code);
+                _authorizationStore.StoreAsync("notRevokedA" + i, code).Wait();
                 subjectACodes.Add(code);
                 Save(code.Client);
             }
@@ -150,7 +154,7 @@ namespace Core.MongoDb.Tests
                 var code = TestData.AuthorizationCode(SubjectB);
                 code.Client.ClientId = "notRevoked";
                 code.Nonce = "anr" + i;
-                _authorizationStore.StoreAsync("notRevokedB" + i, code);
+                _authorizationStore.StoreAsync("notRevokedB" + i, code).Wait();
                 subjectBCodes.Add(code);
 
                 Save(code.Client);
@@ -162,7 +166,7 @@ namespace Core.MongoDb.Tests
                 var code = TestData.AuthorizationCode(SubjectB);
                 code.Client.ClientId = "revoked";
                 code.Nonce = "ar" + i;
-                _authorizationStore.StoreAsync("revokedB" + i, code);
+                _authorizationStore.StoreAsync("revokedB" + i, code).Wait();
                 subjectBCodes.Add(code);
 
                 Save(code.Client);
@@ -173,7 +177,7 @@ namespace Core.MongoDb.Tests
                 var code = TestData.AuthorizationCode(SubjectC);
                 code.Client.ClientId = "notRevoked";
                 code.Nonce = "anr" + i;
-                _authorizationStore.StoreAsync("notRevokedC" + i, code);
+                _authorizationStore.StoreAsync("notRevokedC" + i, code).Wait();
                 subjectCCodes.Add(code);
 
                 Save(code.Client);
@@ -185,7 +189,7 @@ namespace Core.MongoDb.Tests
                 var code = TestData.AuthorizationCode(SubjectC);
                 code.Client.ClientId = "revoked";
                 code.Nonce = "ar" + i;
-                _authorizationStore.StoreAsync("revokedC" + i, code);
+                _authorizationStore.StoreAsync("revokedC" + i, code).Wait();
                 subjectCCodes.Add(code);
             }
             _subjectACodes = subjectACodes;

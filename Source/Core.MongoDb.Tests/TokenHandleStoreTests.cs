@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
@@ -37,10 +38,10 @@ namespace Core.MongoDb.Tests
         private const string NotRevokedClient = "NotRevoked";
 
         [Fact]
-        public void NotRemovedTokenIsReturned()
+        public async Task NotRemovedTokenIsReturned()
         {
-            _store.RemoveAsync(RemovedKey).Wait();
-            var result = _store.GetAllAsync(SubjectA).Result.ToArray();
+            await _store.RemoveAsync(RemovedKey);
+            var result = (await _store.GetAllAsync(SubjectA)).ToArray();
             Assert.Equal(1, result.Length);
             Assert.Equal(
                 TestData.ToTestableString(_subjectATokens[1]),
@@ -48,18 +49,18 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void RemovedTokenIsNotReturned()
+        public async Task RemovedTokenIsNotReturned()
         {
-            _store.RemoveAsync(RemovedKey).Wait();
-            var result = _store.GetAllAsync(SubjectA).Result.ToArray();
+            await _store.RemoveAsync(RemovedKey);
+            var result = await _store.GetAllAsync(SubjectA);
             Assert.False(result.Any(r => r.ClientId == _subjectATokens[0].ClientId));      
         }
 
         [Fact]
-        public void NonRevokedTokensAreReturned()
+        public async Task NonRevokedTokensAreReturned()
         {
-            _store.RevokeAsync(SubjectB, RevokedClient).Wait();
-            var results = _store.GetAllAsync(SubjectB).Result;
+            await _store.RevokeAsync(SubjectB, RevokedClient);
+            var results = await _store.GetAllAsync(SubjectB);
             Assert.Equal(
                 _subjectBTokens
                     .Where(x=>x.ClientId != RevokedClient)
@@ -73,18 +74,18 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void RevokedTokensAreNotReturned()
+        public async Task RevokedTokensAreNotReturned()
         {
-            _store.RevokeAsync(SubjectB, RevokedClient).Wait();
-            var results = _store.GetAllAsync(SubjectB).Result;
+            await _store.RevokeAsync(SubjectB, RevokedClient);
+            var results = await _store.GetAllAsync(SubjectB);
             Assert.False(results.Any(x=>x.ClientId == RevokedClient));
         }
 
         [Fact]
-        public void RevokingShouldNotEffectOtherSubjects()
+        public async Task RevokingShouldNotEffectOtherSubjects()
         {
-            _store.RevokeAsync(SubjectB, RevokedClient).Wait();
-            var results = _store.GetAllAsync(SubjectC).Result;
+            await _store.RevokeAsync(SubjectB, RevokedClient);
+            var results = await _store.GetAllAsync(SubjectC);
             Assert.Equal(
                 _subjectCTokens
                     .OrderBy(CreationTime)

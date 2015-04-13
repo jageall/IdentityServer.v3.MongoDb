@@ -15,6 +15,7 @@
  */
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
@@ -33,9 +34,9 @@ namespace Core.MongoDb.Tests
         private IReadOnlyList<Consent> _subjectCConsents;
         
         [Fact]
-        public void CanLoadAllConsents()
+        public async Task CanLoadAllConsents()
         {
-            var results = _store.LoadAllAsync(SubjectA).Result;
+            var results = await _store.LoadAllAsync(SubjectA);
             Assert.Equal(
                 _subjectAConsents
                     .OrderBy(ClientIdOrdering)
@@ -47,33 +48,33 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void InvalidSubjectShouldBeEmptySet()
+        public async Task InvalidSubjectShouldBeEmptySet()
         {
-            var results = _store.LoadAllAsync("Invalid").Result;
+            var results = await _store.LoadAllAsync("Invalid");
             Assert.Empty(results);
         }
 
         [Fact]
-        public void InvalidSubjectAndClientShouldBeNull()
+        public async Task InvalidSubjectAndClientShouldBeNull()
         {
-            var results = _store.LoadAsync("Invalid","Invalid").Result;
+            var results = await _store.LoadAsync("Invalid", "Invalid");
             Assert.Null(results);
         }
 
         [Fact]
-        public void UpdatingConsentShouldResultInNewConsentBeingReturned()
+        public async Task UpdatingConsentShouldResultInNewConsentBeingReturned()
         {
             var consentToUpdate = _subjectCConsents.OrderBy(ClientIdOrdering).Skip(2).First();
             consentToUpdate.Scopes = new[] {"scope3", "scope4"};
-            _store.UpdateAsync(consentToUpdate).Wait();
-            var stored = _store.LoadAsync(consentToUpdate.Subject, consentToUpdate.ClientId).Result;
+            await _store.UpdateAsync(consentToUpdate);
+            var stored = await _store.LoadAsync(consentToUpdate.Subject, consentToUpdate.ClientId);
             Assert.Equal(
                 TestData.ToTestableString(consentToUpdate),
                 TestData.ToTestableString(stored));
         }
 
         [Fact]
-        public void RevokedConsentsShouldNotBeReturned()
+        public async Task RevokedConsentsShouldNotBeReturned()
         {
             var indexedConsents = _subjectBConsents.OrderBy(ClientIdOrdering)
                 .Select((x, i) => new {Index = i, Consent = x}).ToArray();
@@ -81,10 +82,10 @@ namespace Core.MongoDb.Tests
             {
                 if (indexedConsent.Index%2 == 0)
                 {
-                    _store.RevokeAsync(indexedConsent.Consent.Subject, indexedConsent.Consent.ClientId).Wait();
+                    await _store.RevokeAsync(indexedConsent.Consent.Subject, indexedConsent.Consent.ClientId);
                 }
             }
-            var results = _store.LoadAllAsync(SubjectB).Result;
+            var results = await _store.LoadAllAsync(SubjectB);
             Assert.Equal(
                 indexedConsents
                     .Where(x=> x.Index%2 != 0)

@@ -15,6 +15,7 @@
  */
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Thinktecture.IdentityServer.Core.Models;
 using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
@@ -32,23 +33,23 @@ namespace Core.MongoDb.Tests
         private IReadOnlyList<RefreshToken> _subjectBTokens;
         
         [Fact]
-        public void RemovedTokenShouldNotBePresent()
+        public async Task RemovedTokenShouldNotBePresent()
         {
-            _store.RemoveAsync(RemovedKey).Wait();
-            Assert.Null(_store.GetAsync(RemovedKey).Result);
+            await _store.RemoveAsync(RemovedKey);
+            Assert.Null(await _store.GetAsync(RemovedKey));
         }
 
         [Fact]
-        public void NotRemovedKeyShouldBePresent()
+        public async Task NotRemovedKeyShouldBePresent()
         {
-            _store.RemoveAsync(RemovedKey).Wait();
-            Assert.NotNull(_store.GetAsync(NotRemovedKey).Result);
+            await _store.RemoveAsync(RemovedKey);
+            Assert.NotNull(await _store.GetAsync(NotRemovedKey));
         }
 
         [Fact]
-        public void GetAllBySubjectShouldReturnExpectedTokens()
+        public async Task GetAllBySubjectShouldReturnExpectedTokens()
         {
-            var result = _store.GetAllAsync(SubjectB).Result.ToArray();
+            var result = await _store.GetAllAsync(SubjectB);
             Assert.Equal(
                 _subjectBTokens
                     .OrderBy(LifeTimeOrdering)
@@ -62,10 +63,10 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void RevokedTokensShouldNotBeReturned()
+        public async Task RevokedTokensShouldNotBeReturned()
         {
-            _store.RevokeAsync(SubjectA, "Client0").Wait();
-            var result = _store.GetAllAsync(SubjectA).Result.ToArray();
+            await _store.RevokeAsync(SubjectA, "Client0");
+            var result = await _store.GetAllAsync(SubjectA);
             Assert.Equal(
                 _subjectATokens
                     .Where(x=>x.ClientId != "Client0")
@@ -80,10 +81,10 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void NonRevokedTokensShouldBeReturned()
+        public async Task NonRevokedTokensShouldBeReturned()
         {
-            _store.RevokeAsync(SubjectA, "Client0").Wait();
-            var result = _store.GetAllAsync(SubjectA).Result.ToArray();
+            await _store.RevokeAsync(SubjectA, "Client0");
+            var result = (await _store.GetAllAsync(SubjectA)).ToArray();
             Assert.Equal(
                 _subjectATokens
                     .Where(x => x.ClientId == "Client1")
@@ -105,8 +106,8 @@ namespace Core.MongoDb.Tests
             : base(data)
         {
             _store = Factory.Resolve<IRefreshTokenStore>();
-            _store.StoreAsync(NotRemovedKey, TestData.RefreshToken());
-            _store.StoreAsync(RemovedKey, TestData.RefreshToken());
+            _store.StoreAsync(NotRemovedKey, TestData.RefreshToken()).Wait();
+            _store.StoreAsync(RemovedKey, TestData.RefreshToken()).Wait();
             var subjectATokens = new List<RefreshToken>();
             var subjectBTokens = new List<RefreshToken>();
             for (int i = 0; i < 10; i++)

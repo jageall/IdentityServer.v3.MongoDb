@@ -120,7 +120,7 @@ namespace Core.MongoDb.Tests
             
             var key = GetType().Name;
             _expected = TestData.Token();
-            store.StoreAsync(key, TestData.Token());
+            store.StoreAsync(key, TestData.Token()).Wait();
             _actual = store.GetAsync(key).Result;
         }
     }

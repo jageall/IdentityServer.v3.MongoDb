@@ -162,7 +162,7 @@ namespace Core.MongoDb.Tests
             return ClientAllProperties();
         }
 
-        private static IEnumerable<Scope> Scopes()
+        public static IEnumerable<Scope> Scopes()
         {
             yield return ScopeAllProperties();
             yield return ScopeMandatoryProperties();
