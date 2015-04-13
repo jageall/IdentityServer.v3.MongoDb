@@ -15,6 +15,7 @@
  */
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Thinktecture.IdentityServer.Core.Services;
 using Xunit;
 
@@ -27,9 +28,9 @@ namespace Core.MongoDb.Tests
         private IScopeStore _scopeStore;
 
         [Fact]
-        public void ShouldContainRequestedScopeNames()
+        public async Task ShouldContainRequestedScopeNames()
         {
-            var result = _scopeStore.FindScopesAsync(_evenScopeNames).Result;
+            var result = (await _scopeStore.FindScopesAsync(_evenScopeNames)).ToArray();
             foreach (var evenScopeName in _evenScopeNames)
             {
                 Assert.Contains(evenScopeName, result.Select(x => x.Name));
@@ -37,9 +38,9 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void ShouldNotContainScopeNamesThatWereNotRequested()
+        public async Task ShouldNotContainScopeNamesThatWereNotRequested()
         {
-            var result = _scopeStore.FindScopesAsync(_evenScopeNames).Result;
+            var result = (await _scopeStore.FindScopesAsync(_evenScopeNames)).ToArray();
             foreach (var oddScopeName in _oddScopeNames)
             {
                 Assert.DoesNotContain(oddScopeName, result.Select(x=>x.Name));
@@ -48,9 +49,9 @@ namespace Core.MongoDb.Tests
         }
 
         [Fact]
-        public void ShouldOnlyGetPublicScopes()
+        public async Task ShouldOnlyGetPublicScopes()
         {
-            var result = _scopeStore.GetScopesAsync(publicOnly: true).Result;
+            var result = (await _scopeStore.GetScopesAsync(publicOnly: true)).ToArray();
             foreach (var evenScopeName in _evenScopeNames)
             {
                 Assert.DoesNotContain(evenScopeName, result.Select(x => x.Name));
@@ -62,10 +63,10 @@ namespace Core.MongoDb.Tests
             }
         }
         [Fact]
-        public void ShouldGetAllScopes()
+        public async Task ShouldGetAllScopes()
         {
 
-            var result = _scopeStore.GetScopesAsync(publicOnly: false).Result;
+            var result = (await _scopeStore.GetScopesAsync(publicOnly: false)).ToArray();
             foreach (var evenScopeName in _evenScopeNames)
             {
                 Assert.Contains(evenScopeName, result.Select(x => x.Name));
