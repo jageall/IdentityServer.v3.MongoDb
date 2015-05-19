@@ -55,9 +55,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Thinktecture.IdentityServer3, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Thinktecture.IdentityServer3, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Thinktecture.IdentityServer3.1.4.1\lib\net45\Thinktecture.IdentityServer3.dll</HintPath>
+      <HintPath>..\packages\Thinktecture.IdentityServer3.1.6.1\lib\net45\Thinktecture.IdentityServer3.dll</HintPath>
     </Reference>
     <Reference Include="xunit.assert">
       <HintPath>..\packages\xunit.assert.2.0.0\lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.assert.dll</HintPath>
