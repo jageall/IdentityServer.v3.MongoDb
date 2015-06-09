@@ -7,6 +7,37 @@ This package supports the IdentityServer functionality. For administrative funct
 ## Build Status ##
 [![Build status](https://ci.appveyor.com/api/projects/status/gvfsmakv08fmxo68?svg=true)](https://ci.appveyor.com/project/jageall/identityserver-v3-mongodb)
 
+## Usage ##
+
+    public class Startup
+    {
+        public void Configuration(IAppBuilder app)
+        {
+            // Register your IUserService implementation
+            var userService = new Registration<IUserService>(/*...*/);
+
+            // Create and modify default settings
+            var settings = IdentityServerMongoDb.StoreSettings.DefaultSettings();
+            settings.ConnectionString = "mongodb://localhost";
+            
+            // Create the MongoDB factory
+            var factory = new IdentityServerMongoDb.ServiceFactory(userService, settings);
+
+            // Overwrite services, e.g. with in memory stores
+            factory.Register(new Registration<IEnumerable<Client>>(MyClients.Get()));
+            factory.ClientStore = new Registration<IClientStore>(typeof(InMemoryClientStore));
+            
+            var options = new IdentityServerOptions()
+            {
+                Factory = factory,                
+            };
+            
+            app.Map("/idsrv", idServer =>
+            {
+                idServer.UseIdentityServer(options);
+            });
+        }
+
 ## Credits ##
 MongoDb Persistence for Thinktecture IdentityServer is built using the following great open source projects:
 - [Thinktecture Identity Server v3](https://github.com/identityserver/identityserver3)
