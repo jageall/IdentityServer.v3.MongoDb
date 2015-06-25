@@ -1,4 +1,4 @@
-version: 1.6.0.{build}
+version: 1.6.1.{build}
 
 assembly_info:
   patch: true
@@ -18,10 +18,10 @@ before_build:
 build:
   project:  Source\IdentityServer.v3.MongoDb.sln
 
-after_test: 
+after_test:
   - ps: .\scripts\packagenuget.ps1
 
-artifacts: 
+artifacts:
   - path: '*.nupkg'
 
 deploy:
@@ -29,6 +29,6 @@ deploy:
     on:
       appveyor_repo_tag: true
     skip_symbols: false
-    api_key: 
+    api_key:
       secure: k1FLU1hRZEYRxDnZ8wS99CqjVgzr2nVFLnwhpYZ0ChTSDEJ5L5yJT7DgErg7vlG/
     artifact: /.*\.nupkg/
