@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
-namespace IdentityServer.Core.MongoDb
+namespace IdentityServer3.MongoDb
 {
     class ScopeStore : MongoDbStore, IScopeStore
     {

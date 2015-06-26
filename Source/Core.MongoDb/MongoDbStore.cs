@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace IdentityServer.Core.MongoDb
+namespace IdentityServer3.MongoDb
 {
     abstract class MongoDbStore
     {

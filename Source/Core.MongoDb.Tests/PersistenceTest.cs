@@ -16,10 +16,10 @@
 
 using System.Diagnostics;
 using System.Threading.Tasks;
-using IdentityServer.Core.MongoDb;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using IdentityServer3.Core.Models;
+using IdentityServer3.MongoDb;
 
 namespace Core.MongoDb.Tests
 {

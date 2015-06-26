@@ -41,16 +41,16 @@
 // If you copied this file manually, you need to change all "YourRootNameSpace" so not to clash with other libraries
 // that use LibLog
 #if LIBLOG_PROVIDERS_ONLY
-namespace IdentityServer.Core.MongoDb.LibLog
+namespace IdentityServer3.MongoDb.LibLog
 #else
-namespace IdentityServer.Core.MongoDb.Logging
+namespace IdentityServer3.MongoDb.Logging
 #endif
 {
     using System.Collections.Generic;
 #if LIBLOG_PROVIDERS_ONLY
     using IdentityServer.Core.MongoDb.LibLog.LogProviders;
 #else
-    using IdentityServer.Core.MongoDb.Logging.LogProviders;
+    using IdentityServer3.MongoDb.Logging.LogProviders;
 #endif
     using System;
 #if !LIBLOG_PROVIDERS_ONLY
@@ -714,9 +714,9 @@ namespace IdentityServer.Core.MongoDb.Logging
 }
 
 #if LIBLOG_PROVIDERS_ONLY
-namespace IdentityServer.Core.MongoDb.LibLog.LogProviders
+namespace IdentityServer3.MongoDb.LibLog.LogProviders
 #else
-namespace IdentityServer.Core.MongoDb.Logging.LogProviders
+namespace IdentityServer3.MongoDb.Logging.LogProviders
 #endif
 {
     using System;

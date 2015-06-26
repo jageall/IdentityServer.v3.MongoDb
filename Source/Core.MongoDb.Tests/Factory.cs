@@ -15,9 +15,9 @@
  */
 using System;
 using Autofac;
-using IdentityServer.Core.MongoDb;
 using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Services;
+using IdentityServer3.MongoDb;
 
 namespace Core.MongoDb.Tests
 {

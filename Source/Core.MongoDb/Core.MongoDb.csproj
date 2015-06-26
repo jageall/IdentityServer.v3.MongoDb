@@ -7,8 +7,8 @@
     <ProjectGuid>{BA8C974B-8CE8-4220-ACFB-6B0F0A14798D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IdentityServer.Core.MongoDb</RootNamespace>
-    <AssemblyName>IdentityServer.Core.MongoDb</AssemblyName>
+    <RootNamespace>IdentityServer3.MongoDb</RootNamespace>
+    <AssemblyName>IdentityServer3.MongoDb</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

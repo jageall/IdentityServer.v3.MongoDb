@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using MongoDB.Bson;
 using IdentityServer3.Core.Models;
+using MongoDB.Bson;
 
-namespace IdentityServer.Core.MongoDb
+namespace IdentityServer3.MongoDb
 {
     class ClientSerializer
     {

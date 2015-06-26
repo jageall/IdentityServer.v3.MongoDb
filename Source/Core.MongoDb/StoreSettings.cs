@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace IdentityServer.Core.MongoDb
+namespace IdentityServer3.MongoDb
 {
     public class StoreSettings
     {
