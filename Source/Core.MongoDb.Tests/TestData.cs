@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using Thinktecture.IdentityServer.Core.Models;
+using IdentityServer3.Core.Models;
 
 namespace Core.MongoDb.Tests
 {
@@ -38,13 +38,13 @@ namespace Core.MongoDb.Tests
                 AuthorizationCodeLifetime = 30,
                 ClientId = "123",
                 ClientName = "TEST",
-                ClientSecrets = new List<ClientSecret>()
+                ClientSecrets = new List<Secret>()
                 {
-                    new ClientSecret("secret","secret", WellKnownTime){ClientSecretType = "secret type"},
-                    new ClientSecret("newsecret"),
+                    new Secret("secret","secret", WellKnownTime){Type = "secret type"},
+                    new Secret("newsecret"),
                 },
                 ClientUri = "clientUri",
-                CustomGrantTypeRestrictions = new List<string>()
+                AllowedCustomGrantTypes = new List<string>()
                 {
                     "Restriction1",
                     "Restriction2"
@@ -59,11 +59,11 @@ namespace Core.MongoDb.Tests
                 RefreshTokenExpiration = TokenExpiration.Sliding,
                 RefreshTokenUsage = TokenUsage.ReUse,
                 RequireConsent = true,
-                ScopeRestrictions = { "restriction1", "restriction2", "restriction3" },
+                AllowedScopes = { "restriction1", "restriction2", "restriction3" },
                 SlidingRefreshTokenLifetime = 50,
                 IncludeJwtId = true,
                 PrefixClientClaims = true,
-                Claims = new List<Claim>()
+                Claims = new List<Claim>
                 {
                     new Claim("client1", "value1"),
                     new Claim("client2", "value2"),
@@ -71,7 +71,9 @@ namespace Core.MongoDb.Tests
                 },
                 AllowClientCredentialsOnly = true,
                 UpdateAccessTokenClaimsOnRefresh = true,
-                AllowedCorsOrigins = new List<string> { "CorsOrigin1", "CorsOrigin2", "CorsOrigin3", }
+                AllowedCorsOrigins = new List<string> { "CorsOrigin1", "CorsOrigin2", "CorsOrigin3", },
+                AllowAccessToAllScopes = true,
+                AllowAccessToAllCustomGrantTypes = true
             };
         }
 

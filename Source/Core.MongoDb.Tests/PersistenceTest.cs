@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+using System.Diagnostics;
 using System.Threading.Tasks;
 using IdentityServer.Core.MongoDb;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Thinktecture.IdentityServer.Core.Models;
+using IdentityServer3.Core.Models;
 
 namespace Core.MongoDb.Tests
 {
@@ -46,6 +48,7 @@ namespace Core.MongoDb.Tests
                 doc,
                 PerformUpsert
                 ).ConfigureAwait(false);
+            Debug.WriteLine(result);
         }
 
         protected async Task SaveAsync(Client client)
@@ -57,6 +60,7 @@ namespace Core.MongoDb.Tests
                 doc,
                 PerformUpsert
                 ).ConfigureAwait(false);
+            Debug.WriteLine(result);
         }
     }
 }

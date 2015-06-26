@@ -18,8 +18,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Thinktecture.IdentityServer.Core.Models;
-using Thinktecture.IdentityServer.Core.Services;
+using IdentityServer3.Core.Models;
+using IdentityServer3.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {

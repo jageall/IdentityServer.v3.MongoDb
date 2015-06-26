@@ -17,8 +17,8 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Thinktecture.IdentityServer.Core.Configuration;
-using Thinktecture.IdentityServer.Core.Services;
+using IdentityServer3.Core.Configuration;
+using IdentityServer3.Core.Services;
 
 namespace IdentityServer.Core.MongoDb
 {
