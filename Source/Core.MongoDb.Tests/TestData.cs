@@ -174,6 +174,17 @@ namespace Core.MongoDb.Tests
             };
         }
 
+        private static List<Claim> ClientCredentialClaims(string subjectId)
+        {
+            return new List<Claim>
+            {
+                new Claim("client_id", subjectId ?? "foo"),
+                new Claim("scope", "scope1"),
+                new Claim("scope", "scope2"),
+                new Claim("guid", "561E12FE7BC24F5E8CAC029B91E8ADE8"),
+            };
+        }
+
         public static RefreshToken RefreshToken(string subject = null)
         {
             return new RefreshToken
@@ -191,6 +202,21 @@ namespace Core.MongoDb.Tests
             {
                 Audience = "audience",
                 Claims = Claims(subject),
+                Client = ClientAllProperties(),
+                CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
+                Issuer = "issuer",
+                Lifetime = 200,
+                Type = "tokenType",
+                Version = 10
+            };
+        }
+
+        public static Token ClientCredentialsToken(string client = null)
+        {
+            return new Token
+            {
+                Audience = "audience",
+                Claims = ClientCredentialClaims(client),
                 Client = ClientAllProperties(),
                 CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 Issuer = "issuer",

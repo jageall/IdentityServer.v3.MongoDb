@@ -55,4 +55,37 @@ namespace Core.MongoDb.Tests
             _actual = await store.GetAsync(key);
         }
     }
+
+    public class TokenHandleClientCredentialPersistenceTests : PersistenceTest, IClassFixture<PersistenceTestFixture>
+    {
+        private Token _actual;
+        private readonly Token _expected;
+        private readonly Task _setup;
+
+        [Fact]
+        public async Task CheckAll()
+        {
+            await _setup;
+            var serializer = new JsonSerializer() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+            var expected = JObject.FromObject(_expected, serializer).ToString();
+            var actual = JObject.FromObject(_actual, serializer).ToString();
+            Assert.Equal(expected, actual);
+        }
+
+        public TokenHandleClientCredentialPersistenceTests(PersistenceTestFixture data)
+            : base(data)
+        {
+            _expected = TestData.ClientCredentialsToken();
+            _setup = Setup();
+        }
+
+        private async Task Setup()
+        {
+            var store = Factory.Resolve<ITokenHandleStore>();
+            await SaveAsync(TestData.ClientAllProperties());
+            var key = GetType().Name;
+            await store.StoreAsync(key, TestData.ClientCredentialsToken());
+            _actual = await store.GetAsync(key);
+        }
+    }
 }
