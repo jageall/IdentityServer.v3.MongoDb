@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using IdentityServer.Core.MongoDb;
+
 using System;
+using IdentityServer3.MongoDb;
 using Xunit;
 
 namespace Core.MongoDb.Tests

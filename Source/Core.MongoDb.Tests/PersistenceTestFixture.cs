@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-using IdentityServer.Core.MongoDb;
+using IdentityServer3.MongoDb;
 using MongoDB.Driver;
 
 namespace Core.MongoDb.Tests

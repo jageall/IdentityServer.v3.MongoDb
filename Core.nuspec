@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 <package>
   <metadata>
-    <id>IdentityServer.v3.MongoDb</id>
-    <title>IdentityServer v3 Mongo Persistence</title>
+    <id>IdentityServer3.MongoDb</id>
+    <title>IdentityServer3 MongoDB Persistence</title>
     <version>$version$</version>
     <authors>James Geall</authors>
     <owners>James Geall</owners>
-    <projectUrl>https://github.com/jageall/IdentityServer.v3.MongoDb</projectUrl>
+    <projectUrl>https://github.com/jageall/IdentityServer3.MongoDb</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>MongoDb persistence for Thinktecture's Identityserver</description>
-    <copyright>Copyright 2014</copyright>
+    <description>MongoDb persistence for Identityserver3</description>
+    <copyright>Copyright 2014, 2015</copyright>
     <tags>IdentityServer MongoDb</tags>
     <dependencies>
       <dependency id="Owin" version="1.0" />
-      <dependency id="Thinktecture.IdentityServer3"
-                  version="1.6.2" />
+      <dependency id="IdentityServer3"
+                  version="2.0.0" />
     </dependencies>
   </metadata>
   <files>
-      <file src="Out\IdentityServer.Core.MongoDb.dll" target="lib\net45"/>
+      <file src="Out\IdentityServer3.MongoDb.dll" target="lib\net45"/>
     </files>
 </package>

@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using IdentityServer3.Core.Models;
 using MongoDB.Bson;
-using Thinktecture.IdentityServer.Core.Models;
 
-namespace IdentityServer.Core.MongoDb
+namespace IdentityServer3.MongoDb
 {
     class ClientSerializer
     {
@@ -27,7 +29,8 @@ namespace IdentityServer.Core.MongoDb
         private static readonly ClaimSetSerializer ClaimSetSerializer = new ClaimSetSerializer();
         private static readonly Dictionary<int, Func<BsonDocument, Client>> Deserializers = new Dictionary<int, Func<BsonDocument, Client>>
         {
-            {1, Version1}
+            {1, Version1},
+            {2, Version2}
         };
 
         private static readonly IEnumerable<string> EmptyStringSet = new string[] {};
@@ -36,7 +39,7 @@ namespace IdentityServer.Core.MongoDb
         {
             var doc = new BsonDocument();
             doc["_id"] = client.ClientId;
-            doc["_version"] = 1;
+            doc["_version"] = 2;
             doc["absoluteRefreshTokenLifetime"] = client.AbsoluteRefreshTokenLifetime;
             doc["accessTokenLifetime"] = client.AccessTokenLifetime;
             doc["accessTokenType"] = client.AccessTokenType.ToString();
@@ -51,7 +54,7 @@ namespace IdentityServer.Core.MongoDb
                 secret.SetIfNotNull("description", clientSecret.Description);
                 secret.SetIfNotNull("value", clientSecret.Value);
                 secret.SetIfNotNull("expiration", clientSecret.Expiration);
-                secret.SetIfNotNull("type", clientSecret.ClientSecretType);
+                secret.SetIfNotNull("type", clientSecret.Type);
                 secrets.Add(secret);
             }
             doc["clientSecrets"] = secrets;
@@ -84,22 +87,26 @@ namespace IdentityServer.Core.MongoDb
             doc["refreshTokenUsage"] = client.RefreshTokenUsage.ToString();
             doc["requireConsent"] = client.RequireConsent;
             var scopeRestrictions = new BsonArray();
-            foreach (string restriction in client.ScopeRestrictions)
+            
+            foreach (string restriction in client.AllowedScopes)
             {
                 scopeRestrictions.Add(restriction);
             }
-            doc["scopeRestrictions"] = scopeRestrictions;
+            doc["allowedScopes"] = scopeRestrictions;
             doc["slidingRefreshTokenLifetime"] = client.SlidingRefreshTokenLifetime;
             doc["includeJwtId"] = client.IncludeJwtId;
-            ClaimSetSerializer.Serialize(client.Claims, doc);
+            var clientClaims = new BsonDocument();
+            doc["clientClaims"] = clientClaims;
+            ClaimSetSerializer.Serialize(client.Claims, clientClaims);
             doc["alwaysSendClientClaims"] = client.AlwaysSendClientClaims;
             doc["PrefixClientClaims"] = client.PrefixClientClaims;
             var grantRestrictions = new BsonArray();
-            foreach (string restriction in client.CustomGrantTypeRestrictions)
+            
+            foreach (string restriction in client.AllowedCustomGrantTypes)
             {
                 grantRestrictions.Add(restriction);
             }
-            doc["customGrantRestrictions"] = grantRestrictions;
+            doc["allowedCustomGrantTypes"] = grantRestrictions;
             doc["allowClientCredentialsOnly"] = client.AllowClientCredentialsOnly;
             doc["updateAccessTokenClaimsOnRefresh"] = client.UpdateAccessTokenClaimsOnRefresh;
             doc["updateAccessTokenClaimsOnRefresh"] = client.UpdateAccessTokenClaimsOnRefresh;
@@ -110,6 +117,9 @@ namespace IdentityServer.Core.MongoDb
                     allowedCorsOrigins.Add(origin);
             }
             doc["allowedCorsOrigins"] = allowedCorsOrigins;
+            doc["allowAccessToAllScopes"] = client.AllowAccessToAllScopes;
+            doc["allowAccessToAllCustomGrantTypes"] = client.AllowAccessToAllCustomGrantTypes;
+            doc["allowClientCredentialsOnly"] = client.AllowClientCredentialsOnly;
             return doc;
         }
 
@@ -125,6 +135,39 @@ namespace IdentityServer.Core.MongoDb
         }
 
         private static Client Version1(BsonDocument doc)
+        {
+            var client = Unchanged(doc);
+            
+            //CHANGE
+            client.AllowedScopes.AddRange(doc.GetValueOrDefault("scopeRestrictions", EmptyStringSet));
+            //CHANGE
+            client.AllowedCustomGrantTypes.AddRange(doc.GetValueOrDefault("customGrantRestrictions", EmptyStringSet));
+
+            client.Claims.AddRange(ClaimSetSerializer.Deserialize(doc));
+
+            return client;
+        }
+
+        private static Client Version2(BsonDocument doc)
+        {
+            var client = Unchanged(doc);
+            //CHANGE
+            client.AllowedScopes.AddRange(doc.GetValueOrDefault("allowedScopes", EmptyStringSet));
+            //CHANGE
+            client.AllowedCustomGrantTypes.AddRange(doc.GetValueOrDefault("allowedCustomGrantTypes", EmptyStringSet));
+            client.AllowAccessToAllScopes = doc.GetValueOrDefault("allowAccessToAllScopes",
+                client.AllowAccessToAllScopes);
+            client.AllowAccessToAllCustomGrantTypes = doc.GetValueOrDefault("allowAccessToAllCustomGrantTypes",
+                client.AllowAccessToAllCustomGrantTypes);
+            //client.AllowClientCredentialsOnly = doc.GetValueOrDefault("allowClientCredentialsOnly",
+            //    client.AllowClientCredentialsOnly);
+
+            client.Claims.AddRange(doc.GetNestedValueOrDefault("clientClaims", ClaimSetSerializer.Deserialize,
+                new Claim[] {}));
+            return client;
+        }
+
+        private static Client Unchanged(BsonDocument doc)
         {
             var client = new Client
             {
@@ -147,16 +190,16 @@ namespace IdentityServer.Core.MongoDb
                 AuthorizationCodeLifetime = doc.GetValueOrDefault("authorizationCodeLifetime",
                     DefaultValues.AuthorizationCodeLifetime),
                 ClientSecrets = doc.GetValueOrDefault(
-                    "clientSecrets",
-                    d =>
-                    {
-                        var value = d.GetValueOrDefault("value", "");
-                        var description = d.GetValueOrDefault("description", (string) null);
-                        var expiration = d.GetValueOrDefault("expiration", (DateTimeOffset?) null);
-                        var type = d.GetValueOrDefault("type", (string) null);
-                        return new ClientSecret(value, description, expiration) {ClientSecretType = type};
-                    }
-                    , new ClientSecret[] {}).ToList(),
+                "clientSecrets",
+                d =>
+                {
+                    var value = d.GetValueOrDefault("value", "");
+                    var description = d.GetValueOrDefault("description", (string)null);
+                    var expiration = d.GetValueOrDefault("expiration", (DateTimeOffset?)null);
+                    var type = d.GetValueOrDefault("type", (string)null);
+                    return new Secret(value, description, expiration) { Type = type };
+                }
+                , new Secret[] { }).ToList(),
                 ClientUri = doc.GetValueOrDefault(
                     "clientUri",
                     DefaultValues.ClientUri),
@@ -192,15 +235,8 @@ namespace IdentityServer.Core.MongoDb
                 PrefixClientClaims = doc.GetValueOrDefault("PrefixClientClaims", DefaultValues.PrefixClientClaims)
             };
 
-
-            client.ScopeRestrictions.AddRange(doc.GetValueOrDefault("scopeRestrictions",EmptyStringSet));
-
-            client.CustomGrantTypeRestrictions.AddRange(doc.GetValueOrDefault("customGrantRestrictions", EmptyStringSet));
-
-            client.Claims.AddRange(ClaimSetSerializer.Deserialize(doc));
-
             client.PostLogoutRedirectUris.AddRange(
-                doc.GetValueOrDefault("postLogoutRedirectUris",EmptyStringSet));
+                doc.GetValueOrDefault("postLogoutRedirectUris", EmptyStringSet));
 
             client.RedirectUris.AddRange(doc.GetValueOrDefault("redirectUris", EmptyStringSet));
 

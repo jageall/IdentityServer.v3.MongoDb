@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-using System;
+using IdentityServer3.Core.Configuration;
+using IdentityServer3.Core.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Thinktecture.IdentityServer.Core.Configuration;
-using Thinktecture.IdentityServer.Core.Services;
 
-namespace IdentityServer.Core.MongoDb
+namespace IdentityServer3.MongoDb
 {
     public class ServiceFactory : IdentityServerServiceFactory
     {
