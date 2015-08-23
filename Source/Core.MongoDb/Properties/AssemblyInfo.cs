@@ -55,5 +55,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 [assembly: InternalsVisibleTo("Core.MongoDb.Tests")]
-[assembly: InternalsVisibleTo("IdentityServer.v3.Admin.MongoDb")]
-[assembly: InternalsVisibleTo("IdentityServer.MongoDb.AdminModule")]
+[assembly: InternalsVisibleTo("IdentityServer3.Admin.MongoDb")]
+[assembly: InternalsVisibleTo("IdentityServer3.Admin.MongoDb.Powershell")]
