@@ -24,6 +24,7 @@ namespace IdentityServer3.MongoDb
 {
     internal class ClaimSetSerializer
     {
+        static readonly Claim DefaultClaimValues = new Claim("do not use", "do not use");
         static readonly IReadOnlyDictionary<int, Func<BsonDocument, IEnumerable<Claim>>> Deserializers
             = new Dictionary<int, Func<BsonDocument, IEnumerable<Claim>>>
             {
@@ -45,6 +46,8 @@ namespace IdentityServer3.MongoDb
                 var c = new BsonDocument();
                 c["type"] = claim.Type;
                 c["value"] = claim.Value;
+                if(claim.ValueType != DefaultClaimValues.ValueType)
+                    c["valueType"] = claim.ValueType;
                 array.Add(c);
             }
             doc["claims"] = array;
@@ -65,7 +68,10 @@ namespace IdentityServer3.MongoDb
         {
             return doc.GetValueOrDefault(
                     "claims",
-                    c => new Claim(c["type"].AsString, c["value"].AsString, c.GetValueOrDefault("valueType", (string) null)),
+                    c => new Claim(
+                        c["type"].AsString,
+                        c["value"].AsString, 
+                        c.GetValueOrDefault("valueType", (string) null)?? DefaultClaimValues.ValueType),
                     new Claim[] { }).ToList();
         }
     }
