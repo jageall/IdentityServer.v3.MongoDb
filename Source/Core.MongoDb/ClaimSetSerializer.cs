@@ -65,7 +65,7 @@ namespace IdentityServer3.MongoDb
         {
             return doc.GetValueOrDefault(
                     "claims",
-                    c => new Claim(c["type"].AsString, c["value"].AsString),
+                    c => new Claim(c["type"].AsString, c["value"].AsString, c.GetValueOrDefault("valueType", (string) null)),
                     new Claim[] { }).ToList();
         }
     }
