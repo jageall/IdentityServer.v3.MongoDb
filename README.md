@@ -2,7 +2,7 @@
 
 **Current status: RC1**
 
-This package supports the IdentityServer functionality. For administrative functions see the [admin project](https://github.com/jageall/IdentityServer3.Admin.MongoDb). There is also a [powershell module](https://github.com/jageall/IdentityServer3.AdminModule) available.
+This package supports the IdentityServer functionality. For administrative functions see the [admin project](https://github.com/jageall/IdentityServer.v3.Admin.MongoDb). There is also a [powershell module](https://github.com/jageall/IdentityServer.v3.AdminModule) available.
 
 ## Build Status ##
 [![Build status](https://ci.appveyor.com/api/projects/status/gvfsmakv08fmxo68?svg=true)](https://ci.appveyor.com/project/jageall/identityserver-v3-mongodb)
