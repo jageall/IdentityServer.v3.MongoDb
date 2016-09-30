@@ -14,14 +14,14 @@ This package supports the IdentityServer functionality. For administrative funct
         public void Configuration(IAppBuilder app)
         {
             // Register your IUserService implementation
-            var userService = new Registration<IUserService>(/*...*/);
+            var userService = new Registration<IUserService>(/*Insert your user service here*/);
 
             // Create and modify default settings
-            var settings = IdentityServerMongoDb.StoreSettings.DefaultSettings();
+            var settings = IdentityServer.MongoDb.StoreSettings.DefaultSettings();
             settings.ConnectionString = "mongodb://localhost";
 
             // Create the MongoDB factory
-            var factory = new IdentityServerMongoDb.ServiceFactory(userService, settings);
+            var factory = new IdentityServer.MongoDb.ServiceFactory(userService, settings);
 
             // Overwrite services, e.g. with in memory stores
             factory.Register(new Registration<IEnumerable<Client>>(MyClients.Get()));
