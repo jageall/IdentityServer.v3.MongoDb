@@ -197,7 +197,8 @@ namespace Core.MongoDb.Tests
                 AccessToken = Token(subject),
                 CreationTime = new DateTimeOffset(2000, 1, 1, 1, 1, 1, 0, TimeSpan.Zero),
                 LifeTime = 100,
-                Version = 10
+                Version = 10,
+                Subject = new ClaimsPrincipal(new ClaimsIdentity(Claims(subject)))
             };
         }
 
