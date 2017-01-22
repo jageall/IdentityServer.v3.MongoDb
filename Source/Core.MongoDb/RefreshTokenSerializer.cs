@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
@@ -24,10 +25,12 @@ namespace IdentityServer3.MongoDb
     class RefreshTokenSerializer
     {
         private readonly TokenSerializer _tokenSerializer;
+        private readonly ClaimSetSerializer _subjectSerializer;
 
         public RefreshTokenSerializer(IClientStore clientStore)
         {
             _tokenSerializer = new TokenSerializer(clientStore);
+            _subjectSerializer = new ClaimSetSerializer();
         }
         public BsonDocument Serialize(string key, RefreshToken value)
         {
@@ -43,6 +46,9 @@ namespace IdentityServer3.MongoDb
             doc["creationTime"] = value.CreationTime.ToBsonDateTime();
             doc["lifetime"] = value.LifeTime;
             doc["version"] = value.Version;
+
+            var subjectClaims = _subjectSerializer.Serialize(value.Subject.Claims);
+            doc["_subjectClaims"] = subjectClaims;
             return doc;
         }
 
@@ -58,6 +64,9 @@ namespace IdentityServer3.MongoDb
             token.CreationTime = doc.GetValueOrDefault("creationTime", token.CreationTime);
             token.LifeTime = doc.GetValueOrDefault("lifetime", token.LifeTime);
             token.Version = doc.GetValueOrDefault("version", token.Version);
+            var documentClaims = doc.GetValue("_subjectClaims").AsBsonDocument;
+            var claimsFromSubject = _subjectSerializer.Deserialize(documentClaims);
+            token.Subject = new ClaimsPrincipal(new ClaimsIdentity(claimsFromSubject));
             return token;
         }
     }
