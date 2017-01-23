@@ -27,13 +27,14 @@ namespace IdentityServer3.MongoDb
         static readonly IReadOnlyDictionary<int, Func<BsonDocument, Scope>> Deserializers =
             new Dictionary<int, Func<BsonDocument, Scope>>
             {
-                {1, Version1}
+                {1, Version1},
+                {2, Version2}
             };
         public BsonDocument Serialize(Scope scope)
         {
             var doc = new BsonDocument();
             doc["_id"] = scope.Name;
-            doc["_version"] = 1;
+            doc["_version"] = 2;
             doc.SetIfNotNull("displayName", scope.DisplayName);
             var claims = new BsonArray();
             foreach (ScopeClaim scopeClaim in scope.Claims)
@@ -53,6 +54,18 @@ namespace IdentityServer3.MongoDb
             doc["required"] = scope.Required;
             doc["showInDiscoveryDocument"] = scope.ShowInDiscoveryDocument;
             doc["type"] = scope.Type.ToString();
+            doc["allowUnrestrictedIntrospection"] = scope.AllowUnrestrictedIntrospection;
+            var secrets = new BsonArray();
+            foreach (var secret in scope.ScopeSecrets)
+            {
+                var secretDoc = new BsonDocument();
+                secretDoc["type"] = secret.Type;
+                secretDoc.SetIfNotNull("value", secret.Value);
+                secretDoc.SetIfNotNull("description", secret.Description);
+                secretDoc.SetIfNotNull("expiration", secret.Expiration);
+                secrets.Add(secretDoc);
+            }
+            doc["secrets"] = secrets;
             return doc;
         }
 
@@ -98,6 +111,23 @@ namespace IdentityServer3.MongoDb
             scope.ShowInDiscoveryDocument = doc.GetValueOrDefault("showInDiscoveryDocument",
                 scope.ShowInDiscoveryDocument);
             scope.Type = doc.GetValueOrDefault("type", scope.Type);
+            return scope;
+        }
+        private static readonly Secret DefaultSecretValues = new Secret(); 
+        private static Scope Version2(BsonDocument doc)
+        {
+            var scope = Version1(doc);
+            var secrets =  new List<Secret>(doc.GetValueOrDefault<Secret>("secrets", s =>
+            {
+                var type = s.GetValueOrDefault("type", DefaultSecretValues.Type);
+                var value = s.GetValueOrDefault("value", DefaultSecretValues.Value);
+                var description = s.GetValueOrDefault("description", DefaultSecretValues.Description);
+                var expiration = s.GetValueOrDefault("expiration", DefaultSecretValues.Expiration);
+                return new Secret(value, description, expiration) {Type = type};
+            }, new Secret[] {}));
+            scope.ScopeSecrets = secrets;
+            scope.AllowUnrestrictedIntrospection = doc.GetValueOrDefault("allowUnrestrictedIntrospection",
+                scope.AllowUnrestrictedIntrospection);
             return scope;
         }
     }

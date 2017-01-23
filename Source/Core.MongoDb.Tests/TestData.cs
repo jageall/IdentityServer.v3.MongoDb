@@ -75,6 +75,10 @@ namespace Core.MongoDb.Tests
                 AllowedCorsOrigins = new List<string> { "CorsOrigin1", "CorsOrigin2", "CorsOrigin3", },
                 AllowAccessToAllScopes = true,
                 AllowAccessToAllCustomGrantTypes = true,
+                AllowAccessTokensViaBrowser = false,
+                LogoutSessionRequired = false,
+                RequireSignOutPrompt = false,
+                LogoutUri = "somelogouturi"
             };
         }
 
@@ -106,7 +110,11 @@ namespace Core.MongoDb.Tests
                 IncludeAllClaimsForUser = true,
                 Required = true,
                 ShowInDiscoveryDocument = false,
-                Type = ScopeType.Identity
+                Type = ScopeType.Identity,
+                AllowUnrestrictedIntrospection = true,
+                ScopeSecrets = new List<Secret>() {
+                    new Secret("secret1"),
+                    new Secret("secret2", "description", new DateTimeOffset(2000, 1, 1, 1, 1, 1, 1, TimeSpan.Zero))}
             };
         }
 
@@ -136,7 +144,10 @@ namespace Core.MongoDb.Tests
                 RedirectUri = "uri:redirect",
                 RequestedScopes = Scopes(),
                 Subject = Subject(subjectId),
-                WasConsentShown = true
+                WasConsentShown = true,
+                CodeChallenge = "codeChallenge",
+                CodeChallengeMethod = "challengeMethod",
+                SessionId = "sessionId"
             };
         }
 
@@ -233,7 +244,7 @@ namespace Core.MongoDb.Tests
         }
 
         private static readonly JsonSerializer Serializer = new JsonSerializer { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
-        
+
         public static string ToTestableString<T>(T subject)
         {
             return JObject.FromObject(subject, Serializer).ToString();

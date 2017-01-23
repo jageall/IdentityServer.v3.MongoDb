@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer3.Core.Models;
@@ -25,18 +27,23 @@ namespace IdentityServer3.MongoDb
     class RefreshTokenSerializer
     {
         private readonly TokenSerializer _tokenSerializer;
-        private readonly ClaimSetSerializer _subjectSerializer;
-
+        private readonly ClaimSetSerializer _claimSetSerializer;
+        private static readonly IReadOnlyDictionary<int, Func<BsonDocument, TokenSerializer, ClaimSetSerializer, Task<RefreshToken>>> Deserializers =
+            new Dictionary<int, Func<BsonDocument, TokenSerializer, ClaimSetSerializer, Task<RefreshToken>>>()
+            {
+                {1, Version1 },
+                {2, Version2 }
+            };
         public RefreshTokenSerializer(IClientStore clientStore)
         {
             _tokenSerializer = new TokenSerializer(clientStore);
-            _subjectSerializer = new ClaimSetSerializer();
+            _claimSetSerializer = new ClaimSetSerializer();
         }
         public BsonDocument Serialize(string key, RefreshToken value)
         {
             var doc = new BsonDocument();
             doc["_id"] = key;
-            doc["_version"] = 1;
+            doc["_version"] = 2;
             doc["_expires"] = value.CreationTime.AddSeconds(value.LifeTime).ToBsonDateTime();
             doc["_clientId"] = value.ClientId;
             doc["_subjectId"] = value.SubjectId;
@@ -47,26 +54,51 @@ namespace IdentityServer3.MongoDb
             doc["lifetime"] = value.LifeTime;
             doc["version"] = value.Version;
 
-            var subjectClaims = _subjectSerializer.Serialize(value.Subject.Claims);
-            doc["_subjectClaims"] = subjectClaims;
+            var subjectClaims = _claimSetSerializer.Serialize(value.Subject.Claims);
+            doc["subjectClaims"] = subjectClaims;
             return doc;
         }
 
         public async Task<RefreshToken> Deserialize(BsonDocument doc)
+        {
+            int version = doc["_version"].AsInt32;
+            Func<BsonDocument, TokenSerializer, ClaimSetSerializer, Task<RefreshToken>> deserializer;
+            if (Deserializers.TryGetValue(version, out deserializer))
+            {
+                return await deserializer(doc, _tokenSerializer, _claimSetSerializer);
+            }
+            throw new InvalidOperationException("No deserializers available for client version " + version);
+        }
+
+        static async Task<RefreshToken> Version1(BsonDocument doc, TokenSerializer tokenSerializer, ClaimSetSerializer ignored)
         {
             var token = new RefreshToken();
             BsonValue at;
             if (doc.TryGetValue("accessToken", out at))
             {
 
-               token.AccessToken = await _tokenSerializer.Deserialize(at.AsBsonDocument);
+                token.AccessToken = await tokenSerializer.Deserialize(at.AsBsonDocument);
             }
             token.CreationTime = doc.GetValueOrDefault("creationTime", token.CreationTime);
             token.LifeTime = doc.GetValueOrDefault("lifetime", token.LifeTime);
             token.Version = doc.GetValueOrDefault("version", token.Version);
-            var documentClaims = doc.GetValue("_subjectClaims").AsBsonDocument;
-            var claimsFromSubject = _subjectSerializer.Deserialize(documentClaims);
-            token.Subject = new ClaimsPrincipal(new ClaimsIdentity(claimsFromSubject));
+            token.Subject = new ClaimsPrincipal(new ClaimsIdentity());
+            return token;
+        }
+
+        static async Task<RefreshToken> Version2(BsonDocument doc, TokenSerializer tokenSerializer, ClaimSetSerializer claimsSerializer)
+        {
+            var token = new RefreshToken();
+            BsonValue at;
+            if (doc.TryGetValue("accessToken", out at))
+            {
+                token.AccessToken = await tokenSerializer.Deserialize(at.AsBsonDocument);
+            }
+            token.CreationTime = doc.GetValueOrDefault("creationTime", token.CreationTime);
+            token.LifeTime = doc.GetValueOrDefault("lifetime", token.LifeTime);
+            token.Version = doc.GetValueOrDefault("version", token.Version);
+            var claims = doc.GetNestedValueOrDefault("subjectClaims", claimsSerializer.Deserialize, new Claim[] {});
+            token.Subject = new ClaimsPrincipal(new ClaimsIdentity(claims));
             return token;
         }
     }

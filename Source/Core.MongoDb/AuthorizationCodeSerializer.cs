@@ -33,7 +33,8 @@ namespace IdentityServer3.MongoDb
         private static readonly IReadOnlyDictionary<int, Func<BsonDocument, IClientStore, IScopeStore, Task<AuthorizationCode>>> Deserializers =
             new Dictionary<int, Func<BsonDocument, IClientStore, IScopeStore, Task<AuthorizationCode>>>
             {
-                {1, Version1}
+                {1, Version1},
+                {2, Version2 }
             };
         public AuthorizationCodeSerializer(IClientStore clientStore, IScopeStore scopeStore)
         {
@@ -45,7 +46,7 @@ namespace IdentityServer3.MongoDb
         {
             var doc = new BsonDocument();
             doc["_id"] = key;
-            doc["_version"] = 1;
+            doc["_version"] = 2;
             doc["_clientId"] = code.ClientId;
             doc["_subjectId"] = code.SubjectId;
             doc["_expires"] = code.CreationTime.AddSeconds(code.Client.AuthorizationCodeLifetime).ToBsonDateTime();
@@ -61,6 +62,9 @@ namespace IdentityServer3.MongoDb
                 requestedScopes.Add(scope);
             }
             doc["requestedScopes"] = requestedScopes;
+            doc.SetIfNotNull("codeChallenge", code.CodeChallenge);
+            doc.SetIfNotNull("codeChallengeMethod", code.CodeChallengeMethod);
+            doc.SetIfNotNull("sessionId", code.SessionId);
             return doc;
         }
 
@@ -91,6 +95,18 @@ namespace IdentityServer3.MongoDb
                 return deserializer(doc, _clientStore, _scopeStore);
             }
             throw new InvalidOperationException("No deserializers available for authorization code version " + version);
+        }
+
+        private static async Task<AuthorizationCode> Version2(
+            BsonDocument doc,
+            IClientStore clientStore,
+            IScopeStore scopeStore)
+        {
+            var code = await Version1(doc, clientStore, scopeStore);
+            code.CodeChallenge = doc.GetValueOrDefault("codeChallenge", code.CodeChallenge);
+            code.CodeChallengeMethod = doc.GetValueOrDefault("codeChallengeMethod", code.CodeChallengeMethod);
+            code.SessionId = doc.GetValueOrDefault("sessionId", code.SessionId);
+            return code;
         }
 
         private static async Task<AuthorizationCode> Version1(

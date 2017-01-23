@@ -30,7 +30,8 @@ namespace IdentityServer3.MongoDb
         private static readonly Dictionary<int, Func<BsonDocument, Client>> Deserializers = new Dictionary<int, Func<BsonDocument, Client>>
         {
             {1, Version1},
-            {2, Version2}
+            {2, Version2},
+            {3, Version3 }
         };
 
         private static readonly IEnumerable<string> EmptyStringSet = new string[] {};
@@ -39,7 +40,7 @@ namespace IdentityServer3.MongoDb
         {
             var doc = new BsonDocument();
             doc["_id"] = client.ClientId;
-            doc["_version"] = 2;
+            doc["_version"] = 3;
             doc["absoluteRefreshTokenLifetime"] = client.AbsoluteRefreshTokenLifetime;
             doc["accessTokenLifetime"] = client.AccessTokenLifetime;
             doc["accessTokenType"] = client.AccessTokenType.ToString();
@@ -120,6 +121,11 @@ namespace IdentityServer3.MongoDb
             doc["allowAccessToAllScopes"] = client.AllowAccessToAllScopes;
             doc["allowAccessToAllCustomGrantTypes"] = client.AllowAccessToAllCustomGrantTypes;
             doc["allowClientCredentialsOnly"] = client.AllowClientCredentialsOnly;
+            doc["allowAccessTokensViaBrowser"] = client.AllowAccessTokensViaBrowser;
+            doc["logoutSessionRequired"] = client.LogoutSessionRequired;
+            doc["requireSignOutPrompt"] = client.RequireSignOutPrompt;
+            doc.SetIfNotNull("logoutUri", client.LogoutUri);
+
             return doc;
         }
 
@@ -148,6 +154,16 @@ namespace IdentityServer3.MongoDb
             return client;
         }
 
+        private static Client Version3(BsonDocument doc)
+        {
+            var client = Version2(doc);
+            client.LogoutSessionRequired = doc.GetValueOrDefault("logoutSessionRequired", client.LogoutSessionRequired);
+                client.AllowAccessTokensViaBrowser = doc.GetValueOrDefault("allowAccessTokensViaBrowser", client.AllowAccessTokensViaBrowser);
+            client.RequireSignOutPrompt = doc.GetValueOrDefault("requireSignOutPrompt", client.RequireSignOutPrompt);
+            client.LogoutUri = doc.GetValueOrDefault("logoutUri", client.LogoutUri);
+            return client;
+        }
+
         private static Client Version2(BsonDocument doc)
         {
             var client = Unchanged(doc);
@@ -159,8 +175,6 @@ namespace IdentityServer3.MongoDb
                 client.AllowAccessToAllScopes);
             client.AllowAccessToAllCustomGrantTypes = doc.GetValueOrDefault("allowAccessToAllCustomGrantTypes",
                 client.AllowAccessToAllCustomGrantTypes);
-            //client.AllowClientCredentialsOnly = doc.GetValueOrDefault("allowClientCredentialsOnly",
-            //    client.AllowClientCredentialsOnly);
 
             client.Claims.AddRange(doc.GetNestedValueOrDefault("clientClaims", ClaimSetSerializer.Deserialize,
                 new Claim[] {}));
