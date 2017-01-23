@@ -1,6 +1,8 @@
 #Make sure 7za is installed
 choco install 7zip.commandline
 
+Remove-Item -Recurse -Path $env:temp\mongo\data\
+
 # Create mongodb and data directory
 md $env:temp\mongo\data
 
@@ -12,6 +14,8 @@ Invoke-WebRequest https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus
 
 # Extract mongodb zip
 cmd /c 7za e mongodb.zip
+
+
 
 # Install mongodb as a windows service
 cmd /c $env:temp\mongo\mongod.exe --logpath=$env:temp\mongo\log --dbpath=$env:temp\mongo\data\ --smallfiles --install
