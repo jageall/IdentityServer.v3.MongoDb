@@ -21,7 +21,7 @@ namespace IdentityServer3.MongoDb
 {
     static class Filter
     {
-        public static ObjectFilterDefinition<BsonDocument> ById(object id)
+        public static ObjectFilterDefinition<BsonDocument> ById<T>(T id)
         {
             return new ObjectFilterDefinition<BsonDocument>(new {_id = id});
         }
