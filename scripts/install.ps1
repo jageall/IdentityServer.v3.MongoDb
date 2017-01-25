@@ -1,8 +1,6 @@
 #Make sure 7za is installed
 choco install 7zip.commandline
 
-Remove-Item -Recurse -Path $env:temp\mongo\data\
-
 # Create mongodb and data directory
 md $env:temp\mongo\data
 
