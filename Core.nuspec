@@ -15,6 +15,7 @@
       <dependency id="Owin" version="1.0" />
       <dependency id="IdentityServer3"
                   version="2.6.0" />
+                  <dependency id="System.Runtime.InteropServices.RuntimeInformation" version="4.3.0">
     </dependencies>
   </metadata>
   <files>
